@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BuildCare Pro — Smart Residential Building Management Platform</title>
+<style>
+:root{--p:#6366f1;--pl:#818cf8;--pd:#4f46e5;--p10:rgba(99,102,241,0.1);--p20:rgba(99,102,241,0.2);--s:#8b5cf6;--a:#06b6d4;--a10:rgba(6,182,212,0.1);--ok:#10b981;--ok10:rgba(16,185,129,0.1);--warn:#f59e0b;--warn10:rgba(245,158,11,0.1);--err:#ef4444;--err10:rgba(239,68,68,0.1);--info:#3b82f6;--info10:rgba(59,130,246,0.1);--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--card:rgba(255,255,255,0.055);--cardhov:rgba(255,255,255,0.09);--bdr:rgba(255,255,255,0.1);--bdr2:rgba(255,255,255,0.06);--t:#e6edf3;--tm:#8b949e;--th:#f0f6fc;--sbg:#0a0f1a;--sw:240px;--sw-c:64px;--hh:62px;--r:12px;--r2:8px;--r3:20px;--shadow:0 4px 20px rgba(0,0,0,0.4);--shadow2:0 8px 32px rgba(0,0,0,0.5);--trans:all 0.25s ease;--grad:linear-gradient(135deg,#6366f1,#8b5cf6);--grad2:linear-gradient(135deg,#06b6d4,#6366f1);--grad3:linear-gradient(135deg,#10b981,#06b6d4);--grad4:linear-gradient(135deg,#f59e0b,#ef4444);}
+[data-theme="light"]{--bg:#f0f4ff;--bg2:#e8eeff;--bg3:#dde3ff;--card:rgba(255,255,255,0.85);--cardhov:rgba(255,255,255,0.98);--bdr:rgba(99,102,241,0.15);--bdr2:rgba(99,102,241,0.08);--t:#1e1b4b;--tm:#4c4f6e;--th:#0f0e2a;--sbg:#1e1b4b;--shadow:0 4px 20px rgba(99,102,241,0.12);--shadow2:0 8px 32px rgba(99,102,241,0.18);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:14px;scroll-behavior:smooth;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Inter',sans-serif;background:var(--bg);color:var(--t);line-height:1.6;overflow-x:hidden;min-height:100vh;transition:background .3s,color .3s;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--p);border-radius:10px;}
+a{color:inherit;text-decoration:none;}
+button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit;color:inherit;}
+input,select,textarea{font-family:inherit;font-size:inherit;color:var(--t);outline:none;}
+.app{display:flex;height:100vh;overflow:hidden;}
+.sidebar{width:var(--sw);min-width:var(--sw);background:var(--sbg);border-right:1px solid var(--bdr2);display:flex;flex-direction:column;position:relative;z-index:200;transition:width .25s ease,min-width .25s ease;overflow:hidden;box-shadow:2px 0 20px rgba(0,0,0,0.3);}
+.sidebar.collapsed{width:var(--sw-c);min-width:var(--sw-c);}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--bdr2);min-height:62px;flex-shrink:0;}
+.logo-icon{width:34px;height:34px;background:var(--grad);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;flex-shrink:0;box-shadow:0 4px 12px rgba(99,102,241,0.4);}
+.logo-text{overflow:hidden;white-space:nowrap;}
+.logo-name{display:block;font-size:15px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.3px;}
+.logo-sub{font-size:9px;color:var(--tm);letter-spacing:2px;text-transform:uppercase;}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0;scrollbar-width:none;}
+.sidebar-nav::-webkit-scrollbar{display:none;}
+.nav-section{padding:10px 14px 4px;font-size:9px;font-weight:700;color:var(--tm);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;}
+.collapsed .nav-section{opacity:0;}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 18px;cursor:pointer;transition:var(--trans);position:relative;white-space:nowrap;color:var(--tm);}
+.nav-item:hover{background:var(--p10);color:var(--pl);}
+.nav-item.active{background:var(--p20);color:var(--pl);}
+.nav-item.active::before{content:'';position:absolute;left:0;top:0;height:100%;width:3px;background:var(--grad);border-radius:0 3px 3px 0;}
+.nav-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center;}
+.nav-label{font-size:12.5px;font-weight:500;overflow:hidden;transition:opacity .2s;}
+.collapsed .nav-label,.collapsed .nav-badge-item{opacity:0;pointer-events:none;}
+.nav-badge-item{margin-left:auto;background:var(--err);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;flex-shrink:0;}
+.sidebar-footer{padding:12px 14px;border-top:1px solid var(--bdr2);}
+.building-chip{display:flex;align-items:center;gap:8px;background:var(--p10);border:1px solid var(--p20);border-radius:8px;padding:8px 10px;overflow:hidden;}
+.building-dot{width:8px;height:8px;background:var(--ok);border-radius:50%;flex-shrink:0;box-shadow:0 0 6px var(--ok);animation:pulse 2s infinite;}
+.building-chip-text{font-size:11px;color:var(--pl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+.main-wrapper{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.header{height:var(--hh);min-height:var(--hh);background:var(--bg2);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;z-index:100;backdrop-filter:blur(12px);box-shadow:0 2px 12px var(--shadow);}
+.menu-btn{width:34px;height:34px;border-radius:8px;background:var(--card);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:var(--trans);}
+.menu-btn:hover{background:var(--p10);border-color:var(--p);color:var(--pl);}
+.page-title{font-size:16px;font-weight:700;color:var(--th);white-space:nowrap;flex-shrink:0;}
+.search-box{flex:1;max-width:380px;position:relative;margin:0 auto;}
+.search-box input{width:100%;background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:7px 14px 7px 36px;font-size:12.5px;color:var(--t);transition:var(--trans);}
+.search-box input:focus{border-color:var(--p);background:var(--p10);}
+.search-box input::placeholder{color:var(--tm);}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--tm);pointer-events:none;}
+.header-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.hbtn{width:34px;height:34px;border-radius:8px;background:var(--card);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:15px;transition:var(--trans);position:relative;flex-shrink:0;}
+.hbtn:hover{background:var(--p10);border-color:var(--p);color:var(--pl);}
+.hbtn .nbadge{position:absolute;top:-4px;right:-4px;background:var(--err);color:#fff;font-size:9px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.demo-btn{background:var(--grad4);color:#fff;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px;border:none;white-space:nowrap;box-shadow:0 4px 12px rgba(245,158,11,0.3);transition:var(--trans);flex-shrink:0;}
+.demo-btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(245,158,11,0.4);}
+.user-avatar{width:34px;height:34px;background:var(--grad);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0;}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;}
+.module{display:none;padding:24px;min-height:calc(100vh - var(--hh));animation:fadeIn .3s ease;}
+.module.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.section-title{font-size:20px;font-weight:800;color:var(--th);letter-spacing:-0.3px;}
+.section-title span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.section-sub{font-size:12px;color:var(--tm);margin-top:2px;}
+.section-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px;margin-bottom:22px;}
+.kpi-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;transition:var(--trans);cursor:default;position:relative;overflow:hidden;}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:0;transition:opacity .3s;}
+.kpi-card:hover{background:var(--cardhov);transform:translateY(-2px);box-shadow:var(--shadow);}
+.kpi-card:hover::before{opacity:1;}
+.kpi-icon{font-size:22px;margin-bottom:8px;display:block;}
+.kpi-value{font-size:22px;font-weight:800;color:var(--th);letter-spacing:-0.5px;display:block;}
+.kpi-label{font-size:11px;color:var(--tm);display:block;margin-top:2px;}
+.kpi-sub{font-size:10px;color:var(--tm);margin-top:4px;display:block;}
+.kpi-card.acc-ok{border-color:rgba(16,185,129,0.3);}
+.kpi-card.acc-err{border-color:rgba(239,68,68,0.3);}
+.kpi-card.acc-warn{border-color:rgba(245,158,11,0.3);}
+.kpi-card.acc-p{border-color:rgba(99,102,241,0.3);}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;}
+.card-header{padding:14px 18px 12px;border-bottom:1px solid var(--bdr2);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.card-title{font-size:13.5px;font-weight:700;color:var(--th);}
+.card-body{padding:16px 18px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;}
+.ga{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:20px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:12.5px;font-weight:600;transition:var(--trans);border:none;cursor:pointer;white-space:nowrap;}
+.btn-p{background:var(--grad);color:#fff;box-shadow:0 4px 12px var(--p10);}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 6px 16px var(--p20);}
+.btn-s{background:var(--card);border:1px solid var(--bdr);color:var(--t);}
+.btn-s:hover{background:var(--cardhov);border-color:var(--p);color:var(--pl);}
+.btn-ok{background:var(--ok10);border:1px solid var(--ok);color:var(--ok);}
+.btn-err{background:var(--err10);border:1px solid var(--err);color:var(--err);}
+.btn-warn{background:var(--warn10);border:1px solid var(--warn);color:var(--warn);}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.b-ok{background:var(--ok10);color:var(--ok);border:1px solid rgba(16,185,129,0.3);padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600;display:inline-block;}
+.b-err{background:var(--err10);color:var(--err);border:1px solid rgba(239,68,68,0.3);padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600;display:inline-block;}
+.b-warn{background:var(--warn10);color:var(--warn);border:1px solid rgba(245,158,11,0.3);padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600;display:inline-block;}
+.b-info{background:var(--info10);color:var(--info);border:1px solid rgba(59,130,246,0.3);padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600;display:inline-block;}
+.b-p{background:var(--p10);color:var(--pl);border:1px solid var(--p20);padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600;display:inline-block;}
+.b-g{background:rgba(139,148,158,0.15);color:var(--tm);border:1px solid rgba(139,148,158,0.3);padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600;display:inline-block;}
+.tw{overflow-x:auto;border-radius:var(--r);border:1px solid var(--bdr);}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--bg2);}
+thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;border-bottom:1px solid var(--bdr);}
+tbody tr{border-bottom:1px solid var(--bdr2);transition:background .15s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--cardhov);}
+tbody td{padding:10px 14px;font-size:12.5px;color:var(--t);white-space:nowrap;}
+.tdn{font-weight:600;color:var(--th);}
+.tds{font-size:11px;color:var(--tm);margin-top:1px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.ff{grid-column:1/-1;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:11.5px;font-weight:600;color:var(--tm);letter-spacing:0.3px;}
+.field input,.field select,.field textarea{background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;font-size:12.5px;color:var(--t);transition:var(--trans);}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--p);background:var(--p10);box-shadow:0 0 0 3px var(--p10);}
+.field select option{background:var(--bg2);color:var(--t);}
+.field textarea{resize:vertical;min-height:80px;}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(6px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-ov.open{display:flex;}
+.modal-box{background:var(--bg2);border:1px solid var(--bdr);border-radius:16px;width:100%;max-width:680px;max-height:90vh;display:flex;flex-direction:column;animation:mIn .25s ease;box-shadow:var(--shadow2);}
+.modal-box.wide{max-width:860px;}
+@keyframes mIn{from{opacity:0;transform:scale(0.95) translateY(10px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.modal-hd{padding:16px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-hd h3{font-size:15px;font-weight:700;color:var(--th);}
+.modal-cl{width:28px;height:28px;border-radius:7px;background:var(--card);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--tm);transition:var(--trans);}
+.modal-cl:hover{background:var(--err10);border-color:var(--err);color:var(--err);}
+.modal-bd{padding:20px;overflow-y:auto;flex:1;}
+.modal-ft{padding:14px 20px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:10px;flex-shrink:0;}
+.toast-c{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:12px 16px;font-size:13px;min-width:240px;max-width:340px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow2);animation:tIn .3s ease;pointer-events:all;}
+.toast.ok{border-color:var(--ok);}
+.toast.err{border-color:var(--err);}
+.toast.warn{border-color:var(--warn);}
+@keyframes tIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+.fbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.fbar input,.fbar select{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:7px 12px;font-size:12px;color:var(--t);}
+.fbar input:focus,.fbar select:focus{border-color:var(--p);background:var(--p10);outline:none;}
+.fbar input::placeholder{color:var(--tm);}
+.fbar select option{background:var(--bg2);}
+.pb{width:100%;height:6px;background:var(--bdr);border-radius:10px;overflow:hidden;}
+.pf{height:100%;border-radius:10px;background:var(--grad);transition:width .6s ease;}
+.pf.ok{background:var(--ok);}
+.pf.warn{background:var(--warn);}
+.pf.err{background:var(--err);}
+.afeed{display:flex;flex-direction:column;gap:0;}
+.aitem{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--bdr2);}
+.aitem:last-child{border-bottom:none;}
+.adot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.atxt{font-size:12.5px;color:var(--t);flex:1;}
+.atxt b{font-weight:600;color:var(--th);}
+.atime{font-size:10.5px;color:var(--tm);white-space:nowrap;margin-top:1px;}
+.son{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--ok);}
+.son::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px var(--ok);animation:pulse 1.5s infinite;}
+.cctv-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.cam-card{background:#000;border-radius:10px;overflow:hidden;position:relative;border:1px solid var(--bdr);aspect-ratio:16/9;}
+.cam-canvas{width:100%;height:100%;display:block;}
+.cam-lbl{position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.72);color:#fff;font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;letter-spacing:0.5px;}
+.cam-st{position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:4px;background:rgba(0,0,0,0.72);padding:3px 7px;border-radius:4px;}
+.rec-dot{width:6px;height:6px;border-radius:50%;background:var(--err);animation:pulse 1s infinite;}
+.cam-tm{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.72);color:#fff;font-size:9px;padding:2px 6px;border-radius:4px;font-family:monospace;}
+.notif-panel{position:absolute;top:46px;right:0;background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;width:300px;max-height:380px;overflow-y:auto;z-index:400;box-shadow:var(--shadow2);display:none;animation:fadeIn .2s ease;}
+.notif-panel.open{display:block;}
+.notif-hd{padding:12px 16px;font-size:13px;font-weight:700;color:var(--th);border-bottom:1px solid var(--bdr2);}
+.nitem{padding:10px 16px;border-bottom:1px solid var(--bdr2);cursor:pointer;transition:background .15s;}
+.nitem:hover{background:var(--cardhov);}
+.ntitle{font-size:12.5px;font-weight:600;color:var(--th);}
+.ndesc{font-size:11px;color:var(--tm);margin-top:1px;}
+.kanban{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.kcol{background:var(--bg2);border-radius:10px;padding:12px;}
+.kcol-title{font-size:11px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.kcard{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:var(--trans);}
+.kcard:hover{background:var(--cardhov);transform:translateY(-1px);}
+.rm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+.phase-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;transition:var(--trans);}
+.phase-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--p);}
+.phase-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.phase-card.done::before{background:var(--ok);}
+.phase-card.active::before{background:var(--grad);}
+.phase-card.soon::before{background:var(--warn);}
+.phase-card.future::before{background:var(--bdr);}
+.phase-n{font-size:10px;font-weight:800;color:var(--tm);letter-spacing:2px;margin-bottom:8px;}
+.phase-t{font-size:15px;font-weight:800;color:var(--th);margin-bottom:6px;}
+.phase-d{font-size:12px;color:var(--tm);line-height:1.5;}
+.phase-tag{display:inline-block;margin-top:10px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.tag-done{background:var(--ok10);color:var(--ok);}
+.tag-active{background:var(--p10);color:var(--pl);}
+.tag-soon{background:var(--warn10);color:var(--warn);}
+.tag-future{background:rgba(139,148,158,0.1);color:var(--tm);}
+.cl-list{display:flex;flex-direction:column;gap:6px;}
+.cl-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--card);border:1px solid var(--bdr);border-radius:8px;cursor:pointer;transition:var(--trans);}
+.cl-item:hover{background:var(--cardhov);}
+.cl-item.done{opacity:0.6;}
+.cl-box{width:16px;height:16px;border:2px solid var(--bdr);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:var(--trans);}
+.cl-item.done .cl-box{background:var(--ok);border-color:var(--ok);color:#fff;font-size:10px;}
+.cl-item.done .cl-lbl{text-decoration:line-through;color:var(--tm);}
+.cl-lbl{font-size:12.5px;flex:1;}
+.chat-wrap{display:flex;flex-direction:column;height:420px;}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.msg{max-width:76%;}
+.msg.bot{align-self:flex-start;}
+.msg.user{align-self:flex-end;}
+.msg-bbl{padding:10px 14px;border-radius:12px;font-size:12.5px;line-height:1.5;}
+.msg.bot .msg-bbl{background:var(--card);border:1px solid var(--bdr);color:var(--t);border-radius:4px 12px 12px 12px;}
+.msg.user .msg-bbl{background:var(--grad);color:#fff;border-radius:12px 4px 12px 12px;}
+.msg-tm{font-size:10px;color:var(--tm);margin-top:3px;}
+.msg.user .msg-tm{text-align:right;}
+.chat-in{padding:12px 16px;border-top:1px solid var(--bdr);display:flex;gap:8px;}
+.chat-in input{flex:1;background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;font-size:12.5px;color:var(--t);}
+.chat-in input:focus{border-color:var(--p);background:var(--p10);outline:none;}
+.emg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;}
+.ec-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:18px 14px;text-align:center;cursor:pointer;transition:var(--trans);}
+.ec-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);}
+.ec-icon{font-size:30px;margin-bottom:8px;display:block;}
+.ec-name{font-size:13px;font-weight:700;color:var(--th);}
+.ec-num{font-size:16px;font-weight:800;color:var(--pl);margin-top:4px;}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--grad);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
+.finm{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bdr2);}
+.finm:last-child{border-bottom:none;}
+.flat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-bottom:20px;}
+.flat-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;cursor:pointer;transition:var(--trans);position:relative;overflow:hidden;}
+.flat-card:hover{background:var(--cardhov);transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--p);}
+.fn{font-size:19px;font-weight:900;color:var(--th);letter-spacing:-0.5px;}
+.ft{font-size:11px;color:var(--tm);}
+.fo{font-size:12.5px;font-weight:600;color:var(--t);margin-top:8px;}
+.staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:20px;}
+.sc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;cursor:pointer;transition:var(--trans);}
+.sc:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--p);}
+.sa{width:52px;height:52px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;}
+.water-tanks{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+.tank-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;text-align:center;}
+.tank-v{width:80px;height:110px;border:3px solid var(--a);border-radius:8px;margin:0 auto 12px;position:relative;overflow:hidden;background:rgba(6,182,212,0.05);}
+.tank-f{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(6,182,212,0.7),rgba(6,182,212,0.3));transition:height 1.2s ease;}
+.tank-l{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;font-weight:800;color:var(--a);z-index:1;}
+.doc-item{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--card);border:1px solid var(--bdr);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:var(--trans);}
+.doc-item:hover{background:var(--cardhov);border-color:var(--p);}
+.notice-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-bottom:12px;border-left:3px solid var(--p);transition:var(--trans);}
+.notice-card:hover{background:var(--cardhov);}
+.notice-card.emergency{border-left-color:var(--err);}
+.notice-card.event{border-left-color:var(--ok);}
+.notice-card.circular{border-left-color:var(--warn);}
+.ai-insight{background:var(--p10);border:1px solid var(--p20);border-radius:8px;padding:12px 14px;margin-bottom:8px;}
+.ai-it{font-size:12px;font-weight:700;color:var(--pl);margin-bottom:4px;}
+.ai-id{font-size:12px;color:var(--t);line-height:1.5;}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--pl);animation:bounce 1s infinite;display:inline-block;}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.inv-ov{position:fixed;inset:0;background:#070412;z-index:1000;display:none;flex-direction:column;overflow:hidden;}
+.inv-ov.open{display:flex;}
+.inv-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0;}
+.inv-slide-area{flex:1;display:flex;align-items:center;justify-content:center;padding:40px;position:relative;overflow:hidden;}
+.islide{display:none;width:100%;max-width:920px;text-align:center;animation:fadeIn .4s ease;}
+.islide.active{display:flex;flex-direction:column;align-items:center;}
+.slide-ey{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--pl);margin-bottom:12px;}
+.slide-tt{font-size:clamp(26px,5vw,52px);font-weight:900;line-height:1.1;letter-spacing:-1px;margin-bottom:16px;color:#fff;}
+.slide-bd{font-size:16px;color:rgba(255,255,255,0.68);line-height:1.7;max-width:620px;}
+.slide-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:24px;width:100%;}
+.scard{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:18px;text-align:left;}
+.sdots{display:flex;gap:8px;justify-content:center;margin-top:24px;}
+.sdot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);cursor:pointer;transition:var(--trans);}
+.sdot.active{background:var(--p);width:20px;border-radius:4px;}
+.vendor-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;transition:var(--trans);}
+.vendor-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+@media(max-width:768px){
+:root{--sw:260px;}
+.sidebar{position:fixed;top:0;left:0;height:100vh;transform:translateX(-100%);transition:transform .25s ease;}
+.sidebar.mob-open{transform:translateX(0);}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:150;display:none;}
+.overlay.open{display:block;}
+.module{padding:16px;}
+.kpi-grid{grid-template-columns:repeat(2,1fr);}
+.kanban{grid-template-columns:1fr;}
+.fg,.fg3{grid-template-columns:1fr;}
+.cctv-grid{grid-template-columns:1fr;}
+.g2,.g3{grid-template-columns:1fr;}
+.water-tanks{grid-template-columns:1fr;}
+.search-box{max-width:none;}
+.page-title{display:none;}
+.demo-btn{padding:5px 10px;font-size:10px;}
+}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr 1fr;}.emg-grid{grid-template-columns:1fr 1fr;}}
+.mb-16{margin-bottom:16px;}
+.mb-20{margin-bottom:20px;}
+.mt-16{margin-top:16px;}
+.flex{display:flex;}
+.flex-c{display:flex;align-items:center;}
+.gap-8{gap:8px;}
+.gap-10{gap:10px;}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">BC</div>
+      <div class="logo-text">
+        <span class="logo-name">BuildCare Pro</span>
+        <span class="logo-sub">v2.4 Enterprise</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidenav"></nav>
+    <div class="sidebar-footer">
+      <div class="building-chip">
+        <div class="building-dot"></div>
+        <span class="building-chip-text">Sunrise Heights · 24 Units</span>
+      </div>
+    </div>
+  </aside>
+  <div class="main-wrapper">
+    <header class="header">
+      <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()">☰</button>
+      <span class="page-title" id="pageTitle">Executive Dashboard</span>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="globalSearch" placeholder="Search flats, complaints, staff…">
+      </div>
+      <div class="header-right">
+        <button class="hbtn" title="Toggle Theme" onclick="toggleTheme()">🌙</button>
+        <div style="position:relative">
+          <button class="hbtn" id="notifBtn" onclick="toggleNotif()">🔔<span class="nbadge">5</span></button>
+          <div class="notif-panel" id="notifPanel"></div>
+        </div>
+        <button class="demo-btn" onclick="openInvestorDemo()">🎯 INVESTOR DEMO</button>
+        <div class="user-avatar" title="Society Manager">SM</div>
+      </div>
+    </header>
+    <main class="content" id="content"></main>
+  </div>
+</div>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="modal-ov" id="mainModal">
+  <div class="modal-box wide" id="mainModalBox">
+    <div class="modal-hd">
+      <h3 id="mTitle">Details</h3>
+      <button class="modal-cl" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-bd" id="mBody"></div>
+    <div class="modal-ft" id="mFooter"></div>
+  </div>
+</div>
+<div class="inv-ov" id="invOv">
+  <div class="inv-nav">
+    <div class="flex-c gap-8">
+      <div class="logo-icon">BC</div>
+      <span style="font-size:14px;font-weight:800;color:#fff">BuildCare Pro</span>
+      <span style="background:rgba(99,102,241,0.3);color:#818cf8;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:1px">INVESTOR PRESENTATION</span>
+    </div>
+    <div class="flex-c gap-8">
+      <button class="btn btn-s btn-sm" onclick="prevSlide()">← Prev</button>
+      <span style="font-size:12px;color:rgba(255,255,255,0.5)" id="slideCounter">1 / 8</span>
+      <button class="btn btn-p btn-sm" onclick="nextSlide()">Next →</button>
+      <button class="btn btn-sm" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#f87171" onclick="closeInvestorDemo()">✕ Close</button>
+    </div>
+  </div>
+  <div class="inv-slide-area" id="invSlides"></div>
+</div>
+<div class="toast-c" id="toastC"></div>
+<script>
+// ══ DATA ══
+const BLD={name:'Sunrise Heights Apartments',addr:'Plot 14, Sector 48, Gurugram 122018, Haryana',floors:4,totalFlats:24,year:2019,mfee:3500,latefee:500,rwa:'Sunrise Heights RWA'};
+const FLATS=[
+{id:'A101',num:'A-101',floor:1,type:'2BHK',status:'occupied',owner:'Rajesh Kumar Sharma',op:'9876543210',oe:'rajesh@gmail.com',tenant:'Priya Mehta',tp:'8765432109',family:4,vehicles:['DL-01-AA-1234'],emg:'Sunita Sharma | 9988776655',ms:'paid',notes:'Has 1 pet dog.'},
+{id:'A102',num:'A-102',floor:1,type:'3BHK',status:'occupied',owner:'Anita Verma',op:'9876501234',oe:'anita@yahoo.com',tenant:'',tp:'',family:3,vehicles:['DL-02-BB-5678'],emg:'Mohan Verma | 9977665544',ms:'paid',notes:'Owner occupied.'},
+{id:'A103',num:'A-103',floor:1,type:'2BHK',status:'vacant',owner:'Suresh Patel',op:'9765432101',oe:'spatel@outlook.com',tenant:'',tp:'',family:0,vehicles:[],emg:'Ramesh Patel | 9966554433',ms:'pending',notes:'Available for rent.'},
+{id:'A104',num:'A-104',floor:1,type:'1BHK',status:'occupied',owner:'Kavita Singh',op:'9654321012',oe:'kavita@gmail.com',tenant:'Nikhil Sharma',tp:'8654321098',family:2,vehicles:[],emg:'Ajay Singh | 9955443322',ms:'paid',notes:''},
+{id:'A105',num:'A-105',floor:1,type:'2BHK',status:'occupied',owner:'Manish Gupta',op:'9543210123',oe:'mgupta@gmail.com',tenant:'',tp:'',family:5,vehicles:['DL-05-EE-2345','DL-05-FF-6789'],emg:'Sunita Gupta | 9944332211',ms:'overdue',notes:'2 vehicles. Extra parking.'},
+{id:'A106',num:'A-106',floor:1,type:'3BHK',status:'occupied',owner:'Deepika Rao',op:'9432101234',oe:'deepika@gmail.com',tenant:'Ritu Nair',tp:'8543210987',family:3,vehicles:['DL-06-GG-3456'],emg:'Vijay Rao | 9933221100',ms:'paid',notes:''},
+{id:'B201',num:'B-201',floor:2,type:'2BHK',status:'occupied',owner:'Arun Kapoor',op:'9321012345',oe:'arun@gmail.com',tenant:'Sneha Joshi',tp:'8432109876',family:2,vehicles:[],emg:'Neha Kapoor | 9922110099',ms:'paid',notes:''},
+{id:'B202',num:'B-202',floor:2,type:'2BHK',status:'occupied',owner:'Pooja Bansal',op:'9210123456',oe:'pbansal@gmail.com',tenant:'',tp:'',family:4,vehicles:['DL-08-II-5678'],emg:'Sanjay Bansal | 9911009988',ms:'paid',notes:'Senior citizens.'},
+{id:'B203',num:'B-203',floor:2,type:'3BHK',status:'occupied',owner:'Vikram Malhotra',op:'9109012345',oe:'vmalhotra@yahoo.com',tenant:'Arjun Dev',tp:'8321098765',family:5,vehicles:['DL-09-JJ-6789','HR-10-KK-7890'],emg:'Sita Malhotra | 9900998877',ms:'pending',notes:'2 cars.'},
+{id:'B204',num:'B-204',floor:2,type:'1BHK',status:'vacant',owner:'Rekha Sinha',op:'9098901234',oe:'rsinha@gmail.com',tenant:'',tp:'',family:0,vehicles:[],emg:'Manoj Sinha | 9889887766',ms:'pending',notes:'Under renovation.'},
+{id:'B205',num:'B-205',floor:2,type:'2BHK',status:'occupied',owner:'Amit Pandey',op:'8987890123',oe:'apandey@gmail.com',tenant:'Rahul Mishra',tp:'8210987654',family:3,vehicles:['UP-65-LL-1234'],emg:'Geeta Pandey | 9878776655',ms:'paid',notes:''},
+{id:'B206',num:'B-206',floor:2,type:'3BHK',status:'occupied',owner:'Neha Chopra',op:'8876789012',oe:'nchopra@gmail.com',tenant:'',tp:'',family:6,vehicles:['DL-12-MM-3456'],emg:'Raj Chopra | 9867665544',ms:'paid',notes:'Large family.'},
+{id:'C301',num:'C-301',floor:3,type:'2BHK',status:'occupied',owner:'Sanjay Mehra',op:'8765678901',oe:'smehra@gmail.com',tenant:'Priyanka Roy',tp:'8109876543',family:3,vehicles:[],emg:'Anjali Mehra | 9856554433',ms:'paid',notes:''},
+{id:'C302',num:'C-302',floor:3,type:'1BHK',status:'occupied',owner:'Lakshmi Reddy',op:'8654567890',oe:'lreddy@gmail.com',tenant:'Gopal Krishnan',tp:'8098765432',family:1,vehicles:[],emg:'Prasad Reddy | 9845443322',ms:'paid',notes:'Work from home.'},
+{id:'C303',num:'C-303',floor:3,type:'3BHK',status:'occupied',owner:'Harish Negi',op:'8543456789',oe:'hnegi@gmail.com',tenant:'',tp:'',family:4,vehicles:['UK-02-NN-2345'],emg:'Kamla Negi | 9834332211',ms:'overdue',notes:'Payment delayed.'},
+{id:'C304',num:'C-304',floor:3,type:'2BHK',status:'occupied',owner:'Tanya Khanna',op:'8432345678',oe:'tkhanna@gmail.com',tenant:'Vivek Saxena',tp:'7987654321',family:2,vehicles:[],emg:'Rohit Khanna | 9823221100',ms:'paid',notes:''},
+{id:'C305',num:'C-305',floor:3,type:'2BHK',status:'vacant',owner:'Sunil Walia',op:'8321234567',oe:'swalia@gmail.com',tenant:'',tp:'',family:0,vehicles:[],emg:'Seema Walia | 9812110099',ms:'pending',notes:'Listed on 99acres.'},
+{id:'C306',num:'C-306',floor:3,type:'3BHK',status:'occupied',owner:'Rajan Arora',op:'8210123456',oe:'rarora@gmail.com',tenant:'Simran Kaur',tp:'7876543210',family:3,vehicles:['PB-08-OO-5678'],emg:'Seema Arora | 9801009988',ms:'paid',notes:''},
+{id:'D401',num:'D-401',floor:4,type:'4BHK',status:'occupied',owner:'Arun Tiwari (Chairman)',op:'9876543211',oe:'atiwari@gmail.com',tenant:'',tp:'',family:5,vehicles:['DL-18-PP-1234','DL-19-QQ-5678'],emg:'Sunita Tiwari | 9790998877',ms:'paid',notes:'RWA Chairman.'},
+{id:'D402',num:'D-402',floor:4,type:'3BHK',status:'occupied',owner:'Meera Iyer',op:'9765432100',oe:'miyer@gmail.com',tenant:'',tp:'',family:4,vehicles:['TN-07-RR-3456'],emg:'Ravi Iyer | 9780887766',ms:'paid',notes:''},
+{id:'D403',num:'D-403',floor:4,type:'2BHK',status:'occupied',owner:'Pradeep Jain',op:'9654321011',oe:'pjain@gmail.com',tenant:'Naman Gupta',tp:'7765432109',family:2,vehicles:[],emg:'Radha Jain | 9770776655',ms:'pending',notes:''},
+{id:'D404',num:'D-404',floor:4,type:'3BHK',status:'occupied',owner:'Varun Malviya',op:'9543210122',oe:'vmalviya@gmail.com',tenant:'',tp:'',family:3,vehicles:['MP-09-SS-6789'],emg:'Priya Malviya | 9760665544',ms:'paid',notes:''},
+{id:'D405',num:'D-405',floor:4,type:'2BHK',status:'vacant',owner:'Kamla Sharma',op:'9432101133',oe:'ksharma@gmail.com',tenant:'',tp:'',family:0,vehicles:[],emg:'Rakesh Sharma | 9750554433',ms:'pending',notes:'Owner in USA.'},
+{id:'D406',num:'D-406',floor:4,type:'4BHK',status:'occupied',owner:'Rohan Verma (Penthouse)',op:'9321012244',oe:'rverma@gmail.com',tenant:'',tp:'',family:4,vehicles:['DL-22-TT-2345','DL-23-UU-6789'],emg:'Neelam Verma | 9740443322',ms:'paid',notes:'Private terrace.'}
+];
+const COMPLAINTS=[
+{id:'C001',flat:'A-105',cat:'Plumbing',title:'Water leakage from overhead pipe',desc:'Continuous drip from bathroom ceiling pipe causing water damage.',status:'open',pri:'high',date:'2024-06-01',assigned:'Ravi (Plumber)',res:''},
+{id:'C002',flat:'B-203',cat:'Electrical',title:'Frequent power fluctuations',desc:'Lights dim and flicker every evening 8-10 PM.',status:'inprogress',pri:'medium',date:'2024-06-02',assigned:'Santosh (Electrician)',res:''},
+{id:'C003',flat:'C-303',cat:'Security',title:'Broken gate lock at entrance',desc:'Main entrance gate lock is broken. Anyone can enter without authorization.',status:'open',pri:'emergency',date:'2024-06-03',assigned:'Raju Guard',res:''},
+{id:'C004',flat:'D-403',cat:'Housekeeping',title:'Garbage not collected for 2 days',desc:'Common area garbage not cleared since Monday.',status:'closed',pri:'medium',date:'2024-05-29',assigned:'Mohan Cleaner',res:'Resolved. Garbage cleared same day.'},
+{id:'C005',flat:'A-102',cat:'Water Supply',title:'No water supply after 11 AM',desc:'Water gets completely cut off after 11 AM every day.',status:'inprogress',pri:'high',date:'2024-06-01',assigned:'Manager',res:'Pump timer adjusted.'},
+{id:'C006',flat:'B-201',cat:'Lift',title:'Lift door not closing properly',desc:'Lift door needs to be pushed manually every time.',status:'open',pri:'medium',date:'2024-06-04',assigned:'Otis AMC Team',res:''},
+{id:'C007',flat:'C-301',cat:'Parking',title:'Unknown vehicle in my parking spot',desc:'White Maruti DL-04-ZZ-1111 in my allotted spot.',status:'closed',pri:'low',date:'2024-05-30',assigned:'Security Guard',res:'Vehicle owner identified and relocated.'},
+{id:'C008',flat:'A-106',cat:'Gardening',title:'Dead plants near Block A entrance',desc:'Several potted plants near Block A appear dead due to lack of watering.',status:'open',pri:'low',date:'2024-06-03',assigned:'Ram Gardener',res:''},
+{id:'C009',flat:'D-401',cat:'Electrical',title:'Street light not working on pathway',desc:'Path between Block C and D has no lighting after 9 PM.',status:'inprogress',pri:'high',date:'2024-05-28',assigned:'Santosh (Electrician)',res:'Bulb ordered.'},
+{id:'C010',flat:'B-206',cat:'Plumbing',title:'Sewer blockage on 2nd floor',desc:'Drain pipe blocked causing overflow in bathroom.',status:'open',pri:'high',date:'2024-06-05',assigned:'Ravi (Plumber)',res:''},
+{id:'C011',flat:'C-302',cat:'Security',title:'CCTV camera angle needs adjustment',desc:'Camera 3 not covering main walkway adequately.',status:'inprogress',pri:'low',date:'2024-06-02',assigned:'Tech Team',res:''},
+{id:'C012',flat:'D-404',cat:'Housekeeping',title:'Staircase on 4th floor dirty',desc:'Staircase near D-block terrace access not cleaned.',status:'closed',pri:'low',date:'2024-05-27',assigned:'Geeta Cleaner',res:'Cleaned and added to daily schedule.'},
+{id:'C013',flat:'A-104',cat:'Other',title:'Noise complaint from D-401',desc:'Loud music from penthouse on weekends after midnight.',status:'open',pri:'medium',date:'2024-06-04',assigned:'Security Guard',res:''},
+{id:'C014',flat:'B-205',cat:'Water Supply',title:'Muddy water from kitchen tap',desc:'Water has brown discolouration and dirt particles.',status:'inprogress',pri:'high',date:'2024-06-05',assigned:'Water AMC',res:'Tank cleaning scheduled for 8 June.'},
+{id:'C015',flat:'C-304',cat:'Electrical',title:'Meter board sparking',desc:'Electrical meter board on 3rd floor producing visible sparks.',status:'open',pri:'emergency',date:'2024-06-05',assigned:'Santosh (Electrician)',res:''}
+];
+const STAFF=[
+{id:'S01',name:'Ramesh Singh',role:'Security Guard',shift:'Day (6AM-2PM)',phone:'9800001111',salary:16000,att:28,joined:'2020-03-01',status:'active',rating:4.5,tasks:'Morning gate duty, visitor log, vehicle check'},
+{id:'S02',name:'Suresh Kumar',role:'Security Guard',shift:'Evening (2PM-10PM)',phone:'9800002222',salary:16000,att:26,joined:'2021-07-15',status:'active',rating:4.2,tasks:'Evening rounds, delivery management, CCTV monitoring'},
+{id:'S03',name:'Dheeraj Yadav',role:'Security Guard',shift:'Night (10PM-6AM)',phone:'9800003333',salary:16500,att:27,joined:'2019-11-20',status:'active',rating:4.7,tasks:'Night patrol, gate security, incident reporting'},
+{id:'S04',name:'Mohan Das',role:'Housekeeping',shift:'Morning (7AM-4PM)',phone:'9800004444',salary:13500,att:29,joined:'2021-01-10',status:'active',rating:4.3,tasks:'Common area cleaning, garbage collection, lobby'},
+{id:'S05',name:'Geeta Bai',role:'Housekeeping',shift:'Morning (7AM-3PM)',phone:'9800005555',salary:12000,att:25,joined:'2022-03-15',status:'active',rating:4.0,tasks:'Staircase cleaning, terrace, corridor dusting'},
+{id:'S06',name:'Santosh Sharma',role:'Electrician',shift:'On-call',phone:'9800006666',salary:18000,att:27,joined:'2020-08-01',status:'active',rating:4.6,tasks:'Electrical repairs, meter readings, DG maintenance'},
+{id:'S07',name:'Ravi Kumar',role:'Plumber',shift:'On-call',phone:'9800007777',salary:17500,att:26,joined:'2021-02-20',status:'active',rating:4.4,tasks:'Plumbing repairs, tank maintenance, drainage'},
+{id:'S08',name:'Ram Swaroop',role:'Gardener',shift:'Morning (6AM-11AM)',phone:'9800008888',salary:10500,att:28,joined:'2022-06-01',status:'active',rating:4.1,tasks:'Garden maintenance, watering, fertilizing'},
+{id:'S09',name:'Pinku Sharma',role:'Lift Operator',shift:'Day (8AM-8PM)',phone:'9800009999',salary:11000,att:30,joined:'2023-01-15',status:'active',rating:4.8,tasks:'Lift operation, basic maintenance, assistance'},
+{id:'S10',name:'Vijay Sharma',role:'Building Manager',shift:'Office (9AM-6PM)',phone:'9800010000',salary:28000,att:30,joined:'2019-06-01',status:'active',rating:4.9,tasks:'Overall management, vendor coordination, RWA meetings'}
+];
+const VENDORS=[
+{id:'V01',name:'Otis Elevator Services',cat:'Lift AMC',contact:'Rakesh Gupta',phone:'9100001111',contract:'Annual - Rs.48,000/yr',expiry:'2024-12-31',status:'active',lastSvc:'2024-05-15'},
+{id:'V02',name:'AquaCare Water Mgmt',cat:'Water Treatment',contact:'Suresh Sharma',phone:'9100002222',contract:'Quarterly - Rs.12,000/qtr',expiry:'2024-09-30',status:'active',lastSvc:'2024-04-20'},
+{id:'V03',name:'SparkTech Electricals',cat:'Electrical AMC',contact:'Amit Verma',phone:'9100003333',contract:'Annual - Rs.36,000/yr',expiry:'2024-08-31',status:'expiring',lastSvc:'2024-05-28'},
+{id:'V04',name:'CleanPro Services',cat:'Deep Cleaning',contact:'Raj Kaur',phone:'9100004444',contract:'Monthly - Rs.8,000/mo',expiry:'2024-12-31',status:'active',lastSvc:'2024-05-31'},
+{id:'V05',name:'SecureSight CCTV',cat:'CCTV Maintenance',contact:'Nitin Singh',phone:'9100005555',contract:'Annual - Rs.24,000/yr',expiry:'2024-11-30',status:'active',lastSvc:'2024-04-15'},
+{id:'V06',name:'GreenGarden Services',cat:'Landscaping',contact:'Mangal Sain',phone:'9100006666',contract:'Monthly - Rs.6,500/mo',expiry:'2024-12-31',status:'active',lastSvc:'2024-06-01'},
+{id:'V07',name:'DG Power Solutions',cat:'Generator AMC',contact:'Prakash Jain',phone:'9100007777',contract:'Annual - Rs.30,000/yr',expiry:'2024-10-31',status:'active',lastSvc:'2024-05-10'},
+{id:'V08',name:'PestShield India',cat:'Pest Control',contact:'Sanjay Roy',phone:'9100008888',contract:'Bi-annual - Rs.15,000/visit',expiry:'2024-12-31',status:'active',lastSvc:'2024-03-15'}
+];
+const NOTICES=[
+{id:'N01',type:'emergency',title:'Emergency Gate Lock Replacement',body:'The main entrance gate lock has been damaged. Temporary arrangement in place. Permanent replacement tomorrow morning. Use intercom for entry tonight.',date:'2024-06-05',by:'Manager'},
+{id:'N02',type:'event',title:'RWA Annual General Meeting',body:'All flat owners invited to AGM on Sunday 16th June 2024 at 11 AM in Community Hall. Agenda: Budget review, maintenance hike proposal, new vendor agreements.',date:'2024-06-03',by:'RWA Secretary'},
+{id:'N03',type:'circular',title:'Water Supply Interruption - 8 June',body:'Municipal water supply interrupted on 8th June from 8 AM to 5 PM for pipeline maintenance. Tanks will be filled in advance.',date:'2024-06-02',by:'Manager'},
+{id:'N04',type:'announcement',title:'2 New CCTV Cameras Installed',body:'Installed 2 new IP cameras covering basement parking and rear compound gate. Now have 360 degree coverage of all entry and exit points.',date:'2024-05-30',by:'Management'},
+{id:'N05',type:'circular',title:'Maintenance Due Reminder - June 2024',body:'Monthly maintenance of Rs.3,500 due for June 2024. Pay by 10th June to avoid late fee of Rs.500. UPI: 9800010000@upi or cash to Manager.',date:'2024-06-01',by:'Accounts'},
+{id:'N06',type:'event',title:'Diwali Decoration Competition',body:'Decorate your flat entrance for Diwali! Judging on 1st November. Best Decorated Flat wins exciting prizes.',date:'2024-05-28',by:'Cultural Committee'}
+];
+const DOCS=[
+{id:'D01',name:'Society Registration Certificate',cat:'Legal',size:'2.4 MB',date:'2019-06-01',type:'pdf'},
+{id:'D02',name:'Building Completion Certificate',cat:'Legal',size:'1.8 MB',date:'2019-03-15',type:'pdf'},
+{id:'D03',name:'Fire NOC 2024',cat:'Compliance',size:'0.9 MB',date:'2024-01-20',type:'pdf'},
+{id:'D04',name:'Lift AMC Contract - Otis',cat:'AMC',size:'1.2 MB',date:'2024-01-01',type:'pdf'},
+{id:'D05',name:'Electrical Audit Report 2023',cat:'Compliance',size:'3.1 MB',date:'2023-12-10',type:'pdf'},
+{id:'D06',name:'Building Structural Report',cat:'Technical',size:'5.6 MB',date:'2023-06-20',type:'pdf'},
+{id:'D07',name:'Water Quality Test Report',cat:'Compliance',size:'0.8 MB',date:'2024-04-15',type:'pdf'},
+{id:'D08',name:'Society Bye-Laws',cat:'Legal',size:'1.5 MB',date:'2019-06-01',type:'pdf'},
+{id:'D09',name:'Annual Budget FY 2024-25',cat:'Financial',size:'0.6 MB',date:'2024-04-01',type:'xlsx'},
+{id:'D10',name:'Building Insurance Policy',cat:'Insurance',size:'2.2 MB',date:'2024-01-01',type:'pdf'},
+{id:'D11',name:'Architect Floor Plans',cat:'Technical',size:'12.4 MB',date:'2018-11-20',type:'pdf'},
+{id:'D12',name:'DG Generator AMC Contract',cat:'AMC',size:'0.7 MB',date:'2024-01-01',type:'pdf'}
+];
+const VISITORS=[
+{name:'Amazon Delivery',flat:'B-203',purpose:'Package Delivery',vehicle:'HR-26-BG-4567',entry:'10:15',exit:'10:22',guard:'Ramesh'},
+{name:'External Plumber Ramesh',flat:'A-105',purpose:'Plumbing Repair',vehicle:'',entry:'11:00',exit:'13:30',guard:'Ramesh'},
+{name:'Mrs. Anand',flat:'A-102',purpose:'Personal Visit',vehicle:'DL-04-XY-1234',entry:'14:00',exit:'16:45',guard:'Suresh'},
+{name:'Zomato Delivery',flat:'D-401',purpose:'Food Delivery',vehicle:'',entry:'19:30',exit:'19:35',guard:'Suresh'},
+{name:'Interior Designer Team',flat:'B-204',purpose:'Renovation Work',vehicle:'HR-29-ZZ-9999',entry:'09:30',exit:'17:00',guard:'Ramesh'},
+{name:'Jio Technician',flat:'C-301',purpose:'Broadband Installation',vehicle:'',entry:'11:30',exit:'13:00',guard:'Dheeraj'}
+];
+const HK_TASKS=[
+{id:'H01',area:'Main Lobby',task:'Sweep and mop lobby floor',freq:'Daily',who:'Mohan',time:'7:00 AM',done:true},
+{id:'H02',area:'Staircase A',task:'Sweep stairs all floors',freq:'Daily',who:'Mohan',time:'7:30 AM',done:true},
+{id:'H03',area:'Staircase B',task:'Sweep stairs all floors',freq:'Daily',who:'Geeta',time:'7:30 AM',done:true},
+{id:'H04',area:'Corridors',task:'Dust and clean all corridors',freq:'Daily',who:'Geeta',time:'8:00 AM',done:false},
+{id:'H05',area:'Parking',task:'Sweep parking P1 and P2',freq:'Daily',who:'Mohan',time:'8:30 AM',done:true},
+{id:'H06',area:'Terrace',task:'Sweep rooftop terrace',freq:'Alt. Days',who:'Geeta',time:'9:00 AM',done:false},
+{id:'H07',area:'Garbage Room',task:'Clear and disinfect garbage room',freq:'Daily',who:'Mohan',time:'8:00 AM',done:true},
+{id:'H08',area:'Lift Cabin',task:'Wipe lift walls and floor',freq:'Daily',who:'Geeta',time:'9:30 AM',done:true},
+{id:'H09',area:'Gate Area',task:'Clean guard cabin and entrance',freq:'Daily',who:'Mohan',time:'10:00 AM',done:false},
+{id:'H10',area:'Compound',task:'Collect litter from compound',freq:'Daily',who:'Mohan',time:'10:30 AM',done:true}
+];
+const PLANTS=[
+{name:'Bougainvillea (Block A)',type:'Flowering',loc:'Block A entrance',health:'good',watered:'2024-06-04',fertilized:'2024-05-15',notes:'Blooming well'},
+{name:'Monstera (Lobby)',type:'Indoor',loc:'Main lobby',health:'good',watered:'2024-06-05',fertilized:'2024-06-01',notes:''},
+{name:'Ficus (Club Area)',type:'Tree',loc:'Club boundary',health:'fair',watered:'2024-06-03',fertilized:'2024-05-10',notes:'Some yellowing leaves'},
+{name:'Rose Garden',type:'Flowering',loc:'Main compound',health:'good',watered:'2024-06-05',fertilized:'2024-05-20',notes:'12 rose plants'},
+{name:'Grass Lawn',type:'Turf',loc:'Central green',health:'poor',watered:'2024-06-02',fertilized:'2024-04-15',notes:'Dry patches - urgent care'},
+{name:'Bamboo Hedge',type:'Hedge',loc:'Perimeter wall',health:'good',watered:'2024-06-04',fertilized:'2024-05-25',notes:'Trimming due soon'}
+];
+const INCIDENTS=[
+{date:'2024-06-03',type:'Security',title:'Unidentified person at rear gate',desc:'Unknown person tried to enter from rear gate after midnight.',action:'CCTV reviewed. No threat identified.',sev:'medium'},
+{date:'2024-06-01',type:'Electrical',title:'Short circuit in parking area',desc:'Electrical short circuit tripped power in P1 parking. DG auto-started.',action:'Faulty wire replaced by Santosh.',sev:'high'},
+{date:'2024-05-28',type:'Water',title:'Overhead tank overflow',desc:'OHT overflow due to timer malfunction. 30 min water wastage.',action:'Timer recalibrated. Issue resolved.',sev:'low'}
+];
+const FIN={
+  incLabels:['Jan','Feb','Mar','Apr','May','Jun'],
+  collection:[78000,81000,77500,82500,80000,76500],
+  otherInc:[5000,3500,8000,4000,6000,5500],
+  staff:[42000,42000,42500,43000,43000,43000],
+  maint:[15000,18000,12000,22000,16000,19000],
+  utils:[8000,7500,9000,8500,8000,8500],
+  misc:[3000,2500,4000,2000,3500,3000],
+  pendingDues:42000,fundBalance:185000
+};
+const NAV=[
+{sec:'OVERVIEW'},{id:'dashboard',lbl:'Dashboard',icon:'🏠'},
+{sec:'MANAGEMENT'},{id:'flats',lbl:'Flat Management',icon:'🏢'},{id:'residents',lbl:'Resident Portal',icon:'👤'},{id:'maintenance',lbl:'Maintenance',icon:'💰',badge:4},{id:'complaints',lbl:'Complaints',icon:'🔧',badge:5},
+{sec:'FACILITIES'},{id:'housekeeping',lbl:'Housekeeping',icon:'🧹'},{id:'security',lbl:'Security',icon:'🔒'},{id:'cctv',lbl:'CCTV Monitor',icon:'📹'},{id:'water',lbl:'Water Mgmt',icon:'💧'},{id:'electrical',lbl:'Electrical',icon:'⚡'},{id:'gardening',lbl:'Gardening',icon:'🌿'},
+{sec:'PEOPLE & FINANCE'},{id:'staff',lbl:'Staff Mgmt',icon:'👥'},{id:'vendors',lbl:'Vendors',icon:'🏪'},{id:'financial',lbl:'Financials',icon:'📊'},
+{sec:'RESOURCES'},{id:'documents',lbl:'Documents',icon:'📁'},{id:'notices',lbl:'Notice Board',icon:'📢'},{id:'emergency',lbl:'Emergency',icon:'🚨'},
+{sec:'INTELLIGENCE'},{id:'aiassistant',lbl:'AI Assistant',icon:'🤖'},{id:'roadmap',lbl:'Roadmap',icon:'🚀'}
+];
+
+// ══ STATE ══
+let curMod='dashboard',isDark=true,chatHist=[],notifOpen=false;
+let flatsD=[...FLATS],complaintsD=[...COMPLAINTS],staffD=[...STAFF],noticesD=[...NOTICES],hkD=[...HK_TASKS];
+let flatView='grid',complaintView='kanban',cctvTimers=[];
+
+function loadState(){try{const s=localStorage.getItem('bcp3');if(s){const d=JSON.parse(s);if(d.flats)flatsD=d.flats;if(d.complaints)complaintsD=d.complaints;if(d.notices)noticesD=d.notices;if(d.hk)hkD=d.hk;if(d.chat)chatHist=d.chat;isDark=d.dark!==undefined?d.dark:true;}}catch(e){}}
+function saveState(){try{localStorage.setItem('bcp3',JSON.stringify({flats:flatsD,complaints:complaintsD,notices:noticesD,hk:hkD,chat:chatHist,dark:isDark}));}catch(e){}}
+
+// ══ INIT ══
+function init(){
+  loadState();applyTheme();buildNav();buildNotifs();
+  document.addEventListener('click',e=>{if(!e.target.closest('#notifBtn')&&!e.target.closest('#notifPanel'))closeNotif();});
+  navigate('dashboard');
+}
+function buildNav(){
+  document.getElementById('sidenav').innerHTML=NAV.map(n=>{
+    if(n.sec)return`<div class="nav-section">${n.sec}</div>`;
+    return`<div class="nav-item" id="nav_${n.id}" onclick="navigate('${n.id}')"><span class="nav-icon">${n.icon}</span><span class="nav-label">${n.lbl}</span>${n.badge?`<span class="nav-badge-item">${n.badge}</span>`:''}</div>`;
+  }).join('');
+}
+function navigate(id){
+  curMod=id;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const el=document.getElementById('nav_'+id);if(el)el.classList.add('active');
+  const item=NAV.find(n=>n.id===id);
+  document.getElementById('pageTitle').textContent=item?item.lbl:id;
+  renderMod(id);
+  if(window.innerWidth<768)closeSidebar();
+}
+function renderMod(id){
+  const map={dashboard:rDash,flats:rFlats,residents:rResidents,maintenance:rMaint,complaints:rComplaints,housekeeping:rHK,security:rSecurity,cctv:rCCTV,water:rWater,electrical:rElectrical,gardening:rGardening,staff:rStaff,vendors:rVendors,financial:rFinancial,documents:rDocs,notices:rNotices,emergency:rEmergency,aiassistant:rAI,roadmap:rRoadmap};
+  cctvTimers.forEach(t=>clearInterval(t));cctvTimers=[];
+  document.getElementById('content').innerHTML=`<div class="module active">${(map[id]||(() =>''))()}</div>`;
+  setTimeout(()=>postRender(id),60);
+}
+function postRender(id){
+  if(id==='dashboard')drawDashCharts();
+  if(id==='financial')drawFinCharts();
+  if(id==='water')animateTanks();
+  if(id==='cctv')startCCTV();
+  if(id==='aiassistant')renderChat();
+}
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar'),ov=document.getElementById('overlay');
+  if(window.innerWidth<768){sb.classList.toggle('mob-open');ov.classList.toggle('open');}
+  else{sb.classList.toggle('collapsed');}
+}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('overlay').classList.remove('open');}
+function toggleTheme(){
+  isDark=!isDark;applyTheme();saveState();
+  const btn=document.querySelector('.hbtn[onclick="toggleTheme()"]');
+  if(btn)btn.textContent=isDark?'🌙':'☀️';
+}
+function applyTheme(){
+  document.body.setAttribute('data-theme',isDark?'dark':'light');
+  const btn=document.querySelector('.hbtn[onclick="toggleTheme()"]');
+  if(btn)btn.textContent=isDark?'🌙':'☀️';
+}
+function buildNotifs(){
+  const items=[{t:'Emergency: Gate lock broken',d:'Complaint C003 - C-303'},{t:'Maintenance Due - 4 flats',d:'June 2024 pending'},{t:'Water quality test required',d:'Last test 45 days ago'},{t:'SparkTech AMC expiring',d:'Expires 31 August 2024'},{t:'RWA AGM - 16 June',d:'Annual general meeting'}];
+  document.getElementById('notifPanel').innerHTML=`<div class="notif-hd">Notifications (${items.length})</div>`+items.map(n=>`<div class="nitem"><div class="ntitle">${n.t}</div><div class="ndesc">${n.d}</div></div>`).join('');
+}
+function toggleNotif(){notifOpen=!notifOpen;document.getElementById('notifPanel').classList.toggle('open',notifOpen);}
+function closeNotif(){notifOpen=false;document.getElementById('notifPanel').classList.remove('open');}
+function openModal(title,body,footer){
+  document.getElementById('mTitle').textContent=title;
+  document.getElementById('mBody').innerHTML=body;
+  document.getElementById('mFooter').innerHTML=footer||'<button class="btn btn-p" onclick="closeModal()">Close</button>';
+  document.getElementById('mainModal').classList.add('open');
+}
+function closeModal(){document.getElementById('mainModal').classList.remove('open');}
+function toast(msg,type='ok'){
+  const el=document.createElement('div');
+  el.className=`toast ${type}`;
+  el.innerHTML=`<span>${type==='ok'?'✅':type==='err'?'❌':'⚠️'}</span><span style="flex:1">${msg}</span>`;
+  document.getElementById('toastC').appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateX(20px)';el.style.transition='all .3s';setTimeout(()=>el.remove(),300);},3500);
+}
+
+// ══ CHART UTILITIES ══
+function drawBar(canvas,data,opts={}){
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.parentElement?(canvas.parentElement.clientWidth-36)||400:400;
+  canvas.width=W;
+  const H=canvas.height||200;
+  const pad={t:20,r:16,b:38,l:52};
+  const cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
+  ctx.clearRect(0,0,W,H);
+  const allVals=data.datasets.flatMap(s=>s.data);
+  const maxV=Math.max(...allVals)*1.18||100;
+  const dark=document.body.getAttribute('data-theme')!=='light';
+  const gc=dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)';
+  const tc=dark?'#8b949e':'#64748b';
+  ctx.font='10px system-ui';
+  for(let i=0;i<=5;i++){
+    const y=pad.t+cH-(i/5)*cH;
+    ctx.strokeStyle=gc;ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cW,y);ctx.stroke();
+    const v=Math.round((i/5)*maxV);
+    ctx.fillStyle=tc;ctx.textAlign='right';
+    ctx.fillText(v>=1000?(v/1000).toFixed(0)+'k':v+'',pad.l-4,y+3);
+  }
+  const sets=data.datasets,labels=data.labels;
+  const grpW=Math.max(6,cW/labels.length*0.7);
+  const bw=grpW/sets.length;
+  sets.forEach((set,si)=>{
+    labels.forEach((lbl,li)=>{
+      const x=pad.l+(li+0.5)*(cW/labels.length)-grpW/2+si*bw;
+      const h=Math.max(2,(set.data[li]/maxV)*cH);
+      const y=pad.t+cH-h;
+      ctx.fillStyle=set.color;
+      if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,bw-1,h,3);ctx.fill();}
+      else{ctx.fillRect(x,y,bw-1,h);}
+    });
+  });
+  labels.forEach((lbl,li)=>{
+    ctx.fillStyle=tc;ctx.textAlign='center';ctx.font='10px system-ui';
+    const t=lbl.length>5?lbl.slice(0,4)+'..':lbl;
+    ctx.fillText(t,pad.l+(li+0.5)*(cW/labels.length),pad.t+cH+14);
+  });
+}
+function drawLine(canvas,data){
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.parentElement?(canvas.parentElement.clientWidth-36)||400:400;
+  canvas.width=W;
+  const H=canvas.height||200;
+  const pad={t:20,r:16,b:38,l:54};
+  const cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
+  ctx.clearRect(0,0,W,H);
+  const allVals=data.datasets.flatMap(s=>s.data);
+  const maxV=Math.max(...allVals)*1.18||100;
+  const dark=document.body.getAttribute('data-theme')!=='light';
+  const gc=dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)';
+  const tc=dark?'#8b949e':'#64748b';
+  for(let i=0;i<=5;i++){
+    const y=pad.t+cH-(i/5)*cH;
+    ctx.strokeStyle=gc;ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cW,y);ctx.stroke();
+    const v=Math.round((i/5)*maxV);
+    ctx.fillStyle=tc;ctx.textAlign='right';ctx.font='10px system-ui';
+    ctx.fillText(v>=1000?(v/1000).toFixed(0)+'k':v+'',pad.l-4,y+3);
+  }
+  data.datasets.forEach(set=>{
+    const pts=set.data.map((v,i)=>({x:pad.l+(i/(set.data.length-1))*cW,y:pad.t+cH-(v/maxV)*cH}));
+    const g=ctx.createLinearGradient(0,pad.t,0,pad.t+cH);
+    g.addColorStop(0,set.color+'55');g.addColorStop(1,set.color+'00');
+    ctx.beginPath();ctx.moveTo(pts[0].x,pad.t+cH);
+    pts.forEach(p=>ctx.lineTo(p.x,p.y));
+    ctx.lineTo(pts[pts.length-1].x,pad.t+cH);ctx.closePath();
+    ctx.fillStyle=g;ctx.fill();
+    ctx.beginPath();pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+    ctx.strokeStyle=set.color;ctx.lineWidth=2;ctx.stroke();
+    pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle=set.color;ctx.fill();});
+  });
+  data.labels.forEach((lbl,li)=>{
+    ctx.fillStyle=tc;ctx.textAlign='center';ctx.font='10px system-ui';
+    ctx.fillText(lbl,pad.l+(li/(data.labels.length-1))*cW,pad.t+cH+14);
+  });
+}
+function drawDonut(canvas,data,colors,labels,center){
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2,cy=H/2,ouR=Math.min(W,H)*0.42,inR=ouR*0.58;
+  const total=data.reduce((a,v)=>a+v,0)||1;
+  let start=-Math.PI/2;
+  data.forEach((v,i)=>{
+    const angle=(v/total)*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,ouR,start,start+angle);
+    ctx.arc(cx,cy,inR,start+angle,start,true);ctx.closePath();
+    ctx.fillStyle=colors[i]||'#6366f1';ctx.fill();
+    start+=angle;
+  });
+  if(center){
+    const dark=document.body.getAttribute('data-theme')!=='light';
+    ctx.fillStyle=dark?'#f0f6fc':'#0f0e2a';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font=`bold ${Math.min(W,H)*0.14}px system-ui`;
+    ctx.fillText(center,cx,cy-4);
+    if(labels&&labels[0]){
+      ctx.font=`${Math.min(W,H)*0.08}px system-ui`;
+      ctx.fillStyle=dark?'#8b949e':'#4c4f6e';
+      ctx.fillText(labels[0],cx,cy+Math.min(W,H)*0.16);
+    }
+  }
+}
+
+// ══ DASHBOARD ══
+function rDash(){
+  const occ=flatsD.filter(f=>f.status==='occupied').length,vac=flatsD.filter(f=>f.status==='vacant').length;
+  const paid=flatsD.filter(f=>f.ms==='paid').length,pend=flatsD.filter(f=>f.ms!=='paid').length;
+  const openC=complaintsD.filter(c=>c.status==='open').length,closedC=complaintsD.filter(c=>c.status==='closed').length,inpC=complaintsD.filter(c=>c.status==='inprogress').length;
+  const health=Math.min(98,Math.round((paid/flatsD.length)*40+(closedC/complaintsD.length)*30+(occ/flatsD.length)*30));
+  const K=(icon,val,lbl,sub,ac)=>`<div class="kpi-card${ac?' acc-'+ac:''}"><span class="kpi-icon">${icon}</span><span class="kpi-value">${val}</span><span class="kpi-label">${lbl}</span>${sub?`<span class="kpi-sub">${sub}</span>`:''}</div>`;
+  return`
+  <div class="section-header"><div><div class="section-title">Executive <span>Dashboard</span></div>
+  <div class="section-sub">${BLD.name} &nbsp;·&nbsp; ${new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div>
+  <div class="section-actions"><button class="btn btn-s btn-sm" onclick="toast('Dashboard report exported!','ok')">📤 Export</button><button class="btn btn-p btn-sm" onclick="showAddComplaint()">+ Complaint</button></div></div>
+  <div class="kpi-grid">
+    ${K('🏢',BLD.totalFlats,'Total Flats','4 Floors','p')}
+    ${K('🔑',occ,'Occupied',Math.round(occ/BLD.totalFlats*100)+'% occupancy','ok')}
+    ${K('🚪',vac,'Vacant','Available','warn')}
+    ${K('💰','&#8377;'+(paid*BLD.mfee).toLocaleString(),'Collected','June 2024','ok')}
+    ${K('⏳','&#8377;'+(pend*BLD.mfee).toLocaleString(),'Dues Pending','Follow-up needed','err')}
+    ${K('👥',staffD.length,'Total Staff','All active','')}
+    ${K('🔧',openC,'Open Complaints',inpC+' in progress','err')}
+    ${K('✅',closedC,'Resolved','This month','ok')}
+    ${K('🏥',health+'%','Building Health','Score','ok')}
+    ${K('💧','87%','Water Level','Combined tanks','p')}
+    ${K('⚡','NORMAL','Power Status','Grid + DG ready','ok')}
+    ${K('🛡️','SECURE','Security','All guards on duty','ok')}
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">📈 Collection Trend 2024</span><span class="b-ok">6 Months</span></div>
+    <div class="card-body"><canvas id="chColl" height="180"></canvas></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">🔧 Complaints by Category</span><span class="b-info">${complaintsD.length} Total</span></div>
+    <div class="card-body"><canvas id="chComp" height="180"></canvas></div></div>
+  </div>
+  <div class="g3">
+    <div class="card"><div class="card-header"><span class="card-title">🏥 Building Health</span></div>
+    <div class="card-body" style="display:flex;justify-content:center"><canvas id="chHealth" width="160" height="160"></canvas></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📋 Maintenance Status</span></div>
+    <div class="card-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:12px;color:var(--tm)">Collection Rate</span><span style="font-size:18px;font-weight:800;color:var(--ok)">${Math.round(paid/flatsD.length*100)}%</span></div>
+      <div class="pb mb-16" style="margin-bottom:12px"><div class="pf" style="width:${Math.round(paid/flatsD.length*100)}%"></div></div>
+      <div class="finm"><span style="font-size:12px;color:var(--tm)">✅ Paid</span><span class="b-ok">${paid} Flats</span></div>
+      <div class="finm"><span style="font-size:12px;color:var(--tm)">⏳ Pending</span><span class="b-warn">${flatsD.filter(f=>f.ms==='pending').length} Flats</span></div>
+      <div class="finm"><span style="font-size:12px;color:var(--tm)">🚨 Overdue</span><span class="b-err">${flatsD.filter(f=>f.ms==='overdue').length} Flats</span></div>
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">🚨 Priority Alerts</span></div>
+    <div class="card-body">
+      ${complaintsD.filter(c=>c.pri==='emergency'||c.pri==='high').slice(0,4).map(c=>`
+      <div style="background:var(--${c.pri==='emergency'?'err':'warn'}10);border:1px solid var(--${c.pri==='emergency'?'err':'warn'});border-radius:8px;padding:8px 10px;margin-bottom:7px;cursor:pointer" onclick="showCDetail('${c.id}')">
+        <div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="font-size:11.5px;font-weight:700;color:var(--th)">${c.title.substring(0,36)}${c.title.length>36?'...':''}</span><span class="b-${c.pri==='emergency'?'err':'warn'}" style="font-size:9px">${c.pri.toUpperCase()}</span></div>
+        <div style="font-size:10.5px;color:var(--tm)">Flat ${c.flat} · ${c.cat}</div>
+      </div>`).join('')}
+    </div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">📋 Recent Activity</span></div>
+    <div class="card-body"><div class="afeed">
+      <div class="aitem"><div class="adot" style="background:var(--err)"></div><div class="atxt"><b>Emergency complaint</b> raised — Gate lock broken C-303</div><div class="atime">2h ago</div></div>
+      <div class="aitem"><div class="adot" style="background:var(--ok)"></div><div class="atxt"><b>&#8377;3,500 received</b> from B-201 (Arun Kapoor) — June maintenance</div><div class="atime">3h ago</div></div>
+      <div class="aitem"><div class="adot" style="background:var(--warn)"></div><div class="atxt"><b>Complaint C-014</b> escalated to High — Muddy water B-205</div><div class="atime">5h ago</div></div>
+      <div class="aitem"><div class="adot" style="background:var(--info)"></div><div class="atxt"><b>Visitor logged</b> — Interior designer team at B-204</div><div class="atime">6h ago</div></div>
+      <div class="aitem"><div class="adot" style="background:var(--ok)"></div><div class="atxt"><b>Notice posted</b> — Water supply interruption on 8 June</div><div class="atime">Yesterday</div></div>
+      <div class="aitem"><div class="adot" style="background:var(--s)"></div><div class="atxt"><b>Guard shift change</b> — Dheeraj reported for night duty at 10 PM</div><div class="atime">Yesterday</div></div>
+    </div></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">👥 Staff On Duty</span></div>
+    <div class="card-body">
+      ${staffD.slice(0,6).map(s=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div class="avatar" style="width:28px;height:28px;font-size:10px">${s.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--th)">${s.name}</div><div style="font-size:10px;color:var(--tm)">${s.role}</div></div>
+        <span class="son" style="font-size:10px">Active</span>
+      </div>`).join('')}
+    </div></div>
+  </div>`;
+}
+function drawDashCharts(){
+  drawBar(document.getElementById('chColl'),{
+    labels:['Jan','Feb','Mar','Apr','May','Jun'],
+    datasets:[{label:'Collected',data:[78000,81000,77500,82500,80000,76500],color:'#6366f1'},{label:'Target',data:[84000,84000,84000,84000,84000,84000],color:'rgba(139,148,158,0.35)'}]
+  });
+  const cats=['Plumbing','Electrical','Security','Housekeeping','Water','Lift','Parking','Other'];
+  drawBar(document.getElementById('chComp'),{labels:cats,datasets:[{label:'Count',data:cats.map(c=>complaintsD.filter(x=>x.cat.includes(c)).length),color:'#8b5cf6'}]});
+  const paid=flatsD.filter(f=>f.ms==='paid').length;
+  drawDonut(document.getElementById('chHealth'),[paid,flatsD.length-paid],['#10b981','rgba(255,255,255,0.1)'],['Healthy'],Math.round(paid/flatsD.length*100)+'%');
+}
+
+// ══ FLATS ══
+function rFlats(){return`
+  <div class="section-header"><div><div class="section-title">Flat <span>Management</span></div>
+  <div class="section-sub">${flatsD.length} Flats · ${flatsD.filter(f=>f.status==='occupied').length} Occupied · ${flatsD.filter(f=>f.status==='vacant').length} Vacant</div></div>
+  <div class="section-actions">
+    <button class="btn btn-s btn-sm" id="vgBtn" onclick="switchFV('grid')">⊞ Grid</button>
+    <button class="btn btn-s btn-sm" id="vlBtn" onclick="switchFV('list')">☰ List</button>
+    <button class="btn btn-p btn-sm" onclick="showAddFlat()">+ Add Flat</button>
+  </div></div>
+  <div class="fbar">
+    <input type="text" id="fsQ" placeholder="🔍 Search flat, owner, tenant..." oninput="filterFlats()">
+    <select id="fsFloor" onchange="filterFlats()"><option value="">All Floors</option><option>1</option><option>2</option><option>3</option><option>4</option></select>
+    <select id="fsStatus" onchange="filterFlats()"><option value="">All Status</option><option value="occupied">Occupied</option><option value="vacant">Vacant</option></select>
+    <select id="fsType" onchange="filterFlats()"><option value="">All Types</option><option>1BHK</option><option>2BHK</option><option>3BHK</option><option>4BHK</option></select>
+    <select id="fsMaint" onchange="filterFlats()"><option value="">All Maintenance</option><option value="paid">Paid</option><option value="pending">Pending</option><option value="overdue">Overdue</option></select>
+  </div>
+  <div id="flatCnt">${renderFG(flatsD)}</div>`;}
+function renderFG(list){return`<div class="flat-grid">${list.map(f=>`
+  <div class="flat-card" onclick="showFD('${f.id}')">
+    <div style="display:flex;align-items:start;justify-content:space-between">
+      <div><div class="fn">${f.num}</div><div class="ft">${f.type} · Floor ${f.floor}</div></div>
+      <span class="${f.ms==='paid'?'b-ok':f.ms==='overdue'?'b-err':'b-warn'}">${f.ms}</span>
+    </div>
+    <div style="margin-top:10px"><div style="font-size:12.5px;font-weight:600;color:var(--t)">👤 ${f.owner}</div>
+    <div style="font-size:11px;color:var(--tm)">${f.tenant?'🏠 Tenant: '+f.tenant:'Owner occupied / Vacant'}</div></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
+      <span style="font-size:10.5px;color:var(--tm)">👨‍👩‍👧 ${f.family} · 🚗 ${f.vehicles.length}</span>
+      <span class="${f.status==='occupied'?'b-ok':'b-g'}">${f.status}</span>
+    </div>
+  </div>`).join('')}</div>`;}
+function renderFL(list){return`<div class="tw"><table><thead><tr><th>Flat</th><th>Type</th><th>Owner</th><th>Tenant</th><th>Phone</th><th>Family</th><th>Maintenance</th><th></th></tr></thead>
+  <tbody>${list.map(f=>`<tr><td class="tdn">${f.num}</td><td>${f.type}</td><td><div class="tdn">${f.owner}</div><div class="tds">Floor ${f.floor}</div></td>
+  <td>${f.tenant||'<span style="color:var(--tm)">—</span>'}</td><td>${f.op}</td><td>${f.family}</td>
+  <td><span class="${f.ms==='paid'?'b-ok':f.ms==='overdue'?'b-err':'b-warn'}">${f.ms}</span></td>
+  <td><button class="btn btn-s btn-sm" onclick="showFD('${f.id}')">View</button></td></tr>`).join('')}</tbody></table></div>`;}
+function switchFV(mode){
+  flatView=mode;
+  document.getElementById('vgBtn').className=`btn ${mode==='grid'?'btn-p':'btn-s'} btn-sm`;
+  document.getElementById('vlBtn').className=`btn ${mode==='list'?'btn-p':'btn-s'} btn-sm`;
+  filterFlats();
+}
+function filterFlats(){
+  const q=(document.getElementById('fsQ')||{}).value?.toLowerCase()||'';
+  const fl=(document.getElementById('fsFloor')||{}).value||'';
+  const st=(document.getElementById('fsStatus')||{}).value||'';
+  const ty=(document.getElementById('fsType')||{}).value||'';
+  const ms=(document.getElementById('fsMaint')||{}).value||'';
+  const list=flatsD.filter(f=>{
+    if(q&&!`${f.num} ${f.owner} ${f.tenant}`.toLowerCase().includes(q))return false;
+    if(fl&&f.floor!=fl)return false;if(st&&f.status!==st)return false;
+    if(ty&&f.type!==ty)return false;if(ms&&f.ms!==ms)return false;return true;
+  });
+  const el=document.getElementById('flatCnt');
+  if(el)el.innerHTML=flatView==='list'?renderFL(list):renderFG(list);
+}
+function showFD(id){
+  const f=flatsD.find(x=>x.id===id);if(!f)return;
+  const fc=complaintsD.filter(c=>c.flat===f.num);
+  openModal('Flat '+f.num,`
+  <div class="fg"><div class="field"><label>Flat / Type</label><input readonly value="${f.num} · ${f.type} · Floor ${f.floor}"></div>
+  <div class="field"><label>Status / Maintenance</label><input readonly value="${f.status} · ${f.ms}"></div>
+  <div class="field"><label>Owner Name</label><input readonly value="${f.owner}"></div>
+  <div class="field"><label>Owner Phone</label><input readonly value="${f.op}"></div>
+  <div class="field"><label>Owner Email</label><input readonly value="${f.oe}"></div>
+  <div class="field"><label>Tenant Name</label><input readonly value="${f.tenant||'N/A'}"></div>
+  <div class="field"><label>Tenant Phone</label><input readonly value="${f.tp||'N/A'}"></div>
+  <div class="field"><label>Family Members</label><input readonly value="${f.family}"></div>
+  <div class="field"><label>Vehicles</label><input readonly value="${f.vehicles.join(', ')||'None'}"></div>
+  <div class="field"><label>Emergency Contact</label><input readonly value="${f.emg}"></div>
+  <div class="field ff"><label>Notes</label><textarea readonly style="height:50px">${f.notes||'—'}</textarea></div></div>
+  <div style="margin-top:14px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">Complaints (${fc.length})</div>
+  ${fc.slice(0,3).map(c=>`<div style="background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;margin-bottom:6px">
+    <div style="display:flex;justify-content:space-between"><span style="font-size:12px;font-weight:600">${c.title}</span><span class="${c.status==='closed'?'b-ok':c.status==='inprogress'?'b-warn':'b-err'}">${c.status}</span></div>
+    <div style="font-size:11px;color:var(--tm)">${c.cat} · ${c.date}</div></div>`).join('')||'<p style="font-size:12px;color:var(--tm);text-align:center">No complaints</p>'}`,
+  `<button class="btn btn-warn" onclick="markPaid('${f.id}');closeModal()">Mark Paid</button><button class="btn btn-p" onclick="closeModal()">Close</button>`);
+}
+function showAddFlat(){
+  openModal('Add New Flat',`<div class="fg">
+  <div class="field"><label>Flat Number *</label><input id="nfn" placeholder="e.g. E-501"></div>
+  <div class="field"><label>Floor</label><select id="nff"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+  <div class="field"><label>Type</label><select id="nft"><option>1BHK</option><option>2BHK</option><option>3BHK</option><option>4BHK</option></select></div>
+  <div class="field"><label>Status</label><select id="nfs"><option value="occupied">Occupied</option><option value="vacant">Vacant</option></select></div>
+  <div class="field"><label>Owner Name *</label><input id="nfo" placeholder="Full name"></div>
+  <div class="field"><label>Owner Phone</label><input id="nfop" placeholder="10-digit"></div>
+  <div class="field"><label>Owner Email</label><input id="nfoe" placeholder="email@example.com"></div>
+  <div class="field"><label>Tenant Name</label><input id="nftn" placeholder="If applicable"></div>
+  <div class="field"><label>Family Members</label><input id="nffm" type="number" value="2" min="0"></div>
+  <div class="field"><label>Emergency Contact</label><input id="nfec" placeholder="Name | Phone"></div>
+  <div class="field ff"><label>Notes</label><textarea id="nfno" placeholder="Any special notes..."></textarea></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="addFlat()">Add Flat</button>`);
+}
+function addFlat(){
+  const num=(document.getElementById('nfn')||{}).value?.trim(),own=(document.getElementById('nfo')||{}).value?.trim();
+  if(!num||!own){toast('Fill required fields.','warn');return;}
+  flatsD.push({id:num.replace(/\W/g,''),num,floor:+document.getElementById('nff').value,type:document.getElementById('nft').value,status:document.getElementById('nfs').value,owner:own,op:document.getElementById('nfop').value,oe:document.getElementById('nfoe').value,tenant:document.getElementById('nftn').value,tp:'',family:+document.getElementById('nffm').value||0,vehicles:[],emg:document.getElementById('nfec').value,ms:'pending',notes:document.getElementById('nfno').value});
+  saveState();closeModal();toast('Flat '+num+' added!','ok');navigate('flats');
+}
+function markPaid(id){const f=flatsD.find(x=>x.id===id);if(f){f.ms='paid';saveState();toast('Marked paid: '+f.num,'ok');}}
+
+// ══ RESIDENTS PORTAL ══
+function rResidents(){return`
+  <div class="section-header"><div><div class="section-title">Resident <span>Portal</span></div><div class="section-sub">Self-service for all residents</div></div></div>
+  <div class="g3">
+    <div class="card" style="cursor:pointer;border-color:rgba(99,102,241,0.4)" onclick="showAddComplaint()"><div class="card-body" style="text-align:center;padding:24px"><div style="font-size:36px;margin-bottom:8px">📝</div><div style="font-size:14px;font-weight:700;color:var(--th)">Raise a Complaint</div><div style="font-size:12px;color:var(--tm);margin-top:4px">Submit maintenance or service request</div></div></div>
+    <div class="card" style="cursor:pointer;border-color:rgba(16,185,129,0.4)" onclick="navigate('notices')"><div class="card-body" style="text-align:center;padding:24px"><div style="font-size:36px;margin-bottom:8px">📢</div><div style="font-size:14px;font-weight:700;color:var(--th)">View Notices</div><div style="font-size:12px;color:var(--tm);margin-top:4px">${noticesD.length} active notices</div></div></div>
+    <div class="card" style="cursor:pointer;border-color:rgba(245,158,11,0.4)" onclick="bookService()"><div class="card-body" style="text-align:center;padding:24px"><div style="font-size:36px;margin-bottom:8px">🔧</div><div style="font-size:14px;font-weight:700;color:var(--th)">Book a Service</div><div style="font-size:12px;color:var(--tm);margin-top:4px">Plumber, electrician, cleaner...</div></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">📋 My Complaints</span><button class="btn btn-p btn-sm" onclick="showAddComplaint()">+ New</button></div>
+    <div class="card-body">${complaintsD.slice(0,5).map(c=>`<div style="background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer" onclick="showCDetail('${c.id}')">
+      <div style="display:flex;justify-content:space-between"><span style="font-size:12.5px;font-weight:600;color:var(--th)">${c.title}</span><span class="${c.status==='closed'?'b-ok':c.status==='inprogress'?'b-warn':'b-err'}">${c.status}</span></div>
+      <div style="font-size:11px;color:var(--tm)">${c.cat} · Flat ${c.flat} · ${c.date}</div></div>`).join('')}</div></div>
+    <div class="card"><div class="card-header"><span class="card-title">💰 Maintenance History</span><button class="btn btn-s btn-sm" onclick="toast('Receipt PDF generated!','ok')">📄 Receipt</button></div>
+    <div class="card-body">${['January','February','March','April','May','June'].map((m,i)=>`<div class="finm"><div><div style="font-size:12.5px;font-weight:600;color:var(--th)">${m} 2024</div><div style="font-size:11px;color:var(--tm)">&#8377;${BLD.mfee.toLocaleString()}</div></div><span class="${i<5?'b-ok':'b-warn'}">${i<5?'PAID':'PENDING'}</span></div>`).join('')}</div></div>
+  </div>
+  <div class="card"><div class="card-header"><span class="card-title">💡 Submit Suggestion</span></div>
+  <div class="card-body"><div class="fg">
+    <div class="field"><label>Your Flat</label><input id="sgF" placeholder="e.g. A-101"></div>
+    <div class="field"><label>Category</label><select id="sgC"><option>General</option><option>Security</option><option>Maintenance</option><option>Facilities</option><option>Events</option></select></div>
+    <div class="field ff"><label>Suggestion</label><textarea id="sgT" placeholder="Share your suggestion for building improvement..."></textarea></div>
+  </div>
+  <button class="btn btn-p" style="margin-top:8px" onclick="if(document.getElementById('sgT').value.trim()){toast('Suggestion submitted to RWA Committee!','ok');document.getElementById('sgT').value='';}else toast('Please write your suggestion.','warn')">Submit</button>
+  </div></div>`;}
+function bookService(){
+  openModal('Book a Service',`<div class="fg">
+  <div class="field"><label>Your Flat</label><input id="bsF" placeholder="e.g. A-101"></div>
+  <div class="field"><label>Service Type</label><select id="bsT"><option>Plumbing</option><option>Electrical</option><option>Deep Cleaning</option><option>Pest Control</option><option>Carpentry</option><option>Painting</option></select></div>
+  <div class="field"><label>Date</label><input type="date" id="bsD"></div>
+  <div class="field"><label>Time Slot</label><select><option>Morning (8-11 AM)</option><option>Afternoon (11-2 PM)</option><option>Evening (4-7 PM)</option></select></div>
+  <div class="field ff"><label>Description</label><textarea placeholder="Describe the service required..."></textarea></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="toast('Service booked! You will be contacted within 2 hours.','ok');closeModal()">Book Now</button>`);
+}
+
+// ══ MAINTENANCE ══
+function rMaint(){
+  const paid=flatsD.filter(f=>f.ms==='paid').length,pend=flatsD.filter(f=>f.ms==='pending').length,ovd=flatsD.filter(f=>f.ms==='overdue').length;
+  const K=(i,v,l,s,a)=>`<div class="kpi-card${a?' acc-'+a:''}"><span class="kpi-icon">${i}</span><span class="kpi-value">${v}</span><span class="kpi-label">${l}</span>${s?`<span class="kpi-sub">${s}</span>`:''}</div>`;
+  return`
+  <div class="section-header"><div><div class="section-title">Maintenance <span>Collection</span></div><div class="section-sub">June 2024 · &#8377;${BLD.mfee}/flat/month</div></div>
+  <div class="section-actions"><button class="btn btn-s btn-sm" onclick="toast('Reminder SMS sent to ${pend+ovd} residents!','ok')">📱 Reminders</button><button class="btn btn-p btn-sm" onclick="toast('Maintenance report exported!','ok')">📤 Export</button></div></div>
+  <div class="kpi-grid">
+    ${K('✅',paid,'Paid Flats','&#8377;'+(paid*BLD.mfee).toLocaleString()+' collected','ok')}
+    ${K('⏳',pend,'Pending','&#8377;'+(pend*BLD.mfee).toLocaleString()+' due','warn')}
+    ${K('🚨',ovd,'Overdue','+&#8377;'+BLD.latefee+' late fee','err')}
+    ${K('💰','&#8377;'+(paid*BLD.mfee).toLocaleString(),'Total Collected','June 2024','')}
+    ${K('📊',Math.round(paid/flatsD.length*100)+'%','Collection Rate','This month','ok')}
+    ${K('💸','&#8377;'+(pend*BLD.mfee+ovd*(BLD.mfee+BLD.latefee)).toLocaleString(),'Total Pending','','err')}
+  </div>
+  <div class="card"><div class="card-header"><span class="card-title">📋 Flat-wise Status — June 2024</span>
+  <div style="display:flex;gap:8px"><span class="b-ok">✅ ${paid} Paid</span><span class="b-warn">⏳ ${pend} Pending</span><span class="b-err">🚨 ${ovd} Overdue</span></div></div>
+  <div class="tw"><table><thead><tr><th>Flat</th><th>Owner</th><th>Tenant</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>${flatsD.map(f=>`<tr><td class="tdn">${f.num}</td><td>${f.owner}</td><td>${f.tenant||'—'}</td>
+  <td>&#8377;${f.ms==='overdue'?(BLD.mfee+BLD.latefee).toLocaleString():BLD.mfee.toLocaleString()}${f.ms==='overdue'?` <span style="font-size:9px;color:var(--err)">(+&#8377;${BLD.latefee} fee)</span>`:''}</td>
+  <td><span class="${f.ms==='paid'?'b-ok':f.ms==='overdue'?'b-err':'b-warn'}">${f.ms.toUpperCase()}</span></td>
+  <td style="display:flex;gap:6px">${f.ms!=='paid'?`<button class="btn btn-ok btn-sm" onclick="mPaid('${f.id}')">Mark Paid</button>`:''}<button class="btn btn-s btn-sm" onclick="toast('Receipt for ${f.num} generated!','ok')">📄</button></td></tr>`).join('')}
+  </tbody></table></div></div>`;}
+function mPaid(id){const f=flatsD.find(x=>x.id===id);if(f){f.ms='paid';saveState();toast('Payment recorded: '+f.num,'ok');navigate('maintenance');}}
+
+// ══ COMPLAINTS ══
+function rComplaints(){return`
+  <div class="section-header"><div><div class="section-title">Complaint <span>Management</span></div>
+  <div class="section-sub">${complaintsD.length} Total · ${complaintsD.filter(c=>c.status==='open').length} Open · ${complaintsD.filter(c=>c.status==='inprogress').length} In Progress</div></div>
+  <div class="section-actions">
+    <button class="btn btn-s btn-sm" id="cvK" onclick="switchCV('kanban')">⊟ Kanban</button>
+    <button class="btn btn-s btn-sm" id="cvL" onclick="switchCV('list')">☰ List</button>
+    <button class="btn btn-p btn-sm" onclick="showAddComplaint()">+ New</button>
+  </div></div>
+  <div class="fbar">
+    <input type="text" id="cQ" placeholder="🔍 Search..." oninput="filterC()">
+    <select id="cCat" onchange="filterC()"><option value="">All Categories</option>${['Plumbing','Electrical','Security','Housekeeping','Water Supply','Lift','Gardening','Parking','Other'].map(c=>`<option>${c}</option>`).join('')}</select>
+    <select id="cPri" onchange="filterC()"><option value="">All Priority</option><option>emergency</option><option>high</option><option>medium</option><option>low</option></select>
+    <select id="cSt" onchange="filterC()"><option value="">All Status</option><option value="open">Open</option><option value="inprogress">In Progress</option><option value="closed">Closed</option></select>
+  </div>
+  <div id="cCnt">${renderKanban(complaintsD)}</div>`;}
+function renderKanban(list){
+  const open=list.filter(c=>c.status==='open'),ip=list.filter(c=>c.status==='inprogress'),cl=list.filter(c=>c.status==='closed');
+  const kcard=c=>`<div class="kcard" onclick="showCDetail('${c.id}')">
+    <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+      <span style="font-size:10px;font-weight:700;color:var(--tm)">${c.id}</span>
+      <span class="${c.pri==='emergency'?'b-err':c.pri==='high'?'b-warn':c.pri==='medium'?'b-info':'b-g'}" style="font-size:9px">${c.pri.toUpperCase()}</span>
+    </div>
+    <div style="font-size:12.5px;font-weight:600;color:var(--th);margin-bottom:3px">${c.title}</div>
+    <div style="font-size:11px;color:var(--tm)">Flat ${c.flat} · ${c.cat}</div>
+    ${c.assigned?`<div style="font-size:10px;color:var(--pl);margin-top:4px">👤 ${c.assigned}</div>`:''}
+    <div style="font-size:10px;color:var(--tm);margin-top:2px">📅 ${c.date}</div></div>`;
+  return`<div class="kanban">
+    <div class="kcol"><div class="kcol-title">🔴 Open <span class="b-err">${open.length}</span></div>${open.map(kcard).join('')}</div>
+    <div class="kcol"><div class="kcol-title">🟡 In Progress <span class="b-warn">${ip.length}</span></div>${ip.map(kcard).join('')}</div>
+    <div class="kcol"><div class="kcol-title">🟢 Closed <span class="b-ok">${cl.length}</span></div>${cl.map(kcard).join('')}</div>
+  </div>`;}
+function renderCList(list){return`<div class="tw"><table><thead><tr><th>ID</th><th>Title</th><th>Flat</th><th>Category</th><th>Priority</th><th>Status</th><th>Date</th><th>Assigned</th><th></th></tr></thead>
+  <tbody>${list.map(c=>`<tr><td class="tdn">${c.id}</td><td style="max-width:170px;white-space:normal;line-height:1.3">${c.title}</td><td>${c.flat}</td><td>${c.cat}</td>
+  <td><span class="${c.pri==='emergency'?'b-err':c.pri==='high'?'b-warn':c.pri==='medium'?'b-info':'b-g'}">${c.pri}</span></td>
+  <td><span class="${c.status==='closed'?'b-ok':c.status==='inprogress'?'b-warn':'b-err'}">${c.status}</span></td>
+  <td>${c.date}</td><td>${c.assigned||'—'}</td>
+  <td><button class="btn btn-s btn-sm" onclick="showCDetail('${c.id}')">View</button></td></tr>`).join('')}</tbody></table></div>`;}
+function switchCV(mode){
+  complaintView=mode;
+  document.getElementById('cvK').className=`btn ${mode==='kanban'?'btn-p':'btn-s'} btn-sm`;
+  document.getElementById('cvL').className=`btn ${mode==='list'?'btn-p':'btn-s'} btn-sm`;
+  filterC();
+}
+function filterC(){
+  const q=(document.getElementById('cQ')||{}).value?.toLowerCase()||'';
+  const cat=(document.getElementById('cCat')||{}).value||'';
+  const pri=(document.getElementById('cPri')||{}).value||'';
+  const st=(document.getElementById('cSt')||{}).value||'';
+  const list=complaintsD.filter(c=>{
+    if(q&&!`${c.title} ${c.flat} ${c.cat}`.toLowerCase().includes(q))return false;
+    if(cat&&c.cat!==cat)return false;if(pri&&c.pri!==pri)return false;if(st&&c.status!==st)return false;return true;
+  });
+  const el=document.getElementById('cCnt');if(el)el.innerHTML=complaintView==='list'?renderCList(list):renderKanban(list);
+}
+function showCDetail(id){
+  const c=complaintsD.find(x=>x.id===id);if(!c)return;
+  openModal('Complaint '+c.id,`
+  <div class="fg"><div><label style="font-size:11px;color:var(--tm)">ID</label><div style="font-weight:700;color:var(--pl)">${c.id}</div></div>
+  <div><label style="font-size:11px;color:var(--tm)">FLAT</label><div style="font-weight:700">${c.flat}</div></div>
+  <div><label style="font-size:11px;color:var(--tm)">CATEGORY</label><span class="b-p">${c.cat}</span></div>
+  <div><label style="font-size:11px;color:var(--tm)">PRIORITY</label><span class="${c.pri==='emergency'?'b-err':c.pri==='high'?'b-warn':'b-g'}">${c.pri.toUpperCase()}</span></div>
+  <div><label style="font-size:11px;color:var(--tm)">STATUS</label><span class="${c.status==='closed'?'b-ok':c.status==='inprogress'?'b-warn':'b-err'}">${c.status.toUpperCase()}</span></div>
+  <div><label style="font-size:11px;color:var(--tm)">DATE</label><div>${c.date}</div></div></div>
+  <div style="margin-top:12px"><label style="font-size:11px;color:var(--tm)">TITLE</label><div style="font-weight:700;font-size:14px;color:var(--th);margin-top:2px">${c.title}</div></div>
+  <div style="margin-top:10px"><label style="font-size:11px;color:var(--tm)">DESCRIPTION</label><div style="font-size:12.5px;line-height:1.6;margin-top:2px">${c.desc}</div></div>
+  <div style="margin-top:10px"><label style="font-size:11px;color:var(--tm)">ASSIGNED TO</label><div style="font-weight:600;margin-top:2px">${c.assigned||'Unassigned'}</div></div>
+  ${c.res?`<div style="background:var(--ok10);border:1px solid var(--ok);border-radius:8px;padding:10px;margin-top:12px"><div style="font-size:11px;font-weight:700;color:var(--ok)">✅ RESOLUTION</div><div style="font-size:12px;margin-top:4px">${c.res}</div></div>`:''}
+  <div class="field" style="margin-top:14px"><label>Update Status</label>
+    <select id="uSt" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)">
+    <option value="open" ${c.status==='open'?'selected':''}>Open</option>
+    <option value="inprogress" ${c.status==='inprogress'?'selected':''}>In Progress</option>
+    <option value="closed" ${c.status==='closed'?'selected':''}>Closed</option></select></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="updC('${c.id}')">Update</button>`);
+}
+function showAddComplaint(){
+  openModal('Raise New Complaint',`<div class="fg">
+  <div class="field"><label>Flat Number *</label><input id="ncF" placeholder="e.g. A-101"></div>
+  <div class="field"><label>Category</label><select id="ncCa">${['Plumbing','Electrical','Security','Housekeeping','Water Supply','Lift','Gardening','Parking','Other'].map(c=>`<option>${c}</option>`).join('')}</select></div>
+  <div class="field"><label>Priority</label><select id="ncP"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="emergency">Emergency</option></select></div>
+  <div class="field"><label>Assigned To</label><input id="ncA" placeholder="Staff name"></div>
+  <div class="field ff"><label>Title *</label><input id="ncT" placeholder="Brief issue description"></div>
+  <div class="field ff"><label>Description</label><textarea id="ncD" placeholder="Detailed description..."></textarea></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="addC()">Submit</button>`);
+}
+function addC(){
+  const flat=(document.getElementById('ncF')||{}).value?.trim(),title=(document.getElementById('ncT')||{}).value?.trim();
+  if(!flat||!title){toast('Fill required fields.','warn');return;}
+  const id='C'+String(complaintsD.length+1).padStart(3,'0');
+  complaintsD.push({id,flat,cat:document.getElementById('ncCa').value,title,desc:document.getElementById('ncD').value,status:'open',pri:document.getElementById('ncP').value,date:new Date().toISOString().split('T')[0],assigned:document.getElementById('ncA').value,res:''});
+  saveState();closeModal();toast('Complaint '+id+' raised!','ok');navigate('complaints');
+}
+function updC(id){
+  const c=complaintsD.find(x=>x.id===id),ns=document.getElementById('uSt').value;
+  if(c){c.status=ns;saveState();closeModal();toast('Complaint '+id+' updated to: '+ns,'ok');navigate('complaints');}
+}
+
+// ══ HOUSEKEEPING ══
+function rHK(){
+  const done=hkD.filter(h=>h.done).length,total=hkD.length;
+  return`
+  <div class="section-header"><div><div class="section-title">Housekeeping <span>Management</span></div><div class="section-sub">${done}/${total} tasks completed today</div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="hkAll(true)">✅ Mark All Done</button><button class="btn btn-s btn-sm" onclick="hkAll(false)">🔄 Reset</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">✅</span><span class="kpi-value">${done}</span><span class="kpi-label">Completed</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">⏳</span><span class="kpi-value">${total-done}</span><span class="kpi-label">Pending</span></div>
+    <div class="kpi-card"><span class="kpi-icon">👷</span><span class="kpi-value">${staffD.filter(s=>s.role==='Housekeeping').length}</span><span class="kpi-label">HK Staff</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📊</span><span class="kpi-value">${Math.round(done/total*100)}%</span><span class="kpi-label">Completion</span></div>
+  </div>
+  <div style="background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px;margin-bottom:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;font-weight:700;color:var(--th)">Today's Progress</span><span style="font-size:13px;font-weight:700;color:var(--ok)">${Math.round(done/total*100)}%</span></div>
+    <div class="pb"><div class="pf ok" style="width:${Math.round(done/total*100)}%"></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">📋 Today's Checklist</span></div>
+    <div class="card-body"><div class="cl-list">${hkD.map(h=>`<div class="cl-item ${h.done?'done':''}" onclick="toggleHK('${h.id}')">
+      <div class="cl-box">${h.done?'✓':''}</div>
+      <div style="flex:1"><div class="cl-lbl">${h.task}</div><div style="font-size:10px;color:var(--tm)">${h.area} · ${h.who} · ${h.time}</div></div>
+      <span class="${h.freq==='Daily'?'b-p':'b-g'}" style="font-size:9px">${h.freq}</span>
+    </div>`).join('')}</div></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📊 Area Status</span></div>
+    <div class="card-body">${['Main Lobby','Staircase','Corridors','Parking','Terrace','Garbage Room','Lift Cabin','Gate Area','Compound'].map(area=>{
+      const t=hkD.filter(h=>h.area.toLowerCase().includes(area.split(' ')[0].toLowerCase()));
+      if(!t.length)return'';
+      const d=t.filter(h=>h.done).length;
+      return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-size:12px;width:92px;flex-shrink:0">${area}</span>
+        <div class="pb" style="flex:1"><div class="pf ${d===t.length?'ok':d>0?'warn':'err'}" style="width:${Math.round(d/t.length*100)}%"></div></div>
+        <span style="font-size:11px;color:var(--tm);width:28px">${d}/${t.length}</span></div>`;
+    }).join('')}</div></div>
+  </div>`;}
+function toggleHK(id){const h=hkD.find(x=>x.id===id);if(h){h.done=!h.done;saveState();navigate('housekeeping');}}
+function hkAll(v){hkD.forEach(h=>h.done=v);saveState();toast(v?'All tasks done!':'Checklist reset.','ok');navigate('housekeeping');}
+
+// ══ SECURITY ══
+function rSecurity(){return`
+  <div class="section-header"><div><div class="section-title">Security <span>Management</span></div><div class="section-sub">3 guards on duty · All positions covered</div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="logVisitor()">+ Log Visitor</button><button class="btn btn-warn btn-sm" onclick="logIncident()">⚠️ Incident</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🛡️</span><span class="kpi-value">3</span><span class="kpi-label">Guards Active</span><span class="kpi-sub">All shifts covered</span></div>
+    <div class="kpi-card"><span class="kpi-icon">👥</span><span class="kpi-value">${VISITORS.length}</span><span class="kpi-label">Visitors Today</span></div>
+    <div class="kpi-card"><span class="kpi-icon">📦</span><span class="kpi-value">2</span><span class="kpi-label">Deliveries</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">⚠️</span><span class="kpi-value">${INCIDENTS.length}</span><span class="kpi-label">Incidents</span><span class="kpi-sub">This month</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📹</span><span class="kpi-value">4</span><span class="kpi-label">Cameras Online</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🚪</span><span class="kpi-value">SECURED</span><span class="kpi-label">Main Gate</span></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">👮 Guard Roster</span></div>
+    <div class="card-body">${staffD.filter(s=>s.role==='Security Guard').map(g=>`<div style="background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:12px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar">${g.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--th)">${g.name}</div><div style="font-size:11px;color:var(--tm)">${g.shift}</div></div>
+        <span class="son">Active</span></div>
+      <div style="display:flex;gap:8px;margin-top:8px"><span class="b-p" style="font-size:10px">${g.shift.split('(')[0].trim()}</span><span style="font-size:11px;color:var(--tm)">📞 ${g.phone}</span></div>
+    </div>`).join('')}</div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📋 Visitor Log — Today</span><button class="btn btn-p btn-sm" onclick="logVisitor()">+ Add</button></div>
+    <div class="tw" style="border:none"><table><thead><tr><th>Name</th><th>Flat</th><th>Purpose</th><th>Entry</th><th>Exit</th></tr></thead>
+    <tbody>${VISITORS.map(v=>`<tr><td class="tdn">${v.name}</td><td>${v.flat}</td><td>${v.purpose}</td><td>${v.entry}</td><td>${v.exit}</td></tr>`).join('')}</tbody></table></div></div>
+  </div>
+  <div class="card"><div class="card-header"><span class="card-title">⚠️ Incident Reports</span></div>
+  <div class="card-body">${INCIDENTS.map(i=>`<div style="background:var(--${i.sev==='high'?'err':'warn'}10);border:1px solid var(--${i.sev==='high'?'err':'warn'});border-radius:8px;padding:12px;margin-bottom:10px">
+    <div style="display:flex;align-items:start;justify-content:space-between">
+      <div><div style="font-size:13px;font-weight:700;color:var(--th)">${i.title}</div>
+      <div style="font-size:11px;color:var(--tm)">📅 ${i.date} · ${i.type}</div>
+      <div style="font-size:12px;margin-top:6px">${i.desc}</div>
+      <div style="font-size:11px;color:var(--ok);margin-top:4px">✅ ${i.action}</div></div>
+      <span class="b-${i.sev==='high'?'err':i.sev==='medium'?'warn':'g'}">${i.sev.toUpperCase()}</span>
+    </div></div>`).join('')}</div></div>`;}
+function logVisitor(){
+  openModal('Log New Visitor',`<div class="fg">
+  <div class="field"><label>Visitor Name *</label><input id="vN" placeholder="Full name"></div>
+  <div class="field"><label>Flat to Visit</label><input id="vF" placeholder="e.g. A-101"></div>
+  <div class="field"><label>Purpose</label><input id="vP" placeholder="Personal Visit / Delivery..."></div>
+  <div class="field"><label>Vehicle Number</label><input id="vV" placeholder="e.g. DL-01-AA-1234"></div>
+  <div class="field"><label>Visitor Phone</label><input id="vPh" placeholder="10-digit"></div>
+  <div class="field"><label>Guard on Duty</label><input id="vG" value="Ramesh Singh"></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="toast('Visitor entry logged!','ok');closeModal()">Log Entry</button>`);
+}
+function logIncident(){
+  openModal('Report Incident',`<div class="fg">
+  <div class="field"><label>Incident Type</label><select id="iT" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)"><option>Security</option><option>Electrical</option><option>Water</option><option>Fire</option><option>Medical</option><option>Other</option></select></div>
+  <div class="field"><label>Severity</label><select id="iS" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)"><option>low</option><option>medium</option><option>high</option></select></div>
+  <div class="field ff"><label>Incident Title *</label><input id="iN" placeholder="Brief description"></div>
+  <div class="field ff"><label>Description</label><textarea id="iD" placeholder="Detailed description..."></textarea></div>
+  <div class="field ff"><label>Action Taken</label><textarea id="iA" placeholder="Steps taken so far..."></textarea></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-warn" onclick="toast('Incident report filed!','warn');closeModal()">File Report</button>`);
+}
+
+// ══ CCTV ══
+function rCCTV(){return`
+  <div class="section-header"><div><div class="section-title">CCTV <span>Monitoring Center</span></div><div class="section-sub">4 cameras online · Live feeds active</div></div>
+  <div class="section-actions"><span class="son">All Feeds Live</span><button class="btn btn-s btn-sm" onclick="toast('Footage export queued. Ready in 2 min.','ok')">📥 Export</button></div></div>
+  <div class="cctv-grid">
+    ${[{id:'cam1',lbl:'CAM-1 · Main Entrance Gate',motion:true},{id:'cam2',lbl:'CAM-2 · Building Lobby',motion:false},{id:'cam3',lbl:'CAM-3 · Basement Parking',motion:true},{id:'cam4',lbl:'CAM-4 · Rear Compound Gate',motion:false}].map(cam=>`
+    <div class="cam-card"><canvas class="cam-canvas" id="${cam.id}" width="640" height="360"></canvas>
+      <div style="position:absolute;inset:0;pointer-events:none">
+        <div class="cam-lbl">${cam.lbl}</div>
+        <div class="cam-st"><div class="rec-dot"></div><span style="color:#fff;font-size:9px;font-weight:700">REC</span></div>
+        ${cam.motion?`<div style="position:absolute;top:28px;right:8px;background:rgba(239,68,68,0.85);color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700">⚡ MOTION</div>`:''}
+        <div class="cam-tm" id="${cam.id}_t">00:00:00</div>
+      </div></div>`).join('')}
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">📷 Camera Health</span></div>
+    <div class="card-body">${[{n:'CAM-1',loc:'Main Gate',fps:25,stor:'74%'},{n:'CAM-2',loc:'Lobby',fps:30,stor:'82%'},{n:'CAM-3',loc:'Parking',fps:20,stor:'68%'},{n:'CAM-4',loc:'Rear Gate',fps:25,stor:'71%'}].map(c=>`
+    <div class="finm"><div><div style="font-size:12.5px;font-weight:700;color:var(--th)">${c.n} · ${c.loc}</div><div style="font-size:11px;color:var(--tm)">${c.fps} FPS · Storage: ${c.stor}</div></div><span class="b-ok">ONLINE</span></div>`).join('')}</div></div>
+    <div class="card"><div class="card-header"><span class="card-title">🤖 AI Vision Roadmap</span><span class="b-warn">COMING SOON</span></div>
+    <div class="card-body">${[{i:'🕵️',t:'AI Intruder Detection',d:'Automatic alerts for unauthorized access after hours.'},{i:'👤',t:'Face Recognition',d:'Identify registered residents, flag unknown faces in real-time.'},{i:'🚗',t:'Vehicle Plate Recognition',d:'Auto-match plates to resident vehicle database.'},{i:'📱',t:'Real-Time Mobile Alerts',d:'Instant push notifications for all security events.'}].map(f=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr2)">
+      <span style="font-size:22px">${f.i}</span>
+      <div><div style="font-size:12.5px;font-weight:600;color:var(--th)">${f.t}</div><div style="font-size:11px;color:var(--tm)">${f.d}</div></div>
+    </div>`).join('')}</div></div>
+  </div>`;}
+function startCCTV(){
+  ['cam1','cam2','cam3','cam4'].forEach((id,idx)=>{
+    const cv=document.getElementById(id);if(!cv)return;
+    const ctx=cv.getContext('2d');
+    const bgPalette=[['#0d1f0d'],['#0d0d1f'],['#1a150a'],['#0d1a1a']];
+    const t=setInterval(()=>{
+      if(!document.getElementById(id)){clearInterval(t);return;}
+      const w=cv.width,h=cv.height;
+      ctx.fillStyle=bgPalette[idx][0];ctx.fillRect(0,0,w,h);
+      for(let i=0;i<1200;i++){
+        const x=Math.random()*w,y=Math.random()*h,sz=Math.random()*2.5+0.5;
+        const br=Math.floor(Math.random()*65+10);
+        ctx.fillStyle=`rgba(${br+5},${br+15},${br},${Math.random()*0.55+0.05})`;
+        ctx.fillRect(x,y,sz,sz);
+      }
+      ctx.strokeStyle='rgba(80,160,80,0.18)';ctx.lineWidth=1;
+      for(let y=0;y<h;y+=8){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+      if(idx===0||idx===2){
+        const now=Date.now();
+        const mx=60+Math.sin(now/600)*40,my=60+Math.cos(now/800)*30;
+        ctx.strokeStyle='rgba(255,80,80,0.65)';ctx.lineWidth=1.5;
+        ctx.strokeRect(mx,my,70,90);
+        ctx.fillStyle='rgba(255,80,80,0.85)';ctx.font='9px monospace';ctx.fillText('MOTION',mx+2,my-3);
+      }
+      if(idx===1){
+        ctx.strokeStyle='rgba(100,200,255,0.35)';ctx.lineWidth=1;
+        ctx.strokeRect(w/2-40,h/2-50,80,100);
+        ctx.fillStyle='rgba(100,200,255,0.6)';ctx.font='9px monospace';ctx.fillText('PERSON',w/2-28,h/2-53);
+      }
+      const now=new Date();
+      const ts=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+      const tel=document.getElementById(id+'_t');if(tel)tel.textContent=ts;
+    },120);
+    cctvTimers.push(t);
+  });
+}
+
+// ══ WATER ══
+function rWater(){return`
+  <div class="section-header"><div><div class="section-title">Water <span>Management</span></div><div class="section-sub">2 tanks monitored · Auto-alerts enabled</div></div>
+  <div class="section-actions"><button class="btn btn-s btn-sm" onclick="toast('Tanker refill scheduled for 8 June at 10 AM!','ok')">💧 Schedule Refill</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🔵</span><span class="kpi-value">87%</span><span class="kpi-label">OHT Level</span><span class="kpi-sub">21,750 L available</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">🔷</span><span class="kpi-value">68%</span><span class="kpi-label">UGT Level</span><span class="kpi-sub">34,000 L available</span></div>
+    <div class="kpi-card"><span class="kpi-icon">📊</span><span class="kpi-value">18 KL</span><span class="kpi-label">Daily Usage</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">💧</span><span class="kpi-value">CLEAR</span><span class="kpi-label">Water Quality</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">⚙️</span><span class="kpi-value">NORMAL</span><span class="kpi-label">Pump Status</span></div>
+    <div class="kpi-card"><span class="kpi-icon">📅</span><span class="kpi-value">Jun 10</span><span class="kpi-label">Next Service</span></div>
+  </div>
+  <div class="water-tanks">
+    <div class="tank-card"><div style="font-size:14px;font-weight:700;color:var(--th);margin-bottom:12px">🔵 Overhead Tank (OHT)</div>
+      <div class="tank-v"><div class="tank-f" id="ohtF" style="height:0%"></div><div class="tank-l">87%</div></div>
+      <div style="font-size:12px;color:var(--tm)">Capacity: 25,000 L</div>
+      <div style="font-size:14px;font-weight:700;color:var(--a);margin-top:4px">21,750 L available</div>
+      <div class="pb" style="margin-top:10px"><div class="pf" id="ohtB" style="width:0%;background:var(--a)"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px"><span style="font-size:11px;color:var(--tm)">Last filled: 5 Jun</span><span class="b-ok">Normal</span></div>
+    </div>
+    <div class="tank-card"><div style="font-size:14px;font-weight:700;color:var(--th);margin-bottom:12px">🔷 Underground Tank (UGT)</div>
+      <div class="tank-v"><div class="tank-f" id="ugtF" style="height:0%"></div><div class="tank-l">68%</div></div>
+      <div style="font-size:12px;color:var(--tm)">Capacity: 50,000 L</div>
+      <div style="font-size:14px;font-weight:700;color:var(--warn);margin-top:4px">34,000 L available</div>
+      <div class="pb" style="margin-top:10px"><div class="pf warn" id="ugtB" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px"><span style="font-size:11px;color:var(--tm)">Municipal: 10 AM daily</span><span class="b-warn">Monitor</span></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">💧 Water Quality Report</span><span class="b-ok">ALL PASS</span></div>
+    <div class="card-body">${[['pH Level','7.2','6.5-8.5'],['Turbidity','0.8 NTU','< 5 NTU'],['TDS','284 ppm','< 500 ppm'],['Chlorine','0.4 mg/L','0.2-0.5'],['E.coli','Absent','Absent'],['Hardness','120 mg/L','< 300 mg/L']].map(r=>`
+    <div class="finm"><div><div style="font-size:12.5px;font-weight:600;color:var(--th)">${r[0]}</div><div style="font-size:11px;color:var(--tm)">Range: ${r[2]}</div></div>
+    <div style="text-align:right"><div style="font-size:13px;font-weight:700;color:var(--ok)">${r[1]}</div><span class="b-ok" style="font-size:9px">PASS</span></div></div>`).join('')}
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📊 Consumption Last 7 Days</span></div>
+    <div class="card-body">${[['Mon',17],['Tue',19],['Wed',18],['Thu',21],['Fri',16],['Sat',22],['Sun',15]].map(d=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <span style="font-size:11px;color:var(--tm);width:28px">${d[0]}</span>
+      <div class="pb" style="flex:1"><div class="pf" style="width:${Math.round(d[1]/25*100)}%;background:var(--a)"></div></div>
+      <span style="font-size:12px;font-weight:600;width:44px">${d[1]} KL</span></div>`).join('')}
+    <div style="text-align:center;margin-top:10px;font-size:12px;color:var(--tm)">Avg: <strong style="color:var(--a)">18 KL/day</strong></div>
+    </div></div>
+  </div>`;}
+function animateTanks(){
+  let op=0,up=0;
+  const t=setInterval(()=>{
+    op=Math.min(op+3,87);up=Math.min(up+2.2,68);
+    const of=document.getElementById('ohtF'),uf=document.getElementById('ugtF');
+    const ob=document.getElementById('ohtB'),ub=document.getElementById('ugtB');
+    if(of)of.style.height=op+'%';if(uf)uf.style.height=up+'%';
+    if(ob)ob.style.width=op+'%';if(ub)ub.style.width=up+'%';
+    if(op>=87&&up>=68)clearInterval(t);
+  },30);
+}
+
+// ══ ELECTRICAL ══
+function rElectrical(){return`
+  <div class="section-header"><div><div class="section-title">Electrical <span>Management</span></div><div class="section-sub">Power and energy monitoring dashboard</div></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">⚡</span><span class="kpi-value">NORMAL</span><span class="kpi-label">Grid Supply</span><span class="kpi-sub">220V AC · Stable</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🔋</span><span class="kpi-value">STANDBY</span><span class="kpi-label">DG Backup</span><span class="kpi-sub">62.5 KVA · Ready</span></div>
+    <div class="kpi-card"><span class="kpi-icon">💡</span><span class="kpi-value">18.4 kW</span><span class="kpi-label">Current Load</span><span class="kpi-sub">Peak: 24 kW</span></div>
+    <div class="kpi-card"><span class="kpi-icon">📊</span><span class="kpi-value">4,820 kWh</span><span class="kpi-label">Monthly Usage</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">💰</span><span class="kpi-value">&#8377;38,560</span><span class="kpi-label">Electricity Bill</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">🔧</span><span class="kpi-value">${complaintsD.filter(c=>c.cat==='Electrical').length}</span><span class="kpi-label">Open Issues</span></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">⚡ Power System Status</span></div>
+    <div class="card-body">${[['Grid Power (DVVNL)','ACTIVE','ok','220V AC · Fully stable'],['DG Generator (62.5 KVA)','STANDBY','warn','Fuel: 80% · Last run: 2 days ago'],['Solar Panels (Rooftop)','OFFLINE','g','Phase 3 Roadmap feature'],['Common Area Lighting','ACTIVE','ok','24 points · All functional'],['Lift Power Supply','ACTIVE','ok','Dedicated UPS installed'],['Pump Room Power','ACTIVE','ok','3 pumps running normally']].map(r=>`
+    <div class="finm"><div><div style="font-size:12.5px;font-weight:600;color:var(--th)">${r[0]}</div><div style="font-size:11px;color:var(--tm)">${r[3]}</div></div><span class="b-${r[2]}">${r[1]}</span></div>`).join('')}</div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📊 Energy Usage kWh/Day</span></div>
+    <div class="card-body">${[['1 Jun',162],['2 Jun',155],['3 Jun',171],['4 Jun',168],['5 Jun',180],['6 Jun',150],['7 Jun',145]].map(d=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <span style="font-size:11px;color:var(--tm);width:40px">${d[0]}</span>
+      <div class="pb" style="flex:1"><div class="pf" style="width:${Math.round(d[1]/200*100)}%;background:var(--warn)"></div></div>
+      <span style="font-size:12px;font-weight:600;width:56px">${d[1]} kWh</span></div>`).join('')}</div></div>
+  </div>
+  <div class="card"><div class="card-header"><span class="card-title">🔧 Electrical Complaints</span></div>
+  <div class="tw"><table><thead><tr><th>ID</th><th>Flat</th><th>Issue</th><th>Priority</th><th>Status</th><th>Assigned</th></tr></thead>
+  <tbody>${complaintsD.filter(c=>c.cat==='Electrical').map(c=>`<tr><td class="tdn">${c.id}</td><td>${c.flat}</td>
+  <td style="max-width:200px;white-space:normal">${c.title}</td>
+  <td><span class="${c.pri==='emergency'||c.pri==='high'?'b-err':'b-g'}">${c.pri}</span></td>
+  <td><span class="${c.status==='closed'?'b-ok':c.status==='inprogress'?'b-warn':'b-err'}">${c.status}</span></td>
+  <td>${c.assigned||'—'}</td></tr>`).join('')}</tbody></table></div></div>`;}
+
+// ══ GARDENING ══
+function rGardening(){return`
+  <div class="section-header"><div><div class="section-title">Gardening <span>Management</span></div><div class="section-sub">${PLANTS.length} zones · Ram Swaroop</div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="toast('Garden work logged successfully!','ok')">+ Log Work</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🌿</span><span class="kpi-value">${PLANTS.filter(p=>p.health==='good').length}</span><span class="kpi-label">Healthy Zones</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">⚠️</span><span class="kpi-value">${PLANTS.filter(p=>p.health==='fair').length}</span><span class="kpi-label">Needs Attention</span></div>
+    <div class="kpi-card acc-err"><span class="kpi-icon">🚨</span><span class="kpi-value">${PLANTS.filter(p=>p.health==='poor').length}</span><span class="kpi-label">Poor Condition</span></div>
+    <div class="kpi-card"><span class="kpi-icon">💧</span><span class="kpi-value">Daily</span><span class="kpi-label">Watering</span><span class="kpi-sub">6-8 AM</span></div>
+    <div class="kpi-card"><span class="kpi-icon">🌱</span><span class="kpi-value">15 Jun</span><span class="kpi-label">Fertilizer</span></div>
+    <div class="kpi-card"><span class="kpi-icon">✂️</span><span class="kpi-value">20 Jun</span><span class="kpi-label">Trimming</span></div>
+  </div>
+  <div class="card mb-20"><div class="card-header"><span class="card-title">🌿 Plant Health Tracker</span></div>
+  <div class="tw"><table><thead><tr><th>Plant/Zone</th><th>Type</th><th>Location</th><th>Health</th><th>Last Watered</th><th>Fertilized</th><th>Notes</th></tr></thead>
+  <tbody>${PLANTS.map(p=>`<tr><td class="tdn">${p.name}</td><td>${p.type}</td><td>${p.loc}</td>
+  <td><span class="${p.health==='good'?'b-ok':p.health==='fair'?'b-warn':'b-err'}">${p.health.toUpperCase()}</span></td>
+  <td>${p.watered}</td><td>${p.fertilized}</td>
+  <td style="white-space:normal;max-width:130px;font-size:11.5px">${p.notes||'—'}</td></tr>`).join('')}</tbody></table></div></div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">📅 Garden Schedule</span></div>
+    <div class="card-body">${[['Daily 6 AM','Watering all zones','Ram Swaroop',true],['8 Jun','Deep watering + soil check','Ram Swaroop',false],['10 Jun','Grass lawn treatment','External Vendor',false],['15 Jun','Fertilizer application','Ram Swaroop',false],['20 Jun','Hedge trimming','Ram Swaroop',false],['30 Jun','Monthly health report','Manager',false]].map(e=>`
+    <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr2)">
+      <div style="flex:1"><div style="font-size:12.5px;font-weight:600;color:var(--th)">${e[1]}</div><div style="font-size:11px;color:var(--tm)">📅 ${e[0]} · 👤 ${e[2]}</div></div>
+      <span class="${e[3]?'b-ok':'b-g'}">${e[3]?'Done':'Pending'}</span></div>`).join('')}</div></div>
+    <div class="card"><div class="card-header"><span class="card-title">💡 Care Tips</span></div>
+    <div class="card-body">${[['🌧️','Water early morning or evening during summer to avoid evaporation.'],['🌡️','June heat: water flowering plants twice daily to prevent wilting.'],['🐛','Check bougainvillea for aphids — monsoon increases pest activity.'],['🌱','Apply slow-release fertilizer before monsoon season.'],['✂️','Trim hedges before monsoon to prevent overgrowth.']].map(t=>`
+    <div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--bdr2)">
+      <span style="font-size:20px">${t[0]}</span><div style="font-size:12px;color:var(--t);line-height:1.5">${t[1]}</div></div>`).join('')}</div></div>
+  </div>`;}
+
+// ══ STAFF ══
+function rStaff(){return`
+  <div class="section-header"><div><div class="section-title">Staff <span>Management</span></div><div class="section-sub">${staffD.length} staff members · All active</div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="showAddStaff()">+ Add Staff</button><button class="btn btn-s btn-sm" onclick="toast('Payroll report exported!','ok')">📤 Payroll</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">👥</span><span class="kpi-value">${staffD.length}</span><span class="kpi-label">Total Staff</span></div>
+    <div class="kpi-card"><span class="kpi-icon">💰</span><span class="kpi-value">&#8377;${staffD.reduce((a,s)=>a+s.salary,0).toLocaleString()}</span><span class="kpi-label">Monthly Payroll</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📅</span><span class="kpi-value">${Math.round(staffD.reduce((a,s)=>a+s.att,0)/staffD.length)}</span><span class="kpi-label">Avg Attendance</span><span class="kpi-sub">Days/month</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">⭐</span><span class="kpi-value">${(staffD.reduce((a,s)=>a+s.rating,0)/staffD.length).toFixed(1)}</span><span class="kpi-label">Avg Rating</span></div>
+  </div>
+  <div class="staff-grid">${staffD.map(s=>`<div class="sc" onclick="showSD('${s.id}')">
+    <div class="sa">${s.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+    <div style="font-size:13px;font-weight:700;color:var(--th)">${s.name}</div>
+    <div style="font-size:11px;color:var(--tm)">${s.role}</div>
+    <div style="font-size:10.5px;color:var(--pl)">${s.shift.split('(')[0].trim()}</div>
+    <div style="display:flex;gap:8px;margin-top:6px"><span style="font-size:11px;color:var(--warn)">⭐${s.rating}</span><span class="b-ok" style="font-size:9px">${s.att}/30</span></div>
+  </div>`).join('')}</div>
+  <div class="card"><div class="card-header"><span class="card-title">💰 Salary and Attendance</span></div>
+  <div class="tw"><table><thead><tr><th>Name</th><th>Role</th><th>Phone</th><th>Attendance</th><th>Salary</th><th>Rating</th><th>Joined</th></tr></thead>
+  <tbody>${staffD.map(s=>`<tr><td class="tdn">${s.name}</td><td>${s.role}</td><td>${s.phone}</td>
+  <td><span class="${s.att>=28?'b-ok':s.att>=24?'b-warn':'b-err'}">${s.att}/30</span></td>
+  <td>&#8377;${s.salary.toLocaleString()}</td><td>⭐${s.rating}</td><td>${s.joined}</td></tr>`).join('')}</tbody></table></div></div>`;}
+function showSD(id){
+  const s=staffD.find(x=>x.id===id);if(!s)return;
+  openModal(s.name+' — Profile',`
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px">
+    <div class="sa" style="width:56px;height:56px;font-size:20px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800">${s.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+    <div><div style="font-size:18px;font-weight:800;color:var(--th)">${s.name}</div><div style="font-size:13px;color:var(--tm)">${s.role}</div>
+    <div style="display:flex;gap:8px;margin-top:4px"><span class="b-p">${s.shift.split('(')[0].trim()}</span><span class="b-ok">Active</span></div></div>
+  </div>
+  <div class="fg">
+    <div class="field"><label>Phone</label><input readonly value="${s.phone}"></div>
+    <div class="field"><label>Monthly Salary</label><input readonly value="&#8377;${s.salary.toLocaleString()}"></div>
+    <div class="field"><label>Attendance</label><input readonly value="${s.att}/30 days"></div>
+    <div class="field"><label>Rating</label><input readonly value="⭐ ${s.rating} / 5.0"></div>
+    <div class="field"><label>Joined</label><input readonly value="${s.joined}"></div>
+    <div class="field"><label>Status</label><input readonly value="${s.status}"></div>
+    <div class="field ff"><label>Tasks</label><textarea readonly style="height:50px">${s.tasks}</textarea></div>
+  </div>`,
+  `<button class="btn btn-warn" onclick="toast('Attendance updated for ${s.name}!','ok');closeModal()">Update Attendance</button><button class="btn btn-p" onclick="closeModal()">Close</button>`);
+}
+function showAddStaff(){
+  openModal('Add New Staff',`<div class="fg">
+  <div class="field"><label>Full Name *</label><input id="ns1" placeholder="Full name"></div>
+  <div class="field"><label>Role *</label><select id="ns2" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)"><option>Security Guard</option><option>Housekeeping</option><option>Electrician</option><option>Plumber</option><option>Gardener</option><option>Lift Operator</option><option>Building Manager</option></select></div>
+  <div class="field"><label>Shift</label><input id="ns3" placeholder="e.g. Day (6AM-2PM)"></div>
+  <div class="field"><label>Phone *</label><input id="ns4" placeholder="10-digit number"></div>
+  <div class="field"><label>Salary (Rs/month)</label><input id="ns5" type="number" placeholder="15000"></div>
+  <div class="field"><label>Join Date</label><input type="date" id="ns6"></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="doAddStaff()">Add Staff</button>`);
+}
+function doAddStaff(){
+  const name=(document.getElementById('ns1')||{}).value?.trim();
+  if(!name){toast('Enter staff name.','warn');return;}
+  staffD.push({id:'S'+String(staffD.length+1).padStart(2,'0'),name,role:document.getElementById('ns2').value,shift:document.getElementById('ns3').value,phone:document.getElementById('ns4').value,salary:+document.getElementById('ns5').value||0,att:0,joined:document.getElementById('ns6').value||'',status:'active',rating:4.0,tasks:'TBD'});
+  closeModal();toast('Staff '+name+' added!','ok');navigate('staff');
+}
+
+// ══ VENDORS ══
+function rVendors(){return`
+  <div class="section-header"><div><div class="section-title">Vendor <span>Management</span></div><div class="section-sub">${VENDORS.length} vendors · ${VENDORS.filter(v=>v.status==='expiring').length} expiring soon</div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="toast('Add vendor form — active in full release.','ok')">+ Add Vendor</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card"><span class="kpi-icon">🏪</span><span class="kpi-value">${VENDORS.length}</span><span class="kpi-label">Total Vendors</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">✅</span><span class="kpi-value">${VENDORS.filter(v=>v.status==='active').length}</span><span class="kpi-label">Active AMCs</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">⚠️</span><span class="kpi-value">${VENDORS.filter(v=>v.status==='expiring').length}</span><span class="kpi-label">Expiring Soon</span></div>
+    <div class="kpi-card"><span class="kpi-icon">💰</span><span class="kpi-value">&#8377;1.94L</span><span class="kpi-label">Annual AMC Cost</span></div>
+  </div>
+  <div class="ga">${VENDORS.map(v=>`<div class="vendor-card">
+    <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:10px">
+      <div><div style="font-size:14px;font-weight:700;color:var(--th)">${v.name}</div><div style="font-size:11px;color:var(--pl)">${v.cat}</div></div>
+      <span class="${v.status==='active'?'b-ok':'b-warn'}">${v.status.toUpperCase()}</span>
+    </div>
+    <div class="finm"><span style="font-size:11px;color:var(--tm)">Contact</span><span style="font-size:12px;font-weight:600">${v.contact} · ${v.phone}</span></div>
+    <div class="finm"><span style="font-size:11px;color:var(--tm)">Contract</span><span style="font-size:12px">${v.contract}</span></div>
+    <div class="finm"><span style="font-size:11px;color:var(--tm)">Expires</span><span style="font-size:12px;color:${v.status==='expiring'?'var(--err)':'var(--t)'}">${v.expiry}</span></div>
+    <div class="finm"><span style="font-size:11px;color:var(--tm)">Last Service</span><span style="font-size:12px">${v.lastSvc}</span></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-s btn-sm" onclick="toast('Service history for ${v.name}','ok')">Service Log</button>
+      <button class="btn btn-p btn-sm" onclick="toast('Renewal initiated for ${v.name}!','ok')">Renew AMC</button>
+    </div>
+  </div>`).join('')}</div>`;}
+
+// ══ FINANCIAL ══
+function rFinancial(){
+  const totInc=FIN.collection.reduce((a,v)=>a+v,0)+FIN.otherInc.reduce((a,v)=>a+v,0);
+  const totExp=FIN.staff.reduce((a,v)=>a+v,0)+FIN.maint.reduce((a,v)=>a+v,0)+FIN.utils.reduce((a,v)=>a+v,0)+FIN.misc.reduce((a,v)=>a+v,0);
+  return`
+  <div class="section-header"><div><div class="section-title">Financial <span>Analytics</span></div><div class="section-sub">FY 2024-25 · Jan-Jun 2024</div></div>
+  <div class="section-actions"><button class="btn btn-s btn-sm" onclick="toast('Financial report exported!','ok')">📤 Export</button><button class="btn btn-p btn-sm" onclick="window.print()">🖨️ Print</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">💰</span><span class="kpi-value">&#8377;${totInc.toLocaleString()}</span><span class="kpi-label">Total Income</span><span class="kpi-sub">6 months</span></div>
+    <div class="kpi-card acc-err"><span class="kpi-icon">💸</span><span class="kpi-value">&#8377;${totExp.toLocaleString()}</span><span class="kpi-label">Total Expenses</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📈</span><span class="kpi-value">&#8377;${(totInc-totExp).toLocaleString()}</span><span class="kpi-label">Net Surplus</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🏦</span><span class="kpi-value">&#8377;${FIN.fundBalance.toLocaleString()}</span><span class="kpi-label">Reserve Fund</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📊</span><span class="kpi-value">91.2%</span><span class="kpi-label">Collection Rate</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">⏳</span><span class="kpi-value">&#8377;${FIN.pendingDues.toLocaleString()}</span><span class="kpi-label">Dues Pending</span></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">📈 Income vs Expense Trend</span></div>
+    <div class="card-body"><canvas id="finLine" height="180"></canvas></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📊 Monthly Expense Breakdown</span></div>
+    <div class="card-body"><canvas id="finBar" height="180"></canvas></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">📋 Income Summary</span></div>
+    <div class="card-body">
+      <div class="finm"><span style="color:var(--tm)">Maintenance Collection</span><span style="font-weight:700">&#8377;${FIN.collection.reduce((a,v)=>a+v,0).toLocaleString()}</span></div>
+      <div class="finm"><span style="color:var(--tm)">Other Income (events, penalties)</span><span style="font-weight:700">&#8377;${FIN.otherInc.reduce((a,v)=>a+v,0).toLocaleString()}</span></div>
+      <div class="finm" style="border-top:2px solid var(--bdr);padding-top:10px;margin-top:4px"><span style="font-weight:800;color:var(--th)">Total Income</span><span style="font-weight:800;color:var(--ok)">&#8377;${totInc.toLocaleString()}</span></div>
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📋 Expense Summary</span></div>
+    <div class="card-body">
+      ${[['Staff Salaries',FIN.staff],['Maintenance & Repairs',FIN.maint],['Utilities (Electricity/Water)',FIN.utils],['Miscellaneous',FIN.misc]].map(e=>`<div class="finm"><span style="color:var(--tm)">${e[0]}</span><span style="font-weight:700">&#8377;${e[1].reduce((a,v)=>a+v,0).toLocaleString()}</span></div>`).join('')}
+      <div class="finm" style="border-top:2px solid var(--bdr);padding-top:10px;margin-top:4px"><span style="font-weight:800;color:var(--th)">Total Expenses</span><span style="font-weight:800;color:var(--err)">&#8377;${totExp.toLocaleString()}</span></div>
+    </div></div>
+  </div>`;}
+function drawFinCharts(){
+  const income=FIN.collection.map((v,i)=>v+FIN.otherInc[i]);
+  const expense=FIN.staff.map((v,i)=>v+FIN.maint[i]+FIN.utils[i]+FIN.misc[i]);
+  drawLine(document.getElementById('finLine'),{labels:FIN.incLabels,datasets:[{label:'Income',data:income,color:'#10b981'},{label:'Expense',data:expense,color:'#ef4444'}]});
+  drawBar(document.getElementById('finBar'),{labels:FIN.incLabels,datasets:[{label:'Staff',data:FIN.staff,color:'#6366f1'},{label:'Maint',data:FIN.maint,color:'#f59e0b'},{label:'Utils',data:FIN.utils,color:'#06b6d4'}]});
+}
+
+// ══ DOCUMENTS ══
+function rDocs(){
+  const cats=[...new Set(DOCS.map(d=>d.cat))];
+  const icons={pdf:'📄',xlsx:'📊',dwg:'📐'};
+  return`
+  <div class="section-header"><div><div class="section-title">Document <span>Center</span></div><div class="section-sub">${DOCS.length} documents stored securely</div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="toast('Upload active in cloud version.','ok')">📤 Upload</button></div></div>
+  <div class="fbar">
+    <input type="text" id="docQ" placeholder="🔍 Search documents..." oninput="filterDocs()">
+    <select id="docCat" onchange="filterDocs()" style="background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:7px 12px;font-size:12px;color:var(--t)"><option value="">All Categories</option>${cats.map(c=>`<option>${c}</option>`).join('')}</select>
+  </div>
+  <div id="docList">${cats.map(cat=>`<div style="margin-bottom:20px">
+    <div style="font-size:11px;font-weight:700;color:var(--tm);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bdr)">${cat}</div>
+    ${DOCS.filter(d=>d.cat===cat).map(d=>`<div class="doc-item" onclick="toast('Opening: ${d.name}','ok')">
+      <span style="font-size:24px">${icons[d.type]||'📄'}</span>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--th)">${d.name}</div>
+      <div style="font-size:11px;color:var(--tm)">${d.type.toUpperCase()} · ${d.size} · Added: ${d.date}</div></div>
+      <div style="display:flex;gap:8px;align-items:center"><span class="b-p">${d.cat}</span>
+      <button class="btn btn-s btn-sm" onclick="event.stopPropagation();toast('Downloading: ${d.name}','ok')">⬇️</button></div>
+    </div>`).join('')}</div>`).join('')}</div>`;}
+function filterDocs(){
+  const q=(document.getElementById('docQ')||{}).value?.toLowerCase()||'';
+  const cat=(document.getElementById('docCat')||{}).value||'';
+  const icons={pdf:'📄',xlsx:'📊',dwg:'📐'};
+  const list=DOCS.filter(d=>{if(q&&!d.name.toLowerCase().includes(q))return false;if(cat&&d.cat!==cat)return false;return true;});
+  const el=document.getElementById('docList');
+  if(el)el.innerHTML=list.map(d=>`<div class="doc-item" onclick="toast('Opening: ${d.name}','ok')">
+    <span style="font-size:24px">${icons[d.type]||'📄'}</span>
+    <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--th)">${d.name}</div>
+    <div style="font-size:11px;color:var(--tm)">${d.type.toUpperCase()} · ${d.size} · ${d.date}</div></div>
+    <div style="display:flex;gap:8px;align-items:center"><span class="b-p">${d.cat}</span>
+    <button class="btn btn-s btn-sm" onclick="event.stopPropagation();toast('Downloading...','ok')">⬇️</button></div></div>`).join('');
+}
+
+// ══ NOTICES ══
+function rNotices(){return`
+  <div class="section-header"><div><div class="section-title">Notice <span>Board</span></div><div class="section-sub">${noticesD.length} active notices</div></div>
+  <div class="section-actions">
+    <button class="btn btn-err btn-sm" onclick="postNotice('emergency')">🚨 Emergency</button>
+    <button class="btn btn-p btn-sm" onclick="postNotice('announcement')">+ Post Notice</button>
+  </div></div>
+  <div class="fbar">
+    <select id="notCat" onchange="filterNotices()" style="background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:7px 12px;font-size:12px;color:var(--t)"><option value="">All Types</option><option value="emergency">Emergency</option><option value="event">Event</option><option value="circular">Circular</option><option value="announcement">Announcement</option></select>
+  </div>
+  <div id="noticeList">${noticesD.map(n=>`<div class="notice-card ${n.type}">
+    <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:15px;font-weight:800;color:var(--th)">${n.title}</div>
+      <span class="${n.type==='emergency'?'b-err':n.type==='event'?'b-ok':n.type==='circular'?'b-warn':'b-p'}">${n.type.toUpperCase()}</span>
+    </div>
+    <div style="font-size:13px;color:var(--t);line-height:1.6;margin-bottom:8px">${n.body}</div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tm)">
+      <span>📅 ${n.date}</span><span>👤 ${n.by}</span></div>
+  </div>`).join('')}</div>`;}
+function filterNotices(){
+  const cat=(document.getElementById('notCat')||{}).value||'';
+  const el=document.getElementById('noticeList');
+  const list=noticesD.filter(n=>!cat||n.type===cat);
+  if(el)el.innerHTML=list.map(n=>`<div class="notice-card ${n.type}">
+    <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:15px;font-weight:800;color:var(--th)">${n.title}</div>
+      <span class="${n.type==='emergency'?'b-err':n.type==='event'?'b-ok':n.type==='circular'?'b-warn':'b-p'}">${n.type.toUpperCase()}</span>
+    </div>
+    <div style="font-size:13px;color:var(--t);line-height:1.6;margin-bottom:8px">${n.body}</div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tm)"><span>📅 ${n.date}</span><span>👤 ${n.by}</span></div></div>`).join('');
+}
+function postNotice(type){
+  openModal('Post New Notice',`<div class="fg">
+  <div class="field"><label>Notice Type</label><select id="ntT" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)"><option value="announcement">Announcement</option><option value="circular">Circular</option><option value="event">Event</option><option value="emergency" ${type==='emergency'?'selected':''}>Emergency</option></select></div>
+  <div class="field"><label>Posted By</label><input id="ntB" value="Manager"></div>
+  <div class="field ff"><label>Title *</label><input id="ntN" placeholder="Notice heading"></div>
+  <div class="field ff"><label>Content *</label><textarea id="ntC" placeholder="Notice content..." style="height:90px"></textarea></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="addNotice()">Post Notice</button>`);
+}
+function addNotice(){
+  const title=(document.getElementById('ntN')||{}).value?.trim(),body=(document.getElementById('ntC')||{}).value?.trim();
+  if(!title||!body){toast('Fill title and content.','warn');return;}
+  noticesD.unshift({id:'N'+Date.now(),type:document.getElementById('ntT').value,title,body,date:new Date().toISOString().split('T')[0],by:document.getElementById('ntB').value||'Manager'});
+  saveState();closeModal();toast('Notice posted!','ok');navigate('notices');
+}
+
+// ══ EMERGENCY ══
+function rEmergency(){return`
+  <div class="section-header"><div><div class="section-title">Emergency <span>Center</span></div><div class="section-sub">One-tap access to all emergency contacts</div></div></div>
+  <div style="background:var(--err10);border:2px solid var(--err);border-radius:var(--r);padding:16px;margin-bottom:20px;text-align:center">
+    <div style="font-size:20px;font-weight:800;color:var(--err)">🚨 EMERGENCY CONTACTS</div>
+    <div style="font-size:13px;color:var(--t);margin-top:4px">Tap any card to initiate contact. All numbers pre-verified.</div>
+  </div>
+  <div class="emg-grid">${[
+    {i:'🚔',n:'Police',num:'100',c:'err'},{i:'🔥',n:'Fire Brigade',num:'101',c:'err'},
+    {i:'🚑',n:'Ambulance',num:'102',c:'err'},{i:'🏥',n:'AIIMS Delhi',num:'011-26588500',c:'info'},
+    {i:'⚡',n:'Electrician',num:'9800006666',c:'warn'},{i:'🔧',n:'Plumber',num:'9800007777',c:'warn'},
+    {i:'💧',n:'Water Tanker',num:'9100002222',c:'info'},{i:'🛡️',n:'Security Sup.',num:'9800001111',c:'ok'},
+    {i:'🏢',n:'Society Manager',num:'9800010000',c:'p'},{i:'🔌',n:'Gas Emergency',num:'1906',c:'err'},
+    {i:'⚡',n:'Power Failure',num:'19121',c:'warn'},{i:'🎯',n:'Lift AMC',num:'9100001111',c:'g'}
+  ].map(e=>`<div class="ec-card" style="border-color:var(--${e.c==='p'?'p':e.c==='g'?'bdr':e.c})" onclick="toast('Calling ${e.n}: ${e.num}','ok')">
+    <span class="ec-icon">${e.i}</span>
+    <div class="ec-name">${e.n}</div>
+    <div class="ec-num" style="color:var(--${e.c==='p'?'pl':e.c==='g'?'tm':e.c})">${e.num}</div>
+  </div>`).join('')}</div>
+  <div class="card mt-16"><div class="card-header"><span class="card-title">📋 Emergency Procedures</span></div>
+  <div class="card-body">${[
+    ['🔥','FIRE','Call 101. Activate fire alarm. Evacuate via staircases only. Do NOT use lift. Assemble at main gate.'],
+    ['💧','FLOOD','Turn off main water valve (basement). Inform Manager. Seal floor drains. Call Water Dept.'],
+    ['⚡','ELECTRICAL','Do NOT touch live wires. Switch off main MCB. Call Santosh (9800006666). Evacuate if needed.'],
+    ['🏥','MEDICAL','Call 102 immediately. Inform Gate Guard. Keep patient calm and still. Clear path for ambulance.']
+  ].map(p=>`<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--bdr2)">
+    <span style="font-size:24px">${p[0]}</span>
+    <div><div style="font-size:13px;font-weight:700;color:var(--th)">${p[1]} EMERGENCY</div>
+    <div style="font-size:12px;color:var(--t);line-height:1.5;margin-top:2px">${p[2]}</div></div></div>`).join('')}
+  </div></div>`;}
+
+// ══ AI ASSISTANT ══
+const AI_RESPONSES={
+  complaints:()=>`Based on current data, there are <strong>${complaintsD.filter(c=>c.status==='open').length} open complaints</strong> requiring attention, with <strong>${complaintsD.filter(c=>c.pri==='emergency').length} marked emergency</strong>. Top categories needing focus: Plumbing, Electrical, and Security. I recommend assigning the emergency-level items (gate lock repair, meter board sparking) to staff within the next 2 hours to avoid escalation.`,
+  maintenance:()=>`June 2024 collection stands at <strong>&#8377;${(flatsD.filter(f=>f.ms==='paid').length*BLD.mfee).toLocaleString()}</strong> from ${flatsD.filter(f=>f.ms==='paid').length} of ${flatsD.length} flats (${Math.round(flatsD.filter(f=>f.ms==='paid').length/flatsD.length*100)}%). ${flatsD.filter(f=>f.ms!=='paid').length} flats are pending or overdue, totalling roughly &#8377;${((flatsD.filter(f=>f.ms==='pending').length*BLD.mfee)+(flatsD.filter(f=>f.ms==='overdue').length*(BLD.mfee+BLD.latefee))).toLocaleString()}. Sending automated reminders before the 10th typically improves collection by 8-12%.`,
+  staff:()=>`All <strong>${staffD.length} staff members</strong> are currently marked active. Average attendance this month is <strong>${Math.round(staffD.reduce((a,s)=>a+s.att,0)/staffD.length)}/30 days</strong> and average performance rating is <strong>⭐${(staffD.reduce((a,s)=>a+s.rating,0)/staffD.length).toFixed(1)}/5.0</strong>. Geeta Bai (Housekeeping) has the lowest attendance this month — may need a check-in. Overall staff performance is healthy.`,
+  water:()=>`Current levels — Overhead Tank: <strong>87%</strong> (about 21,750 L), Underground Tank: <strong>68%</strong> (about 34,000 L). Average daily consumption is 18 KL. All 6 water quality parameters are within safe limits. At current usage, UGT could drop below 40% by 9 June — recommend scheduling a tanker refill before then.`,
+  security:()=>`Security status is currently <strong>SECURE</strong>. All 3 guards are covering their assigned shifts (day, evening, night). ${VISITORS.length} visitor entries were logged today and all 4 CCTV cameras are reporting healthy status with active recording. ${INCIDENTS.length} incidents were logged this month, all resolved with documented action.`,
+  financial:()=>`Financial position looks <strong>healthy</strong>. Income over the last 6 months totals roughly &#8377;${(FIN.collection.reduce((a,v)=>a+v,0)+FIN.otherInc.reduce((a,v)=>a+v,0)).toLocaleString()}, against expenses of about &#8377;${(FIN.staff.reduce((a,v)=>a+v,0)+FIN.maint.reduce((a,v)=>a+v,0)+FIN.utils.reduce((a,v)=>a+v,0)+FIN.misc.reduce((a,v)=>a+v,0)).toLocaleString()}. Reserve fund balance stands at &#8377;${FIN.fundBalance.toLocaleString()}. Collection efficiency is around 91%. Note that the SparkTech electrical AMC is expiring in August — renewal should be initiated soon.`,
+  health:()=>`The overall Building Health Score is approximately <strong>${Math.min(98,Math.round((flatsD.filter(f=>f.ms==='paid').length/flatsD.length*40)+(complaintsD.filter(c=>c.status==='closed').length/complaintsD.length*30)+30))}%</strong>, calculated from collection rate, complaint resolution rate, and occupancy. To improve this further: resolve the 2 emergency complaints, follow up on ${flatsD.filter(f=>f.ms!=='paid').length} pending maintenance dues, and address the grass lawn's poor condition flagged by the gardening team.`,
+  default:()=>`I'm your AI Building Assistant for <strong>${BLD.name}</strong>. I have real-time access to complaints, maintenance, staff, water, security, and financial data. Try asking me things like "show complaint status", "maintenance dues", "staff performance", "water levels", "security status", "financial summary", or "building health score".`
+};
+function getAIResponse(msg){
+  msg=msg.toLowerCase();
+  if(msg.includes('complaint')||msg.includes('repair')||msg.includes('issue'))return AI_RESPONSES.complaints();
+  if(msg.includes('maintenance')||msg.includes('due')||msg.includes('payment')||msg.includes('collection'))return AI_RESPONSES.maintenance();
+  if(msg.includes('staff')||msg.includes('guard')||msg.includes('employee')||msg.includes('performance'))return AI_RESPONSES.staff();
+  if(msg.includes('water')||msg.includes('tank'))return AI_RESPONSES.water();
+  if(msg.includes('security')||msg.includes('cctv')||msg.includes('visitor')||msg.includes('incident'))return AI_RESPONSES.security();
+  if(msg.includes('financ')||msg.includes('money')||msg.includes('income')||msg.includes('expense')||msg.includes('budget'))return AI_RESPONSES.financial();
+  if(msg.includes('health')||msg.includes('score')||msg.includes('status')||msg.includes('overview'))return AI_RESPONSES.health();
+  return AI_RESPONSES.default();
+}
+function rAI(){
+  const sugg=['Complaint status','Maintenance dues','Staff performance','Water levels','Building health score','Financial summary'];
+  return`
+  <div class="section-header"><div><div class="section-title">AI Building <span>Assistant</span></div><div class="section-sub">Powered by BuildCare Intelligence Engine v2</div></div></div>
+  <div class="g2">
+    <div class="card"><div class="chat-wrap">
+      <div class="chat-msgs" id="chatMsgs"></div>
+      <div style="padding:8px 16px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--bdr)">
+        ${sugg.map(s=>`<button class="btn btn-s btn-sm" style="font-size:10.5px" onclick="sendMsg('${s}')">${s}</button>`).join('')}
+      </div>
+      <div class="chat-in">
+        <input type="text" id="chatIn" placeholder="Ask about your building..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="btn btn-p" onclick="sendChat()">Send ➤</button>
+      </div>
+    </div></div>
+    <div>
+      <div class="card mb-16"><div class="card-header"><span class="card-title">💡 AI Insights</span><span class="b-p">LIVE</span></div>
+      <div class="card-body">
+        <div class="ai-insight"><div class="ai-it">🚨 Emergency Priority</div><div class="ai-id">2 emergency complaints need immediate action: gate lock (C003) and meter board sparking (C015). Estimated resolution: 4 hours with current staff.</div></div>
+        <div class="ai-insight"><div class="ai-it">💰 Collection Forecast</div><div class="ai-id">Based on historical patterns, June collection should reach 92-95% by month-end. 4 flats are repeat-late payers.</div></div>
+        <div class="ai-insight"><div class="ai-it">💧 Water Prediction</div><div class="ai-id">UGT may reach 40% by 9 June at current usage. Schedule a refill before 8 June to stay ahead of demand.</div></div>
+        <div class="ai-insight"><div class="ai-it">🌿 Maintenance Alert</div><div class="ai-id">The central grass lawn has shown poor health for 3+ weeks. A professional turf treatment is recommended this week.</div></div>
+      </div></div>
+      <div class="card"><div class="card-header"><span class="card-title">🤖 AI Capabilities</span></div>
+      <div class="card-body">${[
+        ['📊','Expense Analysis','Breakdown and trend analysis across all categories'],
+        ['🔧','Complaint Insights','Pattern detection and resolution time prediction'],
+        ['👥','Staff Recommendations','Performance scoring and scheduling suggestions'],
+        ['🔮','Predictive Maintenance','AI-driven schedules based on usage patterns'],
+        ['💡','Smart Alerts','Proactive notices before issues become critical'],
+        ['📈','Revenue Optimization','Strategies to improve collection and reduce dues']
+      ].map(f=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--bdr2)">
+        <span style="font-size:20px">${f[0]}</span><div><div style="font-size:12.5px;font-weight:600;color:var(--th)">${f[1]}</div><div style="font-size:11px;color:var(--tm)">${f[2]}</div></div></div>`).join('')}
+      </div></div>
+    </div>
+  </div>`;}
+function renderChat(){
+  const el=document.getElementById('chatMsgs');if(!el)return;
+  if(chatHist.length===0){
+    chatHist=[{role:'bot',msg:`Hello! I'm your AI Building Assistant for <strong>${BLD.name}</strong>. I have real-time access to all building data. How can I help you today?`,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}];
+  }
+  el.innerHTML=chatHist.map(m=>`<div class="msg ${m.role}"><div class="msg-bbl">${m.msg}</div><div class="msg-tm">${m.time}</div></div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+function sendMsg(msg){const inp=document.getElementById('chatIn');if(inp)inp.value=msg;sendChat();}
+function sendChat(){
+  const inp=document.getElementById('chatIn');if(!inp)return;
+  const msg=inp.value.trim();if(!msg)return;
+  const time=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  chatHist.push({role:'user',msg,time});
+  inp.value='';renderChat();
+  setTimeout(()=>{
+    chatHist.push({role:'bot',msg:getAIResponse(msg),time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});
+    saveState();renderChat();
+  },700);
+}
+
+// ══ ROADMAP ══
+function rRoadmap(){
+  const phases=[
+    {n:'PHASE 1',t:'Core Operations',d:'Complete building management: flats, complaints, maintenance, staff, housekeeping and security — all live today.',tag:'LIVE NOW',cls:'done',icon:'✅'},
+    {n:'PHASE 2',t:'Mobile App',d:'Dedicated iOS and Android apps for residents and managers with push notifications and offline sync.',tag:'IN PROGRESS',cls:'active',icon:'📱'},
+    {n:'PHASE 3',t:'Smart IoT Sensors',d:'Real-time monitoring of water tanks, electricity meters, and environmental conditions via connected sensors.',tag:'Q3 2024',cls:'soon',icon:'📡'},
+    {n:'PHASE 4',t:'AI CCTV Monitoring',d:'Computer vision for intruder detection, suspicious activity alerts, and round-the-clock automated monitoring.',tag:'Q4 2024',cls:'soon',icon:'🤖'},
+    {n:'PHASE 5',t:'Visitor Face Recognition',d:'Registered residents auto-identified at entry. Unknown faces trigger instant security alerts to guards.',tag:'Q1 2025',cls:'future',icon:'👤'},
+    {n:'PHASE 6',t:'Predictive Maintenance',d:'AI predicts equipment failures before they happen and auto-schedules preventive maintenance visits.',tag:'Q2 2025',cls:'future',icon:'🔮'},
+    {n:'PHASE 7',t:'Society Marketplace',d:'Residents can buy, sell, and rent within the community, plus a verified local business directory.',tag:'Q2 2025',cls:'future',icon:'🛒'},
+    {n:'PHASE 8',t:'EV Charging Management',d:'Manage EV charging stations, usage billing, and time-slot bookings directly from the platform.',tag:'Q3 2025',cls:'future',icon:'⚡'},
+    {n:'PHASE 9',t:'Solar Monitoring',d:'Real-time solar panel performance tracking, energy savings dashboard, and payback/ROI analytics.',tag:'Q4 2025',cls:'future',icon:'☀️'},
+    {n:'PHASE 10',t:'Smart Building OS',d:'Fully autonomous building management combining AI, IoT, and smart systems into a single operating system.',tag:'2026',cls:'future',icon:'🏙️'}
+  ];
+  const tagClass={done:'tag-done',active:'tag-active',soon:'tag-soon',future:'tag-future'};
+  return`
+  <div class="section-header"><div><div class="section-title">Product <span>Roadmap</span></div><div class="section-sub">A 10-phase evolution toward a Smart Building OS</div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="openInvestorDemo()">🎯 Full Presentation</button></div></div>
+  <div style="background:var(--grad);border-radius:var(--r);padding:20px 24px;margin-bottom:24px;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div><div style="font-size:19px;font-weight:900">From Building Manager to Smart Building OS</div><div style="font-size:12.5px;opacity:0.85;margin-top:4px">A multi-year roadmap to fully automate residential building management with AI and IoT.</div></div>
+    <div><span style="background:rgba(255,255,255,0.22);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap">Phase 1 of 10 Complete</span></div>
+  </div>
+  <div class="rm-grid">${phases.map(p=>`<div class="phase-card ${p.cls}">
+    <div class="phase-n">${p.n}</div>
+    <div style="font-size:24px;margin-bottom:8px">${p.icon}</div>
+    <div class="phase-t">${p.t}</div>
+    <div class="phase-d">${p.d}</div>
+    <span class="phase-tag ${tagClass[p.cls]}">${p.tag}</span>
+  </div>`).join('')}</div>`;}
+
+// ══ INVESTOR DEMO ══
+const SLIDES=[
+{ey:'THE PROBLEM',tt:'Buildings Are Managed on<br><span style="background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">WhatsApp and Spreadsheets</span>',bd:"Most of India's residential buildings have no proper digital management system. Complaints get lost in chat groups, maintenance is tracked on paper, and security has no real oversight — costing residents and committees real money and trust every month.",cards:[{icon:'📱',t:'No Digital Tracking',d:'Complaints managed on WhatsApp groups'},{icon:'📊',t:'Manual Accounting',d:'Maintenance tracked on paper or Excel'},{icon:'🔒',t:'Security Gaps',d:'No CCTV integration or visitor logs'},{icon:'😤',t:'Resident Frustration',d:'No transparency on complaint resolution'}]},
+{ey:'THE SOLUTION',tt:'BuildCare Pro —<br><span style="background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">The Building Management OS</span>',bd:'A comprehensive platform that digitises every aspect of residential building management — complaints, maintenance, security, CCTV, staff, and finances — in one connected system that works online and offline.',cards:[{icon:'🏠',t:'20 Modules',d:'End-to-end building management coverage'},{icon:'🤖',t:'AI-Powered',d:'Smart insights and predictions built-in'},{icon:'📱',t:'Mobile-First',d:'Designed for phones, tablets and desktop'},{icon:'☁️',t:'Offline-Ready',d:'Works without internet, syncs later'}]},
+{ey:'MARKET OPPORTUNITY',tt:'A Massive,<br><span style="background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Underserved Market</span>',bd:'India has millions of apartments across organised housing societies, the vast majority still managed manually. With simple per-flat subscription pricing, the addressable market is enormous and largely untouched by modern software.',cards:[{icon:'🏢',t:'Millions of Flats',d:'Across organised housing societies'},{icon:'📈',t:'Fast-Growing',d:'Real-estate tech adoption accelerating'},{icon:'💰',t:'Large TAM',d:'Recurring per-unit subscription model'},{icon:'🎯',t:'Low Penetration',d:'Most societies still run on spreadsheets'}]},
+{ey:'REVENUE MODEL',tt:'Multiple Streams of<br><span style="background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Recurring Revenue</span>',bd:'A SaaS subscription core, layered with transaction fees on digital collections, marketplace commissions, and IoT hardware margins — creating sticky, high-retention recurring revenue.',cards:[{icon:'💰',t:'SaaS Subscription',d:'Per-flat monthly fee based on plan tier'},{icon:'💳',t:'Payment Processing',d:'Small fee on digital maintenance collection'},{icon:'🛒',t:'Marketplace',d:'Commission on society purchases & services'},{icon:'📡',t:'IoT Hardware',d:'Smart sensors plus installation and AMC'}]},
+{ey:'SCALABILITY',tt:'Built to Scale Across<br><span style="background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Thousands of Buildings</span>',bd:'The platform architecture supports rapid onboarding of new societies with minimal manual setup — each building gets its own configured workspace, while the core product, AI engine and roadmap features scale centrally.',cards:[{icon:'🏘️',t:'Multi-Tenant Ready',d:'Each society gets an isolated workspace'},{icon:'⚙️',t:'Fast Onboarding',d:'Configurable templates for any building type'},{icon:'🌐',t:'Cloud Architecture',d:'Designed for horizontal scale'},{icon:'🔌',t:'API & IoT Ready',d:'Built to connect hardware as it ships'}]},
+{ey:'COMPETITIVE EDGE',tt:'Why BuildCare Pro<br><span style="background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Stands Apart</span>',bd:'Unlike generic task-management tools, BuildCare Pro is purpose-built for Indian residential societies — combining AI insights, offline support, and a clear roadmap toward full building automation.',cards:[{icon:'🤖',t:'AI-First Design',d:'Predictive insights built in from day one'},{icon:'📶',t:'Offline-Ready',d:'Keeps working without internet, syncs later'},{icon:'🇮🇳',t:'India-Specific',d:'UPI payments, local formats and workflows'},{icon:'🚀',t:'Clear IoT Roadmap',d:'Ready to plug in smart devices as they arrive'}]},
+{ey:'FUTURE VISION',tt:"Every Building, Run by<br><span style=\"background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent\">Its Own Smart OS</span>",bd:'Our vision is simple: every residential building, regardless of size, should have access to the same intelligent management tools as a premium commercial property — complaints resolved faster, finances transparent, and security proactive rather than reactive.',cards:[{icon:'🏠',t:'For Every Building',d:'From 10-flat buildings to large townships'},{icon:'🧠',t:'Always Learning',d:'AI improves with every building onboarded'},{icon:'🔐',t:'Safer Communities',d:'Proactive security and incident response'},{icon:'🌱',t:'Sustainable Living',d:'Energy, water and waste optimisation built in'}]},
+{ey:'THE ASK',tt:'Join Us in Building<br><span style="background:linear-gradient(135deg,#10b981,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Smarter Communities</span>',bd:'BuildCare Pro is ready to expand beyond its current deployments — onboarding new residential societies, building out the mobile experience, and accelerating the IoT and AI roadmap outlined in this presentation.',cards:[{icon:'🏘️',t:'Expand Coverage',d:'Onboard more societies across cities'},{icon:'📱',t:'Launch Mobile Apps',d:'iOS and Android for residents & managers'},{icon:'🤖',t:'Accelerate AI/IoT',d:'Bring Phase 3-6 roadmap items to life'},{icon:'🤝',t:'Partner With Us',d:'For builders, RWAs, and investors'}]}
+];
+let curSlide=0;
+function openInvestorDemo(){document.getElementById('invOv').classList.add('open');curSlide=0;renderSlide();}
+function closeInvestorDemo(){document.getElementById('invOv').classList.remove('open');}
+function renderSlide(){
+  const s=SLIDES[curSlide];
+  document.getElementById('slideCounter').textContent=`${curSlide+1} / ${SLIDES.length}`;
+  const dots=Array.from({length:SLIDES.length},(_,i)=>`<div class="sdot ${i===curSlide?'active':''}" onclick="goSlide(${i})"></div>`).join('');
+  document.getElementById('invSlides').innerHTML=`<div class="islide active">
+    <div class="slide-ey">${s.ey}</div>
+    <div class="slide-tt">${s.tt}</div>
+    <div class="slide-bd">${s.bd}</div>
+    <div class="slide-cards">${s.cards.map(c=>`<div class="scard"><div style="font-size:28px;margin-bottom:8px">${c.icon}</div><div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px">${c.t}</div><div style="font-size:12px;color:rgba(255,255,255,0.6)">${c.d}</div></div>`).join('')}</div>
+    <div class="sdots">${dots}</div>
+  </div>`;
+}
+function nextSlide(){if(curSlide<SLIDES.length-1){curSlide++;renderSlide();}}
+function prevSlide(){if(curSlide>0){curSlide--;renderSlide();}}
+function goSlide(i){curSlide=i;renderSlide();}
+
+// ══ LAUNCH ══
+window.addEventListener('DOMContentLoaded',init);
+window.addEventListener('resize',()=>{
+  if(curMod==='dashboard')drawDashCharts();
+  if(curMod==='financial')drawFinCharts();
+});
+</script>
+</body>
+</html>
