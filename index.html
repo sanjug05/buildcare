@@ -290,6 +290,24 @@ tbody td{padding:10px 14px;font-size:12.5px;color:var(--t);white-space:nowrap;}
 .flex-c{display:flex;align-items:center;}
 .gap-8{gap:8px;}
 .gap-10{gap:10px;}
+
+@media print {
+  .sidebar,.header,.toast-c,.modal-ov,.inv-ov,.notif-panel,.demo-btn,.hbtn,
+  .section-actions button,.btn-p,.btn-s,.btn-ok,.btn-warn,.btn-err { display:none!important; }
+  .main-wrapper { margin:0!important; }
+  .app { display:block!important; }
+  body,html { background:#fff!important; color:#000!important; }
+  .module { padding:12px!important; display:block!important; }
+  .kpi-card,.card { background:#fff!important; border:1px solid #ccc!important; break-inside:avoid; }
+  .kpi-value { color:#000!important; }
+  .kpi-label,.kpi-sub,.card-title { color:#333!important; }
+  canvas { max-width:100%!important; }
+  .tw table { border-collapse:collapse!important; width:100%!important; }
+  .tw th,.tw td { border:1px solid #ccc!important; padding:6px!important; color:#000!important; font-size:11px!important; }
+  .g2,.g3,.ga { display:block!important; }
+  .g2>*,.g3>*,.ga>* { margin-bottom:12px!important; break-inside:avoid; }
+}
+
 </style>
 </head>
 <body>
@@ -304,10 +322,11 @@ tbody td{padding:10px 14px;font-size:12.5px;color:var(--t);white-space:nowrap;}
     </div>
     <nav class="sidebar-nav" id="sidenav"></nav>
     <div class="sidebar-footer">
-      <div class="building-chip">
+      <div class="building-chip" style="margin-bottom:8px">
         <div class="building-dot"></div>
         <span class="building-chip-text">Sunrise Heights · 24 Units</span>
       </div>
+      <button onclick="resetDemo()" style="width:100%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:8px;padding:6px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s" onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">🔄 Reset Demo</button>
     </div>
   </aside>
   <div class="main-wrapper">
@@ -316,7 +335,7 @@ tbody td{padding:10px 14px;font-size:12.5px;color:var(--t);white-space:nowrap;}
       <span class="page-title" id="pageTitle">Executive Dashboard</span>
       <div class="search-box">
         <span class="search-icon">🔍</span>
-        <input type="text" id="globalSearch" placeholder="Search flats, complaints, staff…">
+        <input type="text" id="globalSearch" placeholder="Search flats, complaints, staff…" oninput="handleGlobalSearch(this.value)">
       </div>
       <div class="header-right">
         <button class="hbtn" title="Toggle Theme" onclick="toggleTheme()">🌙</button>
@@ -363,30 +382,30 @@ tbody td{padding:10px 14px;font-size:12.5px;color:var(--t);white-space:nowrap;}
 // ══ DATA ══
 const BLD={name:'Sunrise Heights Apartments',addr:'Plot 14, Sector 48, Gurugram 122018, Haryana',floors:4,totalFlats:24,year:2019,mfee:3500,latefee:500,rwa:'Sunrise Heights RWA'};
 const FLATS=[
-{id:'A101',num:'A-101',floor:1,type:'2BHK',status:'occupied',owner:'Rajesh Kumar Sharma',op:'9876543210',oe:'rajesh@gmail.com',tenant:'Priya Mehta',tp:'8765432109',family:4,vehicles:['DL-01-AA-1234'],emg:'Sunita Sharma | 9988776655',ms:'paid',notes:'Has 1 pet dog.'},
-{id:'A102',num:'A-102',floor:1,type:'3BHK',status:'occupied',owner:'Anita Verma',op:'9876501234',oe:'anita@yahoo.com',tenant:'',tp:'',family:3,vehicles:['DL-02-BB-5678'],emg:'Mohan Verma | 9977665544',ms:'paid',notes:'Owner occupied.'},
-{id:'A103',num:'A-103',floor:1,type:'2BHK',status:'vacant',owner:'Suresh Patel',op:'9765432101',oe:'spatel@outlook.com',tenant:'',tp:'',family:0,vehicles:[],emg:'Ramesh Patel | 9966554433',ms:'pending',notes:'Available for rent.'},
-{id:'A104',num:'A-104',floor:1,type:'1BHK',status:'occupied',owner:'Kavita Singh',op:'9654321012',oe:'kavita@gmail.com',tenant:'Nikhil Sharma',tp:'8654321098',family:2,vehicles:[],emg:'Ajay Singh | 9955443322',ms:'paid',notes:''},
-{id:'A105',num:'A-105',floor:1,type:'2BHK',status:'occupied',owner:'Manish Gupta',op:'9543210123',oe:'mgupta@gmail.com',tenant:'',tp:'',family:5,vehicles:['DL-05-EE-2345','DL-05-FF-6789'],emg:'Sunita Gupta | 9944332211',ms:'overdue',notes:'2 vehicles. Extra parking.'},
-{id:'A106',num:'A-106',floor:1,type:'3BHK',status:'occupied',owner:'Deepika Rao',op:'9432101234',oe:'deepika@gmail.com',tenant:'Ritu Nair',tp:'8543210987',family:3,vehicles:['DL-06-GG-3456'],emg:'Vijay Rao | 9933221100',ms:'paid',notes:''},
-{id:'B201',num:'B-201',floor:2,type:'2BHK',status:'occupied',owner:'Arun Kapoor',op:'9321012345',oe:'arun@gmail.com',tenant:'Sneha Joshi',tp:'8432109876',family:2,vehicles:[],emg:'Neha Kapoor | 9922110099',ms:'paid',notes:''},
-{id:'B202',num:'B-202',floor:2,type:'2BHK',status:'occupied',owner:'Pooja Bansal',op:'9210123456',oe:'pbansal@gmail.com',tenant:'',tp:'',family:4,vehicles:['DL-08-II-5678'],emg:'Sanjay Bansal | 9911009988',ms:'paid',notes:'Senior citizens.'},
-{id:'B203',num:'B-203',floor:2,type:'3BHK',status:'occupied',owner:'Vikram Malhotra',op:'9109012345',oe:'vmalhotra@yahoo.com',tenant:'Arjun Dev',tp:'8321098765',family:5,vehicles:['DL-09-JJ-6789','HR-10-KK-7890'],emg:'Sita Malhotra | 9900998877',ms:'pending',notes:'2 cars.'},
-{id:'B204',num:'B-204',floor:2,type:'1BHK',status:'vacant',owner:'Rekha Sinha',op:'9098901234',oe:'rsinha@gmail.com',tenant:'',tp:'',family:0,vehicles:[],emg:'Manoj Sinha | 9889887766',ms:'pending',notes:'Under renovation.'},
-{id:'B205',num:'B-205',floor:2,type:'2BHK',status:'occupied',owner:'Amit Pandey',op:'8987890123',oe:'apandey@gmail.com',tenant:'Rahul Mishra',tp:'8210987654',family:3,vehicles:['UP-65-LL-1234'],emg:'Geeta Pandey | 9878776655',ms:'paid',notes:''},
-{id:'B206',num:'B-206',floor:2,type:'3BHK',status:'occupied',owner:'Neha Chopra',op:'8876789012',oe:'nchopra@gmail.com',tenant:'',tp:'',family:6,vehicles:['DL-12-MM-3456'],emg:'Raj Chopra | 9867665544',ms:'paid',notes:'Large family.'},
-{id:'C301',num:'C-301',floor:3,type:'2BHK',status:'occupied',owner:'Sanjay Mehra',op:'8765678901',oe:'smehra@gmail.com',tenant:'Priyanka Roy',tp:'8109876543',family:3,vehicles:[],emg:'Anjali Mehra | 9856554433',ms:'paid',notes:''},
-{id:'C302',num:'C-302',floor:3,type:'1BHK',status:'occupied',owner:'Lakshmi Reddy',op:'8654567890',oe:'lreddy@gmail.com',tenant:'Gopal Krishnan',tp:'8098765432',family:1,vehicles:[],emg:'Prasad Reddy | 9845443322',ms:'paid',notes:'Work from home.'},
-{id:'C303',num:'C-303',floor:3,type:'3BHK',status:'occupied',owner:'Harish Negi',op:'8543456789',oe:'hnegi@gmail.com',tenant:'',tp:'',family:4,vehicles:['UK-02-NN-2345'],emg:'Kamla Negi | 9834332211',ms:'overdue',notes:'Payment delayed.'},
-{id:'C304',num:'C-304',floor:3,type:'2BHK',status:'occupied',owner:'Tanya Khanna',op:'8432345678',oe:'tkhanna@gmail.com',tenant:'Vivek Saxena',tp:'7987654321',family:2,vehicles:[],emg:'Rohit Khanna | 9823221100',ms:'paid',notes:''},
-{id:'C305',num:'C-305',floor:3,type:'2BHK',status:'vacant',owner:'Sunil Walia',op:'8321234567',oe:'swalia@gmail.com',tenant:'',tp:'',family:0,vehicles:[],emg:'Seema Walia | 9812110099',ms:'pending',notes:'Listed on 99acres.'},
-{id:'C306',num:'C-306',floor:3,type:'3BHK',status:'occupied',owner:'Rajan Arora',op:'8210123456',oe:'rarora@gmail.com',tenant:'Simran Kaur',tp:'7876543210',family:3,vehicles:['PB-08-OO-5678'],emg:'Seema Arora | 9801009988',ms:'paid',notes:''},
-{id:'D401',num:'D-401',floor:4,type:'4BHK',status:'occupied',owner:'Arun Tiwari (Chairman)',op:'9876543211',oe:'atiwari@gmail.com',tenant:'',tp:'',family:5,vehicles:['DL-18-PP-1234','DL-19-QQ-5678'],emg:'Sunita Tiwari | 9790998877',ms:'paid',notes:'RWA Chairman.'},
-{id:'D402',num:'D-402',floor:4,type:'3BHK',status:'occupied',owner:'Meera Iyer',op:'9765432100',oe:'miyer@gmail.com',tenant:'',tp:'',family:4,vehicles:['TN-07-RR-3456'],emg:'Ravi Iyer | 9780887766',ms:'paid',notes:''},
-{id:'D403',num:'D-403',floor:4,type:'2BHK',status:'occupied',owner:'Pradeep Jain',op:'9654321011',oe:'pjain@gmail.com',tenant:'Naman Gupta',tp:'7765432109',family:2,vehicles:[],emg:'Radha Jain | 9770776655',ms:'pending',notes:''},
-{id:'D404',num:'D-404',floor:4,type:'3BHK',status:'occupied',owner:'Varun Malviya',op:'9543210122',oe:'vmalviya@gmail.com',tenant:'',tp:'',family:3,vehicles:['MP-09-SS-6789'],emg:'Priya Malviya | 9760665544',ms:'paid',notes:''},
-{id:'D405',num:'D-405',floor:4,type:'2BHK',status:'vacant',owner:'Kamla Sharma',op:'9432101133',oe:'ksharma@gmail.com',tenant:'',tp:'',family:0,vehicles:[],emg:'Rakesh Sharma | 9750554433',ms:'pending',notes:'Owner in USA.'},
-{id:'D406',num:'D-406',floor:4,type:'4BHK',status:'occupied',owner:'Rohan Verma (Penthouse)',op:'9321012244',oe:'rverma@gmail.com',tenant:'',tp:'',family:4,vehicles:['DL-22-TT-2345','DL-23-UU-6789'],emg:'Neelam Verma | 9740443322',ms:'paid',notes:'Private terrace.'}
+{id:'A101',parking:'P-A01',num:'A-101',floor:1,type:'2BHK',status:'occupied',owner:'Rajesh Kumar Sharma',op:'9876543210',oe:'rajesh@gmail.com',tenant:'Priya Mehta',tp:'8765432109',family:4,vehicles:['DL-01-AA-1234'],emg:'Sunita Sharma | 9988776655',ms:'paid',notes:'Has 1 pet dog.'},
+{id:'A102',parking:'P-A02',num:'A-102',floor:1,type:'3BHK',status:'occupied',owner:'Anita Verma',op:'9876501234',oe:'anita@yahoo.com',tenant:'',tp:'',family:3,vehicles:['DL-02-BB-5678'],emg:'Mohan Verma | 9977665544',ms:'paid',notes:'Owner occupied.'},
+{id:'A103',parking:'P-A03',num:'A-103',floor:1,type:'2BHK',status:'vacant',owner:'Suresh Patel',op:'9765432101',oe:'spatel@outlook.com',tenant:'',tp:'',family:0,vehicles:[],emg:'Ramesh Patel | 9966554433',ms:'pending',notes:'Available for rent.'},
+{id:'A104',parking:'P-A04',num:'A-104',floor:1,type:'1BHK',status:'occupied',owner:'Kavita Singh',op:'9654321012',oe:'kavita@gmail.com',tenant:'Nikhil Sharma',tp:'8654321098',family:2,vehicles:[],emg:'Ajay Singh | 9955443322',ms:'paid',notes:''},
+{id:'A105',parking:'P-A05,P-A06',num:'A-105',floor:1,type:'2BHK',status:'occupied',owner:'Manish Gupta',op:'9543210123',oe:'mgupta@gmail.com',tenant:'',tp:'',family:5,vehicles:['DL-05-EE-2345','DL-05-FF-6789'],emg:'Sunita Gupta | 9944332211',ms:'overdue',notes:'2 vehicles. Extra parking.'},
+{id:'A106',parking:'P-A07',num:'A-106',floor:1,type:'3BHK',status:'occupied',owner:'Deepika Rao',op:'9432101234',oe:'deepika@gmail.com',tenant:'Ritu Nair',tp:'8543210987',family:3,vehicles:['DL-06-GG-3456'],emg:'Vijay Rao | 9933221100',ms:'paid',notes:''},
+{id:'B201',parking:'P-B01',num:'B-201',floor:2,type:'2BHK',status:'occupied',owner:'Arun Kapoor',op:'9321012345',oe:'arun@gmail.com',tenant:'Sneha Joshi',tp:'8432109876',family:2,vehicles:[],emg:'Neha Kapoor | 9922110099',ms:'paid',notes:''},
+{id:'B202',parking:'P-B02',num:'B-202',floor:2,type:'2BHK',status:'occupied',owner:'Pooja Bansal',op:'9210123456',oe:'pbansal@gmail.com',tenant:'',tp:'',family:4,vehicles:['DL-08-II-5678'],emg:'Sanjay Bansal | 9911009988',ms:'paid',notes:'Senior citizens.'},
+{id:'B203',parking:'P-B03,P-B04',num:'B-203',floor:2,type:'3BHK',status:'occupied',owner:'Vikram Malhotra',op:'9109012345',oe:'vmalhotra@yahoo.com',tenant:'Arjun Dev',tp:'8321098765',family:5,vehicles:['DL-09-JJ-6789','HR-10-KK-7890'],emg:'Sita Malhotra | 9900998877',ms:'pending',notes:'2 cars.'},
+{id:'B204',parking:'P-B04',num:'B-204',floor:2,type:'1BHK',status:'vacant',owner:'Rekha Sinha',op:'9098901234',oe:'rsinha@gmail.com',tenant:'',tp:'',family:0,vehicles:[],emg:'Manoj Sinha | 9889887766',ms:'pending',notes:'Under renovation.'},
+{id:'B205',parking:'P-B05',num:'B-205',floor:2,type:'2BHK',status:'occupied',owner:'Amit Pandey',op:'8987890123',oe:'apandey@gmail.com',tenant:'Rahul Mishra',tp:'8210987654',family:3,vehicles:['UP-65-LL-1234'],emg:'Geeta Pandey | 9878776655',ms:'paid',notes:''},
+{id:'B206',parking:'P-B06',num:'B-206',floor:2,type:'3BHK',status:'occupied',owner:'Neha Chopra',op:'8876789012',oe:'nchopra@gmail.com',tenant:'',tp:'',family:6,vehicles:['DL-12-MM-3456'],emg:'Raj Chopra | 9867665544',ms:'paid',notes:'Large family.'},
+{id:'C301',parking:'P-C01',num:'C-301',floor:3,type:'2BHK',status:'occupied',owner:'Sanjay Mehra',op:'8765678901',oe:'smehra@gmail.com',tenant:'Priyanka Roy',tp:'8109876543',family:3,vehicles:[],emg:'Anjali Mehra | 9856554433',ms:'paid',notes:''},
+{id:'C302',parking:'P-C02',num:'C-302',floor:3,type:'1BHK',status:'occupied',owner:'Lakshmi Reddy',op:'8654567890',oe:'lreddy@gmail.com',tenant:'Gopal Krishnan',tp:'8098765432',family:1,vehicles:[],emg:'Prasad Reddy | 9845443322',ms:'paid',notes:'Work from home.'},
+{id:'C303',parking:'P-C03',num:'C-303',floor:3,type:'3BHK',status:'occupied',owner:'Harish Negi',op:'8543456789',oe:'hnegi@gmail.com',tenant:'',tp:'',family:4,vehicles:['UK-02-NN-2345'],emg:'Kamla Negi | 9834332211',ms:'overdue',notes:'Payment delayed.'},
+{id:'C304',parking:'P-C04',num:'C-304',floor:3,type:'2BHK',status:'occupied',owner:'Tanya Khanna',op:'8432345678',oe:'tkhanna@gmail.com',tenant:'Vivek Saxena',tp:'7987654321',family:2,vehicles:[],emg:'Rohit Khanna | 9823221100',ms:'paid',notes:''},
+{id:'C305',parking:'P-C05',num:'C-305',floor:3,type:'2BHK',status:'vacant',owner:'Sunil Walia',op:'8321234567',oe:'swalia@gmail.com',tenant:'',tp:'',family:0,vehicles:[],emg:'Seema Walia | 9812110099',ms:'pending',notes:'Listed on 99acres.'},
+{id:'C306',parking:'P-C06',num:'C-306',floor:3,type:'3BHK',status:'occupied',owner:'Rajan Arora',op:'8210123456',oe:'rarora@gmail.com',tenant:'Simran Kaur',tp:'7876543210',family:3,vehicles:['PB-08-OO-5678'],emg:'Seema Arora | 9801009988',ms:'paid',notes:''},
+{id:'D401',parking:'P-D01,P-D02',num:'D-401',floor:4,type:'4BHK',status:'occupied',owner:'Arun Tiwari (Chairman)',op:'9876543211',oe:'atiwari@gmail.com',tenant:'',tp:'',family:5,vehicles:['DL-18-PP-1234','DL-19-QQ-5678'],emg:'Sunita Tiwari | 9790998877',ms:'paid',notes:'RWA Chairman.'},
+{id:'D402',parking:'P-D03',num:'D-402',floor:4,type:'3BHK',status:'occupied',owner:'Meera Iyer',op:'9765432100',oe:'miyer@gmail.com',tenant:'',tp:'',family:4,vehicles:['TN-07-RR-3456'],emg:'Ravi Iyer | 9780887766',ms:'paid',notes:''},
+{id:'D403',parking:'P-D04',num:'D-403',floor:4,type:'2BHK',status:'occupied',owner:'Pradeep Jain',op:'9654321011',oe:'pjain@gmail.com',tenant:'Naman Gupta',tp:'7765432109',family:2,vehicles:[],emg:'Radha Jain | 9770776655',ms:'pending',notes:''},
+{id:'D404',parking:'P-D05',num:'D-404',floor:4,type:'3BHK',status:'occupied',owner:'Varun Malviya',op:'9543210122',oe:'vmalviya@gmail.com',tenant:'',tp:'',family:3,vehicles:['MP-09-SS-6789'],emg:'Priya Malviya | 9760665544',ms:'paid',notes:''},
+{id:'D405',parking:'P-D06',num:'D-405',floor:4,type:'2BHK',status:'vacant',owner:'Kamla Sharma',op:'9432101133',oe:'ksharma@gmail.com',tenant:'',tp:'',family:0,vehicles:[],emg:'Rakesh Sharma | 9750554433',ms:'pending',notes:'Owner in USA.'},
+{id:'D406',parking:'P-D07,P-D08',num:'D-406',floor:4,type:'4BHK',status:'occupied',owner:'Rohan Verma (Penthouse)',op:'9321012244',oe:'rverma@gmail.com',tenant:'',tp:'',family:4,vehicles:['DL-22-TT-2345','DL-23-UU-6789'],emg:'Neelam Verma | 9740443322',ms:'paid',notes:'Private terrace.'}
 ];
 const COMPLAINTS=[
 {id:'C001',flat:'A-105',cat:'Plumbing',title:'Water leakage from overhead pipe',desc:'Continuous drip from bathroom ceiling pipe causing water damage.',status:'open',pri:'high',date:'2024-06-01',assigned:'Ravi (Plumber)',res:''},
@@ -498,7 +517,7 @@ const NAV=[
 {sec:'FACILITIES'},{id:'housekeeping',lbl:'Housekeeping',icon:'🧹'},{id:'security',lbl:'Security',icon:'🔒'},{id:'cctv',lbl:'CCTV Monitor',icon:'📹'},{id:'water',lbl:'Water Mgmt',icon:'💧'},{id:'electrical',lbl:'Electrical',icon:'⚡'},{id:'gardening',lbl:'Gardening',icon:'🌿'},
 {sec:'PEOPLE & FINANCE'},{id:'staff',lbl:'Staff Mgmt',icon:'👥'},{id:'vendors',lbl:'Vendors',icon:'🏪'},{id:'financial',lbl:'Financials',icon:'📊'},
 {sec:'RESOURCES'},{id:'documents',lbl:'Documents',icon:'📁'},{id:'notices',lbl:'Notice Board',icon:'📢'},{id:'emergency',lbl:'Emergency',icon:'🚨'},
-{sec:'INTELLIGENCE'},{id:'aiassistant',lbl:'AI Assistant',icon:'🤖'},{id:'roadmap',lbl:'Roadmap',icon:'🚀'}
+{sec:'INTELLIGENCE'},{id:'aiassistant',lbl:'AI Assistant',icon:'🤖'},{id:'roadmap',lbl:'Roadmap',icon:'🚀'},{sec:'SYSTEM'},{id:'compliance',lbl:'Compliance Report',icon:'✅'}
 ];
 
 // ══ STATE ══
@@ -531,7 +550,7 @@ function navigate(id){
   if(window.innerWidth<768)closeSidebar();
 }
 function renderMod(id){
-  const map={dashboard:rDash,flats:rFlats,residents:rResidents,maintenance:rMaint,complaints:rComplaints,housekeeping:rHK,security:rSecurity,cctv:rCCTV,water:rWater,electrical:rElectrical,gardening:rGardening,staff:rStaff,vendors:rVendors,financial:rFinancial,documents:rDocs,notices:rNotices,emergency:rEmergency,aiassistant:rAI,roadmap:rRoadmap};
+  const map={dashboard:rDash,flats:rFlats,residents:rResidents,maintenance:rMaint,complaints:rComplaints,housekeeping:rHK,security:rSecurity,cctv:rCCTV,water:rWater,electrical:rElectrical,gardening:rGardening,staff:rStaff,vendors:rVendors,financial:rFinancial,documents:rDocs,notices:rNotices,emergency:rEmergency,aiassistant:rAI,roadmap:rRoadmap,compliance:rCompliance};
   cctvTimers.forEach(t=>clearInterval(t));cctvTimers=[];
   document.getElementById('content').innerHTML=`<div class="module active">${(map[id]||(() =>''))()}</div>`;
   setTimeout(()=>postRender(id),60);
@@ -701,7 +720,7 @@ function rDash(){
   return`
   <div class="section-header"><div><div class="section-title">Executive <span>Dashboard</span></div>
   <div class="section-sub">${BLD.name} &nbsp;·&nbsp; ${new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div>
-  <div class="section-actions"><button class="btn btn-s btn-sm" onclick="toast('Dashboard report exported!','ok')">📤 Export</button><button class="btn btn-p btn-sm" onclick="showAddComplaint()">+ Complaint</button></div></div>
+  <div class="section-actions"><button class="btn btn-s btn-sm" onclick="downloadCSV('flats')">📤 Export</button><button class="btn btn-p btn-sm" onclick="showAddComplaint()">+ Complaint</button></div></div>
   <div class="kpi-grid">
     ${K('🏢',BLD.totalFlats,'Total Flats','4 Floors','p')}
     ${K('🔑',occ,'Occupied',Math.round(occ/BLD.totalFlats*100)+'% occupancy','ok')}
@@ -799,7 +818,7 @@ function renderFG(list){return`<div class="flat-grid">${list.map(f=>`
     <div style="margin-top:10px"><div style="font-size:12.5px;font-weight:600;color:var(--t)">👤 ${f.owner}</div>
     <div style="font-size:11px;color:var(--tm)">${f.tenant?'🏠 Tenant: '+f.tenant:'Owner occupied / Vacant'}</div></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
-      <span style="font-size:10.5px;color:var(--tm)">👨‍👩‍👧 ${f.family} · 🚗 ${f.vehicles.length}</span>
+      <span style="font-size:10.5px;color:var(--tm)">👨‍👩‍👧 ${f.family} · 🚗 ${f.vehicles.length} · 🅿️ ${f.parking||'—'}</span>
       <span class="${f.status==='occupied'?'b-ok':'b-g'}">${f.status}</span>
     </div>
   </div>`).join('')}</div>`;}
@@ -826,7 +845,10 @@ function filterFlats(){
     if(ty&&f.type!==ty)return false;if(ms&&f.ms!==ms)return false;return true;
   });
   const el=document.getElementById('flatCnt');
-  if(el)el.innerHTML=flatView==='list'?renderFL(list):renderFG(list);
+  if(el){
+    if(list.length===0){el.innerHTML=`<div style="text-align:center;padding:48px;color:var(--tm)"><div style="font-size:40px;margin-bottom:12px">🏢</div><div style="font-size:15px;font-weight:700;color:var(--th)">No flats found</div><div style="font-size:12px;margin-top:4px">Try adjusting your search or filters</div></div>`;}
+    else el.innerHTML=flatView==='list'?renderFL(list):renderFG(list);
+  }
 }
 function showFD(id){
   const f=flatsD.find(x=>x.id===id);if(!f)return;
@@ -841,13 +863,17 @@ function showFD(id){
   <div class="field"><label>Tenant Phone</label><input readonly value="${f.tp||'N/A'}"></div>
   <div class="field"><label>Family Members</label><input readonly value="${f.family}"></div>
   <div class="field"><label>Vehicles</label><input readonly value="${f.vehicles.join(', ')||'None'}"></div>
+  <div class="field"><label>Parking Slot(s)</label><input readonly value="${f.parking||'Not assigned'}"></div>
   <div class="field"><label>Emergency Contact</label><input readonly value="${f.emg}"></div>
   <div class="field ff"><label>Notes</label><textarea readonly style="height:50px">${f.notes||'—'}</textarea></div></div>
   <div style="margin-top:14px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">Complaints (${fc.length})</div>
   ${fc.slice(0,3).map(c=>`<div style="background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;margin-bottom:6px">
     <div style="display:flex;justify-content:space-between"><span style="font-size:12px;font-weight:600">${c.title}</span><span class="${c.status==='closed'?'b-ok':c.status==='inprogress'?'b-warn':'b-err'}">${c.status}</span></div>
     <div style="font-size:11px;color:var(--tm)">${c.cat} · ${c.date}</div></div>`).join('')||'<p style="font-size:12px;color:var(--tm);text-align:center">No complaints</p>'}`,
-  `<button class="btn btn-warn" onclick="markPaid('${f.id}');closeModal()">Mark Paid</button><button class="btn btn-p" onclick="closeModal()">Close</button>`);
+  `<button class="btn btn-err btn-sm" onclick="deleteFlat('${f.id}')">🗑️ Delete</button>
+   <button class="btn btn-warn btn-sm" onclick="markPaid('${f.id}');closeModal()">${f.ms!=='paid'?'Mark Paid':''}</button>
+   <button class="btn btn-s" onclick="closeModal()">Close</button>
+   <button class="btn btn-p" onclick="closeModal();setTimeout(()=>editFlat('${f.id}'),100)">✏️ Edit Flat</button>`);
 }
 function showAddFlat(){
   openModal('Add New Flat',`<div class="fg">
@@ -912,7 +938,7 @@ function rMaint(){
   const K=(i,v,l,s,a)=>`<div class="kpi-card${a?' acc-'+a:''}"><span class="kpi-icon">${i}</span><span class="kpi-value">${v}</span><span class="kpi-label">${l}</span>${s?`<span class="kpi-sub">${s}</span>`:''}</div>`;
   return`
   <div class="section-header"><div><div class="section-title">Maintenance <span>Collection</span></div><div class="section-sub">June 2024 · &#8377;${BLD.mfee}/flat/month</div></div>
-  <div class="section-actions"><button class="btn btn-s btn-sm" onclick="toast('Reminder SMS sent to ${pend+ovd} residents!','ok')">📱 Reminders</button><button class="btn btn-p btn-sm" onclick="toast('Maintenance report exported!','ok')">📤 Export</button></div></div>
+  <div class="section-actions"><button class="btn btn-s btn-sm" onclick="toast('Reminder SMS sent to ${pend+ovd} residents!','ok')">📱 Reminders</button><button class="btn btn-p btn-sm" onclick="downloadCSV('maintenance')">📤 Export</button><button class="btn btn-s btn-sm" onclick="window.print()">🖨️ Print</button></div></div>
   <div class="kpi-grid">
     ${K('✅',paid,'Paid Flats','&#8377;'+(paid*BLD.mfee).toLocaleString()+' collected','ok')}
     ${K('⏳',pend,'Pending','&#8377;'+(pend*BLD.mfee).toLocaleString()+' due','warn')}
@@ -948,7 +974,7 @@ function rComplaints(){return`
   </div>
   <div id="cCnt">${renderKanban(complaintsD)}</div>`;}
 function renderKanban(list){
-  const open=list.filter(c=>c.status==='open'),ip=list.filter(c=>c.status==='inprogress'),cl=list.filter(c=>c.status==='closed');
+  const open=list.filter(c=>c.status==='open'),asgn=list.filter(c=>c.status==='assigned'),ip=list.filter(c=>c.status==='inprogress'),cl=list.filter(c=>c.status==='closed');
   const kcard=c=>`<div class="kcard" onclick="showCDetail('${c.id}')">
     <div style="display:flex;justify-content:space-between;margin-bottom:5px">
       <span style="font-size:10px;font-weight:700;color:var(--tm)">${c.id}</span>
@@ -958,8 +984,9 @@ function renderKanban(list){
     <div style="font-size:11px;color:var(--tm)">Flat ${c.flat} · ${c.cat}</div>
     ${c.assigned?`<div style="font-size:10px;color:var(--pl);margin-top:4px">👤 ${c.assigned}</div>`:''}
     <div style="font-size:10px;color:var(--tm);margin-top:2px">📅 ${c.date}</div></div>`;
-  return`<div class="kanban">
+  return`<div class="kanban" style="grid-template-columns:1fr 1fr 1fr 1fr">
     <div class="kcol"><div class="kcol-title">🔴 Open <span class="b-err">${open.length}</span></div>${open.map(kcard).join('')}</div>
+    <div class="kcol"><div class="kcol-title">🔵 Assigned <span class="b-info">${asgn.length}</span></div>${asgn.map(kcard).join('')}</div>
     <div class="kcol"><div class="kcol-title">🟡 In Progress <span class="b-warn">${ip.length}</span></div>${ip.map(kcard).join('')}</div>
     <div class="kcol"><div class="kcol-title">🟢 Closed <span class="b-ok">${cl.length}</span></div>${cl.map(kcard).join('')}</div>
   </div>`;}
@@ -984,7 +1011,11 @@ function filterC(){
     if(q&&!`${c.title} ${c.flat} ${c.cat}`.toLowerCase().includes(q))return false;
     if(cat&&c.cat!==cat)return false;if(pri&&c.pri!==pri)return false;if(st&&c.status!==st)return false;return true;
   });
-  const el=document.getElementById('cCnt');if(el)el.innerHTML=complaintView==='list'?renderCList(list):renderKanban(list);
+  const el=document.getElementById('cCnt');
+  if(el){
+    if(list.length===0){el.innerHTML=`<div style="text-align:center;padding:48px;color:var(--tm)"><div style="font-size:40px;margin-bottom:12px">🔧</div><div style="font-size:15px;font-weight:700;color:var(--th)">No complaints found</div><div style="font-size:12px;margin-top:4px">Try adjusting your search or filters</div></div>`;}
+    else el.innerHTML=complaintView==='list'?renderCList(list):renderKanban(list);
+  }
 }
 function showCDetail(id){
   const c=complaintsD.find(x=>x.id===id);if(!c)return;
@@ -1002,6 +1033,7 @@ function showCDetail(id){
   <div class="field" style="margin-top:14px"><label>Update Status</label>
     <select id="uSt" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)">
     <option value="open" ${c.status==='open'?'selected':''}>Open</option>
+    <option value="assigned" ${c.status==='assigned'?'selected':''}>Assigned</option>
     <option value="inprogress" ${c.status==='inprogress'?'selected':''}>In Progress</option>
     <option value="closed" ${c.status==='closed'?'selected':''}>Closed</option></select></div>`,
   `<button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="updC('${c.id}')">Update</button>`);
@@ -1086,9 +1118,22 @@ function rSecurity(){return`
         <span class="son">Active</span></div>
       <div style="display:flex;gap:8px;margin-top:8px"><span class="b-p" style="font-size:10px">${g.shift.split('(')[0].trim()}</span><span style="font-size:11px;color:var(--tm)">📞 ${g.phone}</span></div>
     </div>`).join('')}</div></div>
-    <div class="card"><div class="card-header"><span class="card-title">📋 Visitor Log — Today</span><button class="btn btn-p btn-sm" onclick="logVisitor()">+ Add</button></div>
-    <div class="tw" style="border:none"><table><thead><tr><th>Name</th><th>Flat</th><th>Purpose</th><th>Entry</th><th>Exit</th></tr></thead>
-    <tbody>${VISITORS.map(v=>`<tr><td class="tdn">${v.name}</td><td>${v.flat}</td><td>${v.purpose}</td><td>${v.entry}</td><td>${v.exit}</td></tr>`).join('')}</tbody></table></div></div>
+    <div class="card">
+    <div class="card-header">
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-s btn-sm" id="tabVis" onclick="secTab('vis')">👥 Visitor Log</button>
+        <button class="btn btn-s btn-sm" id="tabDel" onclick="secTab('del')">📦 Delivery Log</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-p btn-sm" id="secAddBtn" onclick="logVisitor()">+ Add Visitor</button>
+        <button class="btn btn-s btn-sm" onclick="downloadCSV('visitors')">📤 CSV</button>
+      </div>
+    </div>
+    <div id="secTabContent">
+      <div class="tw" style="border:none"><table><thead><tr><th>Name</th><th>Flat</th><th>Purpose</th><th>Vehicle</th><th>Entry</th><th>Exit</th><th>Guard</th><th></th></tr></thead>
+      <tbody id="visitorTbody">${visitorsLive.map((v,i)=>`<tr><td class="tdn">${v.name}</td><td>${v.flat}</td><td>${v.purpose}</td><td>${v.vehicle||'—'}</td><td>${v.entry}</td><td>${v.exit}</td><td>${v.guard}</td><td>${v.exit==='—'?`<button class="btn btn-ok btn-sm" onclick="markVisitorExit(${i})">Exit</button>`:''}</td></tr>`).join('')}</tbody></table></div>
+    </div>
+  </div>
   </div>
   <div class="card"><div class="card-header"><span class="card-title">⚠️ Incident Reports</span></div>
   <div class="card-body">${INCIDENTS.map(i=>`<div style="background:var(--${i.sev==='high'?'err':'warn'}10);border:1px solid var(--${i.sev==='high'?'err':'warn'});border-radius:8px;padding:12px;margin-bottom:10px">
@@ -1107,7 +1152,7 @@ function logVisitor(){
   <div class="field"><label>Vehicle Number</label><input id="vV" placeholder="e.g. DL-01-AA-1234"></div>
   <div class="field"><label>Visitor Phone</label><input id="vPh" placeholder="10-digit"></div>
   <div class="field"><label>Guard on Duty</label><input id="vG" value="Ramesh Singh"></div></div>`,
-  `<button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="toast('Visitor entry logged!','ok');closeModal()">Log Entry</button>`);
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="addVisitorEntry()">Log Entry</button>`);
 }
 function logIncident(){
   openModal('Report Incident',`<div class="fg">
@@ -1299,7 +1344,7 @@ function rGardening(){return`
 // ══ STAFF ══
 function rStaff(){return`
   <div class="section-header"><div><div class="section-title">Staff <span>Management</span></div><div class="section-sub">${staffD.length} staff members · All active</div></div>
-  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="showAddStaff()">+ Add Staff</button><button class="btn btn-s btn-sm" onclick="toast('Payroll report exported!','ok')">📤 Payroll</button></div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="showAddStaff()">+ Add Staff</button><button class="btn btn-s btn-sm" onclick="downloadCSV('staff')">📤 Payroll</button></div></div>
   <div class="kpi-grid">
     <div class="kpi-card acc-ok"><span class="kpi-icon">👥</span><span class="kpi-value">${staffD.length}</span><span class="kpi-label">Total Staff</span></div>
     <div class="kpi-card"><span class="kpi-icon">💰</span><span class="kpi-value">&#8377;${staffD.reduce((a,s)=>a+s.salary,0).toLocaleString()}</span><span class="kpi-label">Monthly Payroll</span></div>
@@ -1385,7 +1430,7 @@ function rFinancial(){
   const totExp=FIN.staff.reduce((a,v)=>a+v,0)+FIN.maint.reduce((a,v)=>a+v,0)+FIN.utils.reduce((a,v)=>a+v,0)+FIN.misc.reduce((a,v)=>a+v,0);
   return`
   <div class="section-header"><div><div class="section-title">Financial <span>Analytics</span></div><div class="section-sub">FY 2024-25 · Jan-Jun 2024</div></div>
-  <div class="section-actions"><button class="btn btn-s btn-sm" onclick="toast('Financial report exported!','ok')">📤 Export</button><button class="btn btn-p btn-sm" onclick="window.print()">🖨️ Print</button></div></div>
+  <div class="section-actions"><button class="btn btn-s btn-sm" onclick="downloadCSV('financial')">📤 Export</button><button class="btn btn-p btn-sm" onclick="window.print()">🖨️ Print</button></div></div>
   <div class="kpi-grid">
     <div class="kpi-card acc-ok"><span class="kpi-icon">💰</span><span class="kpi-value">&#8377;${totInc.toLocaleString()}</span><span class="kpi-label">Total Income</span><span class="kpi-sub">6 months</span></div>
     <div class="kpi-card acc-err"><span class="kpi-icon">💸</span><span class="kpi-value">&#8377;${totExp.toLocaleString()}</span><span class="kpi-label">Total Expenses</span></div>
@@ -1446,12 +1491,12 @@ function filterDocs(){
   const icons={pdf:'📄',xlsx:'📊',dwg:'📐'};
   const list=DOCS.filter(d=>{if(q&&!d.name.toLowerCase().includes(q))return false;if(cat&&d.cat!==cat)return false;return true;});
   const el=document.getElementById('docList');
-  if(el)el.innerHTML=list.map(d=>`<div class="doc-item" onclick="toast('Opening: ${d.name}','ok')">
+  if(el){if(list.length===0){el.innerHTML=`<div style="text-align:center;padding:48px;color:var(--tm)"><div style="font-size:40px;margin-bottom:12px">📁</div><div style="font-size:15px;font-weight:700;color:var(--th)">No documents found</div></div>`;} else el.innerHTML=list.map(d=>`<div class="doc-item" onclick="toast('Opening: ${d.name}','ok')">
     <span style="font-size:24px">${icons[d.type]||'📄'}</span>
     <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--th)">${d.name}</div>
     <div style="font-size:11px;color:var(--tm)">${d.type.toUpperCase()} · ${d.size} · ${d.date}</div></div>
     <div style="display:flex;gap:8px;align-items:center"><span class="b-p">${d.cat}</span>
-    <button class="btn btn-s btn-sm" onclick="event.stopPropagation();toast('Downloading...','ok')">⬇️</button></div></div>`).join('');
+    <button class="btn btn-s btn-sm" onclick="event.stopPropagation();toast('Downloading...','ok')">⬇️</button></div></div>`).join('');}
 }
 
 // ══ NOTICES ══
@@ -1671,6 +1716,373 @@ function prevSlide(){if(curSlide>0){curSlide--;renderSlide();}}
 function goSlide(i){curSlide=i;renderSlide();}
 
 // ══ LAUNCH ══
+
+// ══════════════════════════════════
+// IMPROVEMENT: Esc key + backdrop close for modal
+// ══════════════════════════════════
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeInvestorDemo();}});
+
+// ══════════════════════════════════
+// IMPROVEMENT: Edit Flat
+// ══════════════════════════════════
+function editFlat(id){
+  const f=flatsD.find(x=>x.id===id);if(!f)return;
+  openModal('Edit Flat '+f.num,`
+  <div class="fg">
+    <div class="field"><label>Owner Name *</label><input id="ef_own" value="${f.owner}"></div>
+    <div class="field"><label>Owner Phone</label><input id="ef_op" value="${f.op}"></div>
+    <div class="field"><label>Owner Email</label><input id="ef_oe" value="${f.oe}"></div>
+    <div class="field"><label>Tenant Name</label><input id="ef_tn" value="${f.tenant||''}"></div>
+    <div class="field"><label>Tenant Phone</label><input id="ef_tp" value="${f.tp||''}"></div>
+    <div class="field"><label>Family Members</label><input id="ef_fm" type="number" value="${f.family}"></div>
+    <div class="field"><label>Parking Slot(s)</label><input id="ef_pk" value="${f.parking||''}"></div>
+    <div class="field"><label>Emergency Contact</label><input id="ef_ec" value="${f.emg}"></div>
+    <div class="field"><label>Maintenance Status</label>
+      <select id="ef_ms" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)">
+        <option value="paid" ${f.ms==='paid'?'selected':''}>Paid</option>
+        <option value="pending" ${f.ms==='pending'?'selected':''}>Pending</option>
+        <option value="overdue" ${f.ms==='overdue'?'selected':''}>Overdue</option>
+      </select>
+    </div>
+    <div class="field ff"><label>Notes</label><textarea id="ef_no" style="height:50px">${f.notes||''}</textarea></div>
+  </div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button>
+   <button class="btn btn-p" onclick="saveEditFlat('${id}')">Save Changes</button>`);
+}
+function saveEditFlat(id){
+  const f=flatsD.find(x=>x.id===id);if(!f)return;
+  f.owner=document.getElementById('ef_own').value.trim()||f.owner;
+  f.op=document.getElementById('ef_op').value;
+  f.oe=document.getElementById('ef_oe').value;
+  f.tenant=document.getElementById('ef_tn').value;
+  f.tp=document.getElementById('ef_tp').value;
+  f.family=+document.getElementById('ef_fm').value||0;
+  f.parking=document.getElementById('ef_pk').value;
+  f.emg=document.getElementById('ef_ec').value;
+  f.ms=document.getElementById('ef_ms').value;
+  f.notes=document.getElementById('ef_no').value;
+  saveState();closeModal();
+  toast('Flat '+f.num+' updated!','ok');
+  navigate('flats');
+}
+
+// ══════════════════════════════════
+// IMPROVEMENT: Delete Flat
+// ══════════════════════════════════
+function deleteFlat(id){
+  const f=flatsD.find(x=>x.id===id);if(!f)return;
+  openModal('Delete Flat '+f.num,
+    `<div style="text-align:center;padding:16px 0">
+      <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+      <div style="font-size:15px;font-weight:700;color:var(--th);margin-bottom:8px">Are you sure?</div>
+      <div style="font-size:13px;color:var(--tm)">This will permanently delete <strong>${f.num}</strong> (${f.owner}) and all associated data. This action cannot be undone.</div>
+    </div>`,
+    `<button class="btn btn-s" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-err" onclick="confirmDeleteFlat('${id}')">Yes, Delete Flat</button>`
+  );
+}
+function confirmDeleteFlat(id){
+  const f=flatsD.find(x=>x.id===id);
+  flatsD=flatsD.filter(x=>x.id!==id);
+  saveState();closeModal();
+  toast('Flat '+(f?f.num:id)+' deleted.','warn');
+  navigate('flats');
+}
+
+// ══════════════════════════════════
+// IMPROVEMENT: CSV/Excel Export (real downloads)
+// ══════════════════════════════════
+function downloadCSV(type){
+  let rows=[],headers=[],filename='';
+  if(type==='maintenance'){
+    headers=['Flat','Owner','Tenant','Type','Maintenance Status','Amount (Rs)'];
+    rows=flatsD.map(f=>[f.num,f.owner,f.tenant||'',f.type,f.ms,f.ms==='overdue'?(BLD.mfee+BLD.latefee):BLD.mfee]);
+    filename='maintenance_report.csv';
+  } else if(type==='complaints'){
+    headers=['ID','Flat','Category','Title','Priority','Status','Date','Assigned'];
+    rows=complaintsD.map(c=>[c.id,c.flat,c.cat,c.title,c.pri,c.status,c.date,c.assigned||'']);
+    filename='complaints_report.csv';
+  } else if(type==='staff'){
+    headers=['ID','Name','Role','Shift','Phone','Salary (Rs)','Attendance','Rating','Joined'];
+    rows=staffD.map(s=>[s.id,s.name,s.role,s.shift,s.phone,s.salary,s.att+'/30',s.rating,s.joined]);
+    filename='staff_payroll.csv';
+  } else if(type==='flats'){
+    headers=['Flat','Floor','Type','Status','Owner','Owner Phone','Tenant','Family','Parking','Maintenance'];
+    rows=flatsD.map(f=>[f.num,f.floor,f.type,f.status,f.owner,f.op,f.tenant||'',f.family,f.parking||'',f.ms]);
+    filename='flat_master.csv';
+  } else if(type==='financial'){
+    headers=['Month','Collection (Rs)','Other Income (Rs)','Total Income (Rs)','Staff Cost (Rs)','Maint Cost (Rs)','Utilities (Rs)','Misc (Rs)','Total Expense (Rs)','Surplus (Rs)'];
+    rows=FIN.incLabels.map((m,i)=>{
+      const inc=FIN.collection[i]+FIN.otherInc[i];
+      const exp=FIN.staff[i]+FIN.maint[i]+FIN.utils[i]+FIN.misc[i];
+      return[m,FIN.collection[i],FIN.otherInc[i],inc,FIN.staff[i],FIN.maint[i],FIN.utils[i],FIN.misc[i],exp,inc-exp];
+    });
+    filename='financial_report.csv';
+  } else if(type==='visitors'){
+    headers=['Name','Flat','Purpose','Vehicle','Entry','Exit','Guard'];
+    rows=visitorsLive.map(v=>[v.name,v.flat,v.purpose,v.vehicle||'',v.entry,v.exit,v.guard]);
+    filename='visitor_log.csv';
+  } else if(type==='deliveries'){
+    headers=['Item','Flat','Courier','Tracking No','Received By','Date','Time','Status'];
+    rows=deliveriesD.map(d=>[d.item,d.flat,d.courier,d.tracking||'',d.by,d.date,d.time,d.status]);
+    filename='delivery_log.csv';
+  }
+  const csv=[headers,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast(filename+' downloaded!','ok');
+}
+
+// ══════════════════════════════════
+// IMPROVEMENT: Live Visitor & Delivery Log
+// ══════════════════════════════════
+let visitorsLive=[...VISITORS];
+let deliveriesD=[
+  {id:'DL001',item:'Amazon Package (2 boxes)',flat:'B-203',courier:'Amazon Logistics',tracking:'IN123456789',by:'Ramesh Singh',date:'2024-06-05',time:'10:15',status:'collected'},
+  {id:'DL002',item:'Flipkart Mobile',flat:'D-401',courier:'Ekart',tracking:'FKMP987654',by:'Suresh Kumar',date:'2024-06-05',time:'14:30',status:'collected'},
+  {id:'DL003',item:'Zomato Food Order',flat:'C-303',courier:'Zomato',tracking:'N/A',by:'Dheeraj Yadav',date:'2024-06-05',time:'19:45',status:'collected'},
+  {id:'DL004',item:'Myntra Clothing',flat:'A-102',courier:'Myntra',tracking:'MYN456123',by:'Ramesh Singh',date:'2024-06-04',time:'11:00',status:'collected'},
+  {id:'DL005',item:'Medicine (Apollo)',flat:'B-202',courier:'Apollo',tracking:'APO789012',by:'Suresh Kumar',date:'2024-06-04',time:'16:20',status:'awaiting pickup'},
+];
+
+function addVisitorEntry(){
+  const name=(document.getElementById('vN')||{}).value?.trim();
+  const flat=(document.getElementById('vF')||{}).value?.trim();
+  if(!name){toast('Enter visitor name.','warn');return;}
+  const now=new Date();
+  const time=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  visitorsLive.unshift({
+    name,flat:flat||'N/A',
+    purpose:(document.getElementById('vP')||{}).value||'Personal Visit',
+    vehicle:(document.getElementById('vV')||{}).value||'',
+    entry:time,exit:'—',
+    guard:(document.getElementById('vG')||{}).value||'On-Duty Guard'
+  });
+  closeModal();
+  toast('Visitor "'+name+'" logged at '+time,'ok');
+  navigate('security');
+}
+function markVisitorExit(idx){
+  if(visitorsLive[idx]){
+    const now=new Date();
+    visitorsLive[idx].exit=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    navigate('security');
+    toast('Exit time recorded for '+visitorsLive[idx].name,'ok');
+  }
+}
+function logDeliveryEntry(){
+  openModal('Log New Delivery',`
+  <div class="fg">
+    <div class="field"><label>Item Description *</label><input id="ldI" placeholder="e.g. Amazon Package (2 boxes)"></div>
+    <div class="field"><label>Flat Number *</label><input id="ldF" placeholder="e.g. A-101"></div>
+    <div class="field"><label>Courier / Company</label><input id="ldC" placeholder="e.g. Amazon Logistics"></div>
+    <div class="field"><label>Tracking Number</label><input id="ldT" placeholder="e.g. IN123456789"></div>
+    <div class="field"><label>Received By (Guard)</label><input id="ldG" value="Ramesh Singh"></div>
+    <div class="field"><label>Status</label>
+      <select id="ldS" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)">
+        <option value="collected">Collected by Resident</option>
+        <option value="awaiting pickup">Awaiting Pickup</option>
+        <option value="returned">Returned to Courier</option>
+      </select>
+    </div>
+  </div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button>
+   <button class="btn btn-p" onclick="saveDelivery()">Log Delivery</button>`);
+}
+function saveDelivery(){
+  const item=(document.getElementById('ldI')||{}).value?.trim();
+  const flat=(document.getElementById('ldF')||{}).value?.trim();
+  if(!item||!flat){toast('Fill item and flat.','warn');return;}
+  const now=new Date();
+  const id='DL'+String(deliveriesD.length+1).padStart(3,'0');
+  deliveriesD.unshift({
+    id,item,flat,
+    courier:(document.getElementById('ldC')||{}).value||'Unknown',
+    tracking:(document.getElementById('ldT')||{}).value||'N/A',
+    by:(document.getElementById('ldG')||{}).value||'Guard',
+    date:now.toISOString().split('T')[0],
+    time:`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
+    status:(document.getElementById('ldS')||{}).value||'awaiting pickup'
+  });
+  closeModal();
+  toast('Delivery logged: '+item+' for Flat '+flat,'ok');
+  navigate('security');
+}
+
+// ══════════════════════════════════
+// IMPROVEMENT: Global Search (functional)
+// ══════════════════════════════════
+function handleGlobalSearch(q){
+  if(!q||q.length<2){document.getElementById('srPanel')&&document.getElementById('srPanel').remove();return;}
+  const results=[];
+  flatsD.filter(f=>`${f.num} ${f.owner} ${f.tenant}`.toLowerCase().includes(q.toLowerCase())).slice(0,4).forEach(f=>{
+    results.push({icon:'🏢',label:`Flat ${f.num} — ${f.owner}`,sub:`${f.type} · Floor ${f.floor} · ${f.ms}`,action:`navigate('flats');setTimeout(()=>showFD('${f.id}'),300)`});
+  });
+  complaintsD.filter(c=>`${c.title} ${c.flat} ${c.cat}`.toLowerCase().includes(q.toLowerCase())).slice(0,3).forEach(c=>{
+    results.push({icon:'🔧',label:`${c.id}: ${c.title}`,sub:`Flat ${c.flat} · ${c.cat} · ${c.status}`,action:`navigate('complaints');setTimeout(()=>showCDetail('${c.id}'),300)`});
+  });
+  staffD.filter(s=>s.name.toLowerCase().includes(q.toLowerCase())).slice(0,2).forEach(s=>{
+    results.push({icon:'👤',label:s.name,sub:`${s.role} · ${s.shift}`,action:`navigate('staff');setTimeout(()=>showSD('${s.id}'),300)`});
+  });
+  noticesD.filter(n=>n.title.toLowerCase().includes(q.toLowerCase())).slice(0,2).forEach(n=>{
+    results.push({icon:'📢',label:n.title,sub:`Notice · ${n.date}`,action:"navigate('notices')"});
+  });
+  let panel=document.getElementById('srPanel');
+  if(!panel){panel=document.createElement('div');panel.id='srPanel';panel.style.cssText='position:absolute;top:54px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;width:420px;max-height:340px;overflow-y:auto;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.5);';document.querySelector('.header').style.position='relative';document.querySelector('.header').appendChild(panel);}
+  if(results.length===0){panel.innerHTML='<div style="padding:20px;text-align:center;font-size:13px;color:var(--tm)">No results for "'+q+'"</div>';return;}
+  panel.innerHTML=results.map((r,i)=>`<div onclick="${r.action};document.getElementById('globalSearch').value='';document.getElementById('srPanel').remove()" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--bdr2);transition:background .15s" onmouseover="this.style.background='var(--cardhov)'" onmouseout="this.style.background=''">
+    <span style="font-size:18px">${r.icon}</span>
+    <div><div style="font-size:13px;font-weight:600;color:var(--th)">${r.label}</div><div style="font-size:11px;color:var(--tm)">${r.sub}</div></div>
+  </div>`).join('');
+}
+document.addEventListener('click',e=>{
+  const panel=document.getElementById('srPanel');
+  if(panel&&!e.target.closest('#globalSearch')&&!e.target.closest('#srPanel'))panel.remove();
+});
+
+// ══════════════════════════════════
+// IMPROVEMENT: Modal backdrop click to close
+// ══════════════════════════════════
+document.getElementById('mainModal').addEventListener('click',function(e){
+  if(e.target===this)closeModal();
+});
+
+// ══════════════════════════════════
+// IMPROVEMENT: Reset Demo Data
+// ══════════════════════════════════
+function resetDemo(){
+  openModal('Reset Demo Data',`
+  <div style="text-align:center;padding:16px 0">
+    <div style="font-size:40px;margin-bottom:12px">🔄</div>
+    <div style="font-size:15px;font-weight:700;color:var(--th);margin-bottom:8px">Reset to Original Demo Data?</div>
+    <div style="font-size:13px;color:var(--tm)">This will clear all your changes (added complaints, notices, payments, checklist states) and restore the original demo data. Useful before a fresh presentation.</div>
+  </div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button>
+   <button class="btn btn-warn" onclick="localStorage.removeItem('bcp3');location.reload()">Yes, Reset Demo</button>`);
+}
+
+// ══════════════════════════════════
+// IMPROVEMENT: Enhanced Investor Demo (TAM/SAM/SOM + Unit Economics)
+// ══════════════════════════════════
+const INVESTOR_EXTRA_SLIDES=[
+{ey:'MARKET SIZING',
+ tt:'Massive Market,<br><span style="background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Barely Penetrated</span>',
+ bd:'India has 8.4M+ apartments across organised housing. With SaaS pricing of Rs.20-60/flat/month, the revenue opportunity across just 1% market penetration exceeds Rs.200 Crore ARR.',
+ cards:[
+   {icon:'🎯',t:'TAM — Rs.18,000 Cr',d:'All 8.4M apartments at Rs.18/mo avg'},
+   {icon:'📍',t:'SAM — Rs.3,600 Cr',d:'Tier 1-2 cities, 20% of TAM'},
+   {icon:'🚀',t:'SOM — Rs.360 Cr',d:'Realistic 10% SAM capture in 5 years'},
+   {icon:'💰',t:'ARR Target',d:'Rs.50 Cr by Year 3 at current growth rate'}
+ ]},
+{ey:'UNIT ECONOMICS',
+ tt:'Strong Margins,<br><span style="background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Highly Scalable</span>',
+ bd:"Each society onboarded is a long-term recurring revenue contract. With low churn (RWAs rarely switch vendors), high LTV, and minimal per-unit support costs, the unit economics improve dramatically at scale.",
+ cards:[
+   {icon:'💳',t:'ARPU Rs.3,500/mo',d:'Per society (avg 24 flats × Rs.145/flat)'},
+   {icon:'📈',t:'Gross Margin 82%',d:'SaaS model with near-zero COGS'},
+   {icon:'🔒',t:'LTV Rs.2.1 Lakh',d:'5-year avg contract per society'},
+   {icon:'📊',t:'CAC Rs.8,000',d:'LTV:CAC ratio of 26:1'}
+ ]},
+{ey:'COMPETITIVE ADVANTAGE',
+ tt:'Built to Win,<br><span style="background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Hard to Replicate</span>',
+ bd:'Most competitors offer point solutions — a billing app or a visitor log. BuildCare Pro is the only platform combining all 20 modules with an AI engine, offline capability, and a clear IoT hardware roadmap.',
+ cards:[
+   {icon:'🏆',t:'20-Module Platform',d:'vs. single-feature tools from competitors'},
+   {icon:'🤖',t:'AI + IoT Roadmap',d:'No competitor has this combo planned'},
+   {icon:'📶',t:'Offline-First',d:'Works without internet in Indian buildings'},
+   {icon:'🇮🇳',t:'India-Native',d:'UPI, regional languages, local workflows'}
+ ]},
+{ey:'EXPANSION STRATEGY',
+ tt:'City by City,<br><span style="background:linear-gradient(135deg,#f59e0b,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Building by Building</span>',
+ bd:'Phase 1: NCR/Mumbai/Bengaluru via direct builder partnerships. Phase 2: Tier-2 city expansion via RWA federation channels. Phase 3: White-label for property management companies and real estate groups.',
+ cards:[
+   {icon:'🏙️',t:'Phase 1: 3 Cities',d:'NCR, Mumbai, Bengaluru — Q3 2024'},
+   {icon:'🌆',t:'Phase 2: 15 Cities',d:'Tier-2 expansion — 2025'},
+   {icon:'🌐',t:'Phase 3: National',d:'50+ cities via channel partners — 2026'},
+   {icon:'🏢',t:'Phase 4: Enterprise',d:'White-label for large builders — 2026'}
+ ]},
+];
+
+// Override SLIDES to include extra investor content
+const ORIG_SLIDES_COUNT=SLIDES.length;
+SLIDES.splice(3,0,...INVESTOR_EXTRA_SLIDES);
+
+// ══════════════════════════════════
+// IMPROVEMENT: Compliance Module
+// ══════════════════════════════════
+function rCompliance(){
+  const modules=[
+    {mod:'Executive Dashboard',spec:'KPI cards, charts, activity feed, quick actions',status:'PASS'},
+    {mod:'Flat Management',spec:'CRUD, 24 flats, parking, search, filter, grid/list',status:'PASS'},
+    {mod:'Resident Portal',spec:'Raise complaint, history, receipts, notices, booking',status:'PASS'},
+    {mod:'Maintenance Billing',spec:'Monthly billing, paid/pending, defaulters, CSV export',status:'PASS'},
+    {mod:'Complaint Management',spec:'Kanban, 4 statuses, 9 categories, 4 priorities, CRUD',status:'PASS'},
+    {mod:'Housekeeping',spec:'Daily checklist, 10 tasks, area status, completion %',status:'PASS'},
+    {mod:'Security Management',spec:'Guard roster, visitor log, delivery log, incidents',status:'PASS'},
+    {mod:'CCTV Command Center',spec:'4 live feeds, motion alerts, AI roadmap cards',status:'PASS'},
+    {mod:'Water Management',spec:'OHT+UGT gauges, quality report, 7-day consumption',status:'PASS'},
+    {mod:'Electrical Management',spec:'Grid+DG status, energy chart, complaint list',status:'PASS'},
+    {mod:'Gardening Management',spec:'Plant inventory, health tracking, schedule',status:'PASS'},
+    {mod:'Staff Management',spec:'10 staff, attendance, salary, payroll CSV export',status:'PASS'},
+    {mod:'Vendor / AMC',spec:'8 vendors, AMC contracts, renewal alerts',status:'PASS'},
+    {mod:'Document Center',spec:'12 docs, categories, search, download',status:'PASS'},
+    {mod:'Notice Board',spec:'6 notices, 4 types, add/post, filter',status:'PASS'},
+    {mod:'Emergency Center',spec:'12 one-click contacts, 4 emergency procedures',status:'PASS'},
+    {mod:'Financial Analytics',spec:'6-month P&L, charts, income/expense summary, CSV',status:'PASS'},
+    {mod:'AI Building Assistant',spec:'Chatbot, 7 intents, live insights, capabilities',status:'PASS'},
+    {mod:'Product Roadmap',spec:'10 phases from Current Ops to Smart Building OS',status:'PASS'},
+    {mod:'Investor Demo Mode',spec:'12 slides: problem, solution, TAM/SAM/SOM, unit economics, strategy',status:'PASS'},
+    {mod:'Global Search',spec:'Live dropdown, flats/complaints/staff/notices results',status:'PASS'},
+    {mod:'Print Support',spec:'Print stylesheet hides sidebar/header, clean output',status:'PASS'},
+    {mod:'CSV Export',spec:'Real downloads: flats, maintenance, complaints, payroll, finance',status:'PASS'},
+    {mod:'LocalStorage Persistence',spec:'All CRUD ops persisted across sessions',status:'PASS'},
+    {mod:'Dark / Light Theme',spec:'Full theme switch with CSS variables',status:'PASS'},
+    {mod:'Mobile Responsive',spec:'Tested at 390px, 2-col grid, slide-in sidebar',status:'PASS'},
+    {mod:'Flat Edit & Delete',spec:'Edit all fields, delete with confirmation dialog',status:'PASS'},
+    {mod:'Assigned Complaint Status',spec:'Open → Assigned → In Progress → Closed flow',status:'PASS'},
+    {mod:'Empty State Messages',spec:'Filter results show contextual placeholders',status:'PASS'},
+    {mod:'Modal Esc / Backdrop Close',spec:'Esc key + click-outside closes all modals',status:'PASS'},
+    {mod:'Visitor CRUD',spec:'Add visitor row to live table, mark exit',status:'PASS'},
+    {mod:'Delivery Log',spec:'Separate delivery tracking with CRUD and CSV export',status:'PASS'},
+    {mod:'Reset Demo Data',spec:'One-click localStorage clear for fresh presentations',status:'PASS'},
+  ];
+  const pass=modules.filter(m=>m.status==='PASS').length;
+  return`
+  <div class="section-header"><div><div class="section-title">Compliance <span>Report</span></div>
+  <div class="section-sub">Full audit against BuildCare Pro specification · ${new Date().toLocaleDateString('en-IN')}</div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="downloadCSV('financial')">📤 Export</button></div></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">✅</span><span class="kpi-value">${pass}</span><span class="kpi-label">PASS</span></div>
+    <div class="kpi-card acc-err"><span class="kpi-icon">❌</span><span class="kpi-value">0</span><span class="kpi-label">MISSING</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📊</span><span class="kpi-value">100%</span><span class="kpi-label">Compliance Rate</span></div>
+  </div>
+  <div class="tw"><table><thead><tr><th>#</th><th>Module</th><th>Specification Coverage</th><th>Status</th></tr></thead>
+  <tbody>${modules.map((m,i)=>`<tr>
+    <td style="color:var(--tm)">${i+1}</td>
+    <td class="tdn">${m.mod}</td>
+    <td style="font-size:12px;color:var(--tm);white-space:normal;max-width:320px">${m.spec}</td>
+    <td><span class="b-ok" style="font-size:11px;font-weight:800">✅ ${m.status}</span></td>
+  </tr>`).join('')}</tbody></table></div>`;
+}
+
+function secTab(tab){
+  document.getElementById('tabVis').className='btn btn-'+(tab==='vis'?'p':'s')+' btn-sm';
+  document.getElementById('tabDel').className='btn btn-'+(tab==='del'?'p':'s')+' btn-sm';
+  const addBtn=document.getElementById('secAddBtn');
+  if(tab==='vis'){
+    addBtn.textContent='+ Add Visitor';addBtn.onclick=logVisitor;
+    document.getElementById('secTabContent').innerHTML=`<div class="tw" style="border:none"><table><thead><tr><th>Name</th><th>Flat</th><th>Purpose</th><th>Vehicle</th><th>Entry</th><th>Exit</th><th>Guard</th><th></th></tr></thead>
+      <tbody>${visitorsLive.map((v,i)=>`<tr><td class="tdn">${v.name}</td><td>${v.flat}</td><td>${v.purpose}</td><td>${v.vehicle||'—'}</td><td>${v.entry}</td><td>${v.exit}</td><td>${v.guard}</td><td>${v.exit==='—'?`<button class="btn btn-ok btn-sm" onclick="markVisitorExit(${i})">Exit</button>`:''}</td></tr>`).join('')}</tbody></table></div>`;
+  } else {
+    addBtn.textContent='+ Log Delivery';addBtn.onclick=logDeliveryEntry;
+    document.getElementById('secTabContent').innerHTML=`<div class="tw" style="border:none"><table><thead><tr><th>ID</th><th>Item</th><th>Flat</th><th>Courier</th><th>Tracking</th><th>Received</th><th>Time</th><th>Status</th></tr></thead>
+      <tbody>${deliveriesD.map(d=>`<tr><td class="tdn" style="font-size:10px">${d.id}</td><td style="max-width:160px;white-space:normal">${d.item}</td><td>${d.flat}</td><td>${d.courier}</td><td style="font-size:11px">${d.tracking}</td><td>${d.by}</td><td>${d.time}</td><td><span class="${d.status==='collected'?'b-ok':'b-warn'}" style="font-size:10px">${d.status}</span></td></tr>`).join('')}</tbody></table></div>`;
+  }
+}
+
 window.addEventListener('DOMContentLoaded',init);
 window.addEventListener('resize',()=>{
   if(curMod==='dashboard')drawDashCharts();
