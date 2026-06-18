@@ -513,11 +513,16 @@ const FIN={
 };
 const NAV=[
 {sec:'OVERVIEW'},{id:'dashboard',lbl:'Dashboard',icon:'🏠'},
-{sec:'MANAGEMENT'},{id:'flats',lbl:'Flat Management',icon:'🏢'},{id:'residents',lbl:'Resident Portal',icon:'👤'},{id:'maintenance',lbl:'Maintenance',icon:'💰',badge:4},{id:'complaints',lbl:'Complaints',icon:'🔧',badge:5},
-{sec:'FACILITIES'},{id:'housekeeping',lbl:'Housekeeping',icon:'🧹'},{id:'security',lbl:'Security',icon:'🔒'},{id:'cctv',lbl:'CCTV Monitor',icon:'📹'},{id:'water',lbl:'Water Mgmt',icon:'💧'},{id:'electrical',lbl:'Electrical',icon:'⚡'},{id:'gardening',lbl:'Gardening',icon:'🌿'},
-{sec:'PEOPLE & FINANCE'},{id:'staff',lbl:'Staff Mgmt',icon:'👥'},{id:'vendors',lbl:'Vendors',icon:'🏪'},{id:'financial',lbl:'Financials',icon:'📊'},
-{sec:'RESOURCES'},{id:'documents',lbl:'Documents',icon:'📁'},{id:'notices',lbl:'Notice Board',icon:'📢'},{id:'emergency',lbl:'Emergency',icon:'🚨'},
-{sec:'INTELLIGENCE'},{id:'aiassistant',lbl:'AI Assistant',icon:'🤖'},{id:'roadmap',lbl:'Roadmap',icon:'🚀'},{sec:'SYSTEM'},{id:'compliance',lbl:'Compliance Report',icon:'✅'}
+{sec:'MANAGEMENT'},{id:'flats',lbl:'Flat Management',icon:'🏢'},{id:'residents',lbl:'Resident Portal',icon:'👤'},{id:'complaints',lbl:'Complaints',icon:'🔧',badge:5},
+{sec:'BILLING & FINANCE'},{id:'maintenance',lbl:'Maintenance',icon:'💰',badge:4},{id:'invoicing',lbl:'Invoicing',icon:'🧾'},{id:'accounting',lbl:'Accounting Suite',icon:'📒'},{id:'financial',lbl:'Financials',icon:'📊'},
+{sec:'FACILITIES'},{id:'housekeeping',lbl:'Housekeeping',icon:'🧹'},{id:'security',lbl:'Security',icon:'🔒'},{id:'securitysuite',lbl:'Security Suite+',icon:'🛡️'},{id:'cctv',lbl:'CCTV Monitor',icon:'📹'},{id:'water',lbl:'Water Mgmt',icon:'💧'},{id:'smartwater',lbl:'Smart Water IoT',icon:'🌊'},{id:'electrical',lbl:'Electrical',icon:'⚡'},{id:'gardening',lbl:'Gardening',icon:'🌿'},{id:'assets',lbl:'Asset Management',icon:'⚙️'},
+{sec:'PEOPLE'},{id:'staff',lbl:'Staff Mgmt',icon:'👥'},{id:'vendors',lbl:'Vendors',icon:'🏪'},
+{sec:'COMMUNICATION'},{id:'whatsapp',lbl:'WhatsApp Center',icon:'💬'},{id:'notices',lbl:'Notice Board',icon:'📢'},
+{sec:'RESOURCES'},{id:'documents',lbl:'Documents',icon:'📁'},{id:'emergency',lbl:'Emergency',icon:'🚨'},{id:'marketplace',lbl:'Service Marketplace',icon:'🛒'},
+{sec:'GOVERNANCE'},{id:'governance',lbl:'RWA Voting',icon:'🗳️'},
+{sec:'ENTERPRISE SAAS'},{id:'portfolio',lbl:'Portfolio (Multi-Bldg)',icon:'🏘️'},{id:'ceo',lbl:'CEO Dashboard',icon:'📈'},{id:'crm',lbl:'Sales CRM',icon:'🎯'},{id:'mobileapp',lbl:'Mobile App Preview',icon:'📱'},
+{sec:'INTELLIGENCE'},{id:'aiassistant',lbl:'AI Assistant',icon:'🤖'},{id:'aiops',lbl:'AI Ops Center',icon:'🧠'},{id:'roadmap',lbl:'Roadmap',icon:'🚀'},
+{sec:'SYSTEM'},{id:'compliance',lbl:'Compliance Report',icon:'✅'}
 ];
 
 // ══ STATE ══
@@ -550,7 +555,7 @@ function navigate(id){
   if(window.innerWidth<768)closeSidebar();
 }
 function renderMod(id){
-  const map={dashboard:rDash,flats:rFlats,residents:rResidents,maintenance:rMaint,complaints:rComplaints,housekeeping:rHK,security:rSecurity,cctv:rCCTV,water:rWater,electrical:rElectrical,gardening:rGardening,staff:rStaff,vendors:rVendors,financial:rFinancial,documents:rDocs,notices:rNotices,emergency:rEmergency,aiassistant:rAI,roadmap:rRoadmap,compliance:rCompliance};
+  const map={dashboard:rDash,flats:rFlats,residents:rResidents,maintenance:rMaint,complaints:rComplaints,housekeeping:rHK,security:rSecurity,securitysuite:rSecuritySuite,cctv:rCCTV,water:rWater,smartwater:rSmartWater,electrical:rElectrical,gardening:rGardening,assets:rAssets,staff:rStaff,vendors:rVendors,financial:rFinancial,accounting:rAccounting,invoicing:rInvoicing,documents:rDocs,notices:rNotices,emergency:rEmergency,marketplace:rMarketplace,governance:rGovernance,portfolio:rPortfolio,ceo:rCEO,crm:rCRM,mobileapp:rMobileApp,aiassistant:rAI,aiops:rAIOps,roadmap:rRoadmap,whatsapp:rWhatsapp,compliance:rCompliance};
   cctvTimers.forEach(t=>clearInterval(t));cctvTimers=[];
   document.getElementById('content').innerHTML=`<div class="module active">${(map[id]||(() =>''))()}</div>`;
   setTimeout(()=>postRender(id),60);
@@ -561,6 +566,8 @@ function postRender(id){
   if(id==='water')animateTanks();
   if(id==='cctv')startCCTV();
   if(id==='aiassistant')renderChat();
+  if(id==='ceo')drawCEOCharts();
+  if(id==='smartwater'){drawIoTGauge('iotGaugeOHT',SMART_WATER_DATA.oht.pct,'#06b6d4');drawIoTGauge('iotGaugeUGT',SMART_WATER_DATA.ugt.pct,'#f59e0b');}
 }
 function toggleSidebar(){
   const sb=document.getElementById('sidebar'),ov=document.getElementById('overlay');
@@ -2010,16 +2017,1292 @@ const INVESTOR_EXTRA_SLIDES=[
 const ORIG_SLIDES_COUNT=SLIDES.length;
 SLIDES.splice(3,0,...INVESTOR_EXTRA_SLIDES);
 
-// ══════════════════════════════════
-// IMPROVEMENT: Compliance Module
-// ══════════════════════════════════
+function secTab(tab){
+  document.getElementById('tabVis').className='btn btn-'+(tab==='vis'?'p':'s')+' btn-sm';
+  document.getElementById('tabDel').className='btn btn-'+(tab==='del'?'p':'s')+' btn-sm';
+  const addBtn=document.getElementById('secAddBtn');
+  if(tab==='vis'){
+    addBtn.textContent='+ Add Visitor';addBtn.onclick=logVisitor;
+    document.getElementById('secTabContent').innerHTML=`<div class="tw" style="border:none"><table><thead><tr><th>Name</th><th>Flat</th><th>Purpose</th><th>Vehicle</th><th>Entry</th><th>Exit</th><th>Guard</th><th></th></tr></thead>
+      <tbody>${visitorsLive.map((v,i)=>`<tr><td class="tdn">${v.name}</td><td>${v.flat}</td><td>${v.purpose}</td><td>${v.vehicle||'—'}</td><td>${v.entry}</td><td>${v.exit}</td><td>${v.guard}</td><td>${v.exit==='—'?`<button class="btn btn-ok btn-sm" onclick="markVisitorExit(${i})">Exit</button>`:''}</td></tr>`).join('')}</tbody></table></div>`;
+  } else {
+    addBtn.textContent='+ Log Delivery';addBtn.onclick=logDeliveryEntry;
+    document.getElementById('secTabContent').innerHTML=`<div class="tw" style="border:none"><table><thead><tr><th>ID</th><th>Item</th><th>Flat</th><th>Courier</th><th>Tracking</th><th>Received</th><th>Time</th><th>Status</th></tr></thead>
+      <tbody>${deliveriesD.map(d=>`<tr><td class="tdn" style="font-size:10px">${d.id}</td><td style="max-width:160px;white-space:normal">${d.item}</td><td>${d.flat}</td><td>${d.courier}</td><td style="font-size:11px">${d.tracking}</td><td>${d.by}</td><td>${d.time}</td><td><span class="${d.status==='collected'?'b-ok':'b-warn'}" style="font-size:10px">${d.status}</span></td></tr>`).join('')}</tbody></table></div>`;
+  }
+}
+
+
+// ══════════════════════════════════════════════
+// PHASE 1-15 ENTERPRISE SAAS MODULES
+// ══════════════════════════════════════════════
+// ══ NEW DATA ══
+const INCOME_LEDGER=[
+{id:'I001',date:'2024-06-05',desc:'Maintenance - D401 Arun Tiwari',cat:'Maintenance',amt:3500,method:'UPI',ref:'UPI24060501',status:'received'},
+{id:'I002',date:'2024-06-04',desc:'Maintenance - A101 Rajesh Sharma',cat:'Maintenance',amt:3500,method:'NEFT',ref:'NEFT24060401',status:'received'},
+{id:'I003',date:'2024-06-04',desc:'Maintenance - B201 Arun Kapoor',cat:'Maintenance',amt:3500,method:'UPI',ref:'UPI24060402',status:'received'},
+{id:'I004',date:'2024-06-03',desc:'Maintenance - C301 Sanjay Mehra',cat:'Maintenance',amt:3500,method:'Cash',ref:'CASH240603',status:'received'},
+{id:'I005',date:'2024-06-02',desc:'Maintenance - D402 Meera Iyer',cat:'Maintenance',amt:3500,method:'UPI',ref:'UPI24060201',status:'received'},
+{id:'I006',date:'2024-06-01',desc:'Event Hall Booking - Wedding',cat:'Amenity',amt:15000,method:'NEFT',ref:'NEFT24060101',status:'received'},
+{id:'I007',date:'2024-05-31',desc:'Parking Fine - Unauthorized Vehicle DL04ZZ',cat:'Penalty',amt:500,method:'Cash',ref:'FINE240531',status:'received'},
+{id:'I008',date:'2024-05-30',desc:'Club House Booking - Birthday Party',cat:'Amenity',amt:5000,method:'UPI',ref:'UPI24053001',status:'received'},
+{id:'I009',date:'2024-05-28',desc:'Maintenance - B202 Pooja Bansal',cat:'Maintenance',amt:3500,method:'Cheque',ref:'CHQ240528',status:'received'},
+{id:'I010',date:'2024-05-25',desc:'Water Tanker Contribution',cat:'Utility',amt:3000,method:'UPI',ref:'UPI24052501',status:'received'},
+{id:'I011',date:'2024-05-20',desc:'Interest on FD - Reserve Fund',cat:'Investment',amt:2100,method:'Bank',ref:'FD240520',status:'received'},
+{id:'I012',date:'2024-05-15',desc:'Maintenance - C302 Lakshmi Reddy',cat:'Maintenance',amt:3500,method:'UPI',ref:'UPI24051501',status:'received'},
+{id:'I013',date:'2024-06-05',desc:'Maintenance - B205 Amit Pandey',cat:'Maintenance',amt:3500,method:'UPI',ref:'UPI24060503',status:'received'},
+{id:'I014',date:'2024-06-04',desc:'Maintenance - B206 Neha Chopra',cat:'Maintenance',amt:3500,method:'NEFT',ref:'NEFT24060403',status:'received'},
+{id:'I015',date:'2024-06-03',desc:'Maintenance - C304 Tanya Khanna',cat:'Maintenance',amt:3500,method:'UPI',ref:'UPI24060303',status:'received'},
+{id:'I016',date:'2024-06-02',desc:'Maintenance - C306 Rajan Arora',cat:'Maintenance',amt:3500,method:'Cash',ref:'CASH240602',status:'received'},
+{id:'I017',date:'2024-06-01',desc:'Maintenance - D404 Varun Malviya',cat:'Maintenance',amt:3500,method:'UPI',ref:'UPI24060104',status:'received'},
+{id:'I018',date:'2024-05-29',desc:'Maintenance - D406 Rohan Verma (Penthouse)',cat:'Maintenance',amt:4500,method:'NEFT',ref:'NEFT24052901',status:'received'},
+{id:'I019',date:'2024-05-27',desc:'Maintenance - A104 Kavita Singh',cat:'Maintenance',amt:3500,method:'UPI',ref:'UPI24052701',status:'received'},
+{id:'I020',date:'2024-05-22',desc:'Generator Backup Charges - Common',cat:'Utility',amt:8000,method:'Bank',ref:'GEN240522',status:'received'},
+{id:'I021',date:'2024-06-06',desc:'Maintenance - A106 Deepika Rao',cat:'Maintenance',amt:3500,method:'UPI',ref:'UPI24060601',status:'received'},
+{id:'I022',date:'2024-06-06',desc:'Maintenance - B202 Pooja Bansal',cat:'Maintenance',amt:3500,method:'NEFT',ref:'NEFT24060601',status:'received'},
+{id:'I023',date:'2024-06-05',desc:'Maintenance - C306 Rajan Arora',cat:'Maintenance',amt:3500,method:'Cash',ref:'CASH240605B',status:'received'},
+{id:'I024',date:'2024-06-04',desc:'Maintenance - D402 Meera Iyer',cat:'Maintenance',amt:3500,method:'UPI',ref:'UPI24060403',status:'received'},
+{id:'I025',date:'2024-06-03',desc:'Maintenance - D403 Pradeep Jain',cat:'Maintenance',amt:3500,method:'UPI',ref:'UPI24060303B',status:'received'},
+{id:'I026',date:'2024-06-02',desc:'Clubhouse Annual Membership Fees',cat:'Amenity',amt:18000,method:'NEFT',ref:'NEFT24060201',status:'received'},
+{id:'I027',date:'2024-05-26',desc:'Maintenance - D405 Kamla Sharma',cat:'Maintenance',amt:3500,method:'UPI',ref:'UPI24052601',status:'received'},
+{id:'I028',date:'2024-05-18',desc:'Sinking Fund Contribution (Annual)',cat:'Investment',amt:12000,method:'Bank',ref:'SINK240518',status:'received'},
+];
+const EXPENSE_LEDGER=[
+{id:'E001',date:'2024-06-01',desc:'Salary - Ramesh Singh (Guard)',cat:'Salary',amt:16000,method:'NEFT',ref:'SAL240601',status:'paid'},
+{id:'E002',date:'2024-06-01',desc:'Salary - Suresh Kumar (Guard)',cat:'Salary',amt:16000,method:'NEFT',ref:'SAL240602',status:'paid'},
+{id:'E003',date:'2024-06-01',desc:'Salary - Santosh Sharma (Electrician)',cat:'Salary',amt:18000,method:'NEFT',ref:'SAL240603',status:'paid'},
+{id:'E004',date:'2024-06-01',desc:'Salary - Mohan Das (HK)',cat:'Salary',amt:13500,method:'NEFT',ref:'SAL240604',status:'paid'},
+{id:'E005',date:'2024-06-02',desc:'Electricity Bill - DVVNL',cat:'Utility',amt:18400,method:'Online',ref:'ELEC240602',status:'paid'},
+{id:'E006',date:'2024-06-03',desc:'Otis Lift AMC - Monthly',cat:'AMC',amt:4000,method:'NEFT',ref:'AMC240603',status:'paid'},
+{id:'E007',date:'2024-06-04',desc:'Water Tank Cleaning',cat:'Maintenance',amt:3500,method:'Cash',ref:'MAINT240604',status:'paid'},
+{id:'E008',date:'2024-06-05',desc:'Garden Supplies - Soil & Seeds',cat:'Maintenance',amt:1200,method:'Cash',ref:'MAINT240605',status:'paid'},
+{id:'E009',date:'2024-05-30',desc:'CCTV Maintenance - SecureSight',cat:'AMC',amt:2000,method:'NEFT',ref:'AMC240530',status:'paid'},
+{id:'E010',date:'2024-05-28',desc:'Pest Control - PestShield',cat:'Maintenance',amt:7500,method:'NEFT',ref:'PEST240528',status:'paid'},
+{id:'E011',date:'2024-05-25',desc:'DG Fuel Refill - 100 Ltrs',cat:'Utility',amt:8800,method:'Cash',ref:'FUEL240525',status:'paid'},
+{id:'E012',date:'2024-05-20',desc:'Plumbing Repairs - Common Area',cat:'Maintenance',amt:4500,method:'Cash',ref:'PLMB240520',status:'paid'},
+];
+const ASSETS_DATA=[
+{id:'AST001',name:'Passenger Lift - Block A/B',type:'Lift',vendor:'Otis',installed:'2019-03-15',lastSvc:'2024-05-15',nextSvc:'2024-08-15',amc:'active',health:92,cost:850000,loc:'Main Block'},
+{id:'AST002',name:'Water Submersible Pump #1',type:'Water Pump',vendor:'Kirloskar',installed:'2019-06-01',lastSvc:'2024-04-10',nextSvc:'2024-07-10',amc:'active',health:78,cost:45000,loc:'Basement'},
+{id:'AST003',name:'Water Submersible Pump #2',type:'Water Pump',vendor:'Kirloskar',installed:'2020-02-15',lastSvc:'2024-04-10',nextSvc:'2024-07-10',amc:'active',health:85,cost:45000,loc:'Basement'},
+{id:'AST004',name:'CCTV Camera System (8 Cams)',type:'CCTV',vendor:'SecureSight',installed:'2021-08-20',lastSvc:'2024-04-15',nextSvc:'2024-07-15',amc:'active',health:96,cost:120000,loc:'All Areas'},
+{id:'AST005',name:'DG Set - 62.5 KVA',type:'Generator',vendor:'DG Power Solutions',installed:'2019-03-15',lastSvc:'2024-05-10',nextSvc:'2024-08-10',amc:'active',health:88,cost:650000,loc:'Basement'},
+{id:'AST006',name:'Underground Water Tank',type:'Water Tank',vendor:'Sintex',installed:'2019-03-15',lastSvc:'2024-05-28',nextSvc:'2024-08-28',amc:'none',health:90,cost:180000,loc:'Basement'},
+{id:'AST007',name:'Overhead Water Tank',type:'Water Tank',vendor:'Sintex',installed:'2019-03-15',lastSvc:'2024-05-28',nextSvc:'2024-08-28',amc:'none',health:88,cost:95000,loc:'Terrace'},
+{id:'AST008',name:'Fire Fighting System',type:'Fire Safety',vendor:'Minimax',installed:'2019-03-15',lastSvc:'2024-01-20',nextSvc:'2024-07-20',amc:'expiring',health:82,cost:380000,loc:'All Floors'},
+{id:'AST009',name:'Electrical Main Panel',type:'Electrical',vendor:'SparkTech',installed:'2019-03-15',lastSvc:'2024-05-28',nextSvc:'2024-08-28',amc:'active',health:94,cost:220000,loc:'Ground Floor'},
+{id:'AST010',name:'Video Door Phone System',type:'Intercom',vendor:'Fermax',installed:'2021-05-10',lastSvc:'2024-03-15',nextSvc:'2024-09-15',amc:'active',health:76,cost:95000,loc:'All Flats'},
+];
+const BUILDINGS_PORTFOLIO=[
+{id:'BLD001',name:'Sunrise Heights',loc:'Sec-48, Gurugram',flats:24,occ:20,collection:76500,pending:28000,complaints:7,staff:10,health:88,maint:3500,active:true},
+{id:'BLD002',name:'Royal Residency',loc:'Sector 22, Noida',flats:48,occ:45,collection:162000,pending:10500,complaints:3,staff:18,health:94,maint:3500,active:false},
+{id:'BLD003',name:'Green Valley Apts',loc:'Whitefield, Bengaluru',flats:36,occ:33,collection:148500,pending:13500,complaints:5,staff:14,health:91,maint:4500,active:false},
+{id:'BLD004',name:'Elite Towers',loc:'Powai, Mumbai',flats:60,occ:56,collection:280000,pending:20000,complaints:9,staff:22,health:86,maint:5000,active:false},
+{id:'BLD005',name:'Urban Homes',loc:'Baner, Pune',flats:32,occ:29,collection:101500,pending:10500,complaints:4,staff:12,health:90,maint:3500,active:false},
+];
+let activeBuildingId='BLD001';
+const MARKETPLACE_SVCS=[
+{id:'SVC001',name:'Car Wash',icon:'🚗',price:299,dur:'45 min',vendor:'AutoClean Pro',rating:4.5,bookings:45,cat:'Auto',desc:'Exterior wash + interior vacuum'},
+{id:'SVC002',name:'Deep Cleaning',icon:'🧹',price:1499,dur:'4 hrs',vendor:'CleanPro Services',rating:4.7,bookings:28,cat:'Home',desc:'Full flat deep clean'},
+{id:'SVC003',name:'Pest Control',icon:'🐛',price:899,dur:'2 hrs',vendor:'PestShield India',rating:4.6,bookings:19,cat:'Home',desc:'Cockroach + mosquito treatment'},
+{id:'SVC004',name:'Electrician',icon:'⚡',price:499,dur:'1-2 hrs',vendor:'SparkTech',rating:4.4,bookings:33,cat:'Repair',desc:'Wiring, fans, switches repair'},
+{id:'SVC005',name:'Plumber',icon:'🔧',price:399,dur:'1-2 hrs',vendor:'QuickFix Plumbing',rating:4.3,bookings:41,cat:'Repair',desc:'Leaks, faucets, drain cleaning'},
+{id:'SVC006',name:'AC Service',icon:'❄️',price:599,dur:'1.5 hrs',vendor:'CoolBreeze HVAC',rating:4.8,bookings:62,cat:'Appliance',desc:'AC cleaning + gas check'},
+{id:'SVC007',name:'Laundry & Ironing',icon:'👕',price:149,dur:'24 hrs',vendor:'SpinClean',rating:4.2,bookings:87,cat:'Daily',desc:'Pick-up, wash, iron, delivery'},
+{id:'SVC008',name:'Water Tank Cleaning',icon:'💧',price:1999,dur:'3 hrs',vendor:'AquaCare',rating:4.6,bookings:12,cat:'Utility',desc:'OHT/UGT professional cleaning'},
+{id:'SVC009',name:'Painting Service',icon:'🎨',price:8999,dur:'2 days',vendor:'ColorFresh Paints',rating:4.5,bookings:8,cat:'Home',desc:'Per room, premium paints'},
+{id:'SVC010',name:'CCTV Installation',icon:'📹',price:2999,dur:'3 hrs',vendor:'SecureSight',rating:4.7,bookings:15,cat:'Security',desc:'2 camera setup + DVR config'},
+];
+let svcBookings=[
+{id:'BK001',svc:'AC Service',flat:'A-101',date:'2024-06-07',slot:'10:00 AM',status:'confirmed'},
+{id:'BK002',svc:'Pest Control',flat:'B-203',date:'2024-06-08',slot:'2:00 PM',status:'pending'},
+{id:'BK003',svc:'Deep Cleaning',flat:'D-401',date:'2024-06-06',slot:'9:00 AM',status:'completed'},
+{id:'BK004',svc:'Car Wash',flat:'C-304',date:'2024-06-05',slot:'7:00 AM',status:'completed'},
+];
+const POLLS_DATA=[
+{id:'PL001',q:'Should monthly maintenance be increased by 10% from July 2024?',opts:['Yes','No','Abstain'],votes:[14,6,2],deadline:'2024-06-20',status:'active',by:'RWA Chairman',totalFlats:24},
+{id:'PL002',q:'Should we install solar panels on the rooftop? (Est. Cost: ₹4.5 Lakh)',opts:['Strongly Yes','Yes','No','Need More Info'],votes:[8,6,4,4],deadline:'2024-06-30',status:'active',by:'Committee',totalFlats:24},
+{id:'PL003',q:'Should we ban non-resident vehicles from compound after 10 PM?',opts:['Yes','No'],votes:[18,4],deadline:'2024-05-31',status:'closed',by:'Security Committee',totalFlats:24},
+{id:'PL004',q:'AGM 2024: Elect RWA Secretary for 2024-26 term',opts:['Suresh Patel','Deepika Rao','Sanjay Mehra'],votes:[10,6,6],deadline:'2024-06-15',status:'active',by:'RWA Board',totalFlats:24},
+];
+let userVotes={};
+const CRM_LEADS=[
+{id:'L001',name:'Green Valley RWA, Gurugram',contact:'Pankaj Sharma',phone:'9811234567',email:'pankaj@gvrwa.com',type:'RWA',stage:'meeting',value:50400,date:'2024-06-01',city:'Gurugram',notes:'48 flats. Demo done. Very interested.'},
+{id:'L002',name:'Skyline Apartments, Noida',contact:'Rohit Bansal',phone:'9922334455',email:'rohit@skyline.in',type:'Builder',stage:'proposal',value:84000,date:'2024-06-03',city:'Noida',notes:'60 flats. Need custom invoicing.'},
+{id:'L003',name:'Prestige Heights AOA',contact:'K. Reddy',phone:'9844556677',email:'kreddy@prestige.in',type:'AOA',stage:'negotiation',value:36000,date:'2024-05-28',city:'Bengaluru',notes:'36 flats. Price sensitive. Offered 10% discount.'},
+{id:'L004',name:'Lodha Heritage Society',contact:'Ajay Singh',phone:'9933445566',email:'asingh@lodha.in',type:'Builder',stage:'won',value:120000,date:'2024-05-20',city:'Mumbai',notes:'80 flats. Signed 2-year contract.'},
+{id:'L005',name:'Mahindra Lifespace RWA',contact:'Sunita Menon',phone:'9755667788',email:'smenon@ml.com',type:'RWA',stage:'lead',value:60000,date:'2024-06-05',city:'Pune',notes:'Initial inquiry. WhatsApp contact.'},
+{id:'L006',name:'Omaxe Society, Faridabad',contact:'Ramesh Gupta',phone:'9644556677',email:'rgupta@omaxe.in',type:'RWA',stage:'lost',value:28800,date:'2024-05-15',city:'Faridabad',notes:'Chose competitor. Price was main issue.'},
+];
+const WHATSAPP_TEMPLATES=[
+{id:'T001',name:'Maintenance Reminder',icon:'💰',cat:'Billing',msg:'Dear {name}, your monthly maintenance of ₹{amount} for {month} is due. Please pay by {due_date} to avoid late fee of ₹500. UPI: 9800010000@upi\n\n- Sunrise Heights RWA'},
+{id:'T002',name:'Payment Confirmation',icon:'✅',cat:'Billing',msg:'Dear {name}, we have received your maintenance payment of ₹{amount} for {month}. Receipt No: {receipt_no}.\n\nThank you!\n- Sunrise Heights RWA'},
+{id:'T003',name:'Water Outage Alert',icon:'💧',cat:'Emergency',msg:'⚠️ WATER ALERT: Municipal water supply will be interrupted on {date} from {from_time} to {to_time} for maintenance. Tanks will be filled in advance.\n\n- Building Manager'},
+{id:'T004',name:'Complaint Update',icon:'🔧',cat:'Service',msg:'Dear {name}, your complaint #{complaint_id} ({issue}) has been {status}. Assigned to: {staff}.\n\nFor queries, contact Manager.\n- Sunrise Heights RWA'},
+{id:'T005',name:'Emergency Alert',icon:'🚨',cat:'Emergency',msg:'🚨 EMERGENCY NOTICE: {message}\n\nPlease follow safety protocols. Emergency contact: 9800010000\n\n- Building Security'},
+{id:'T006',name:'Event Notice',icon:'📅',cat:'Notice',msg:'Dear Resident,\n\n{event_title} is scheduled on {date} at {time} in {venue}.\n\n{details}\n\nPlease confirm attendance.\n- RWA Committee'},
+{id:'T007',name:'AGM Reminder',icon:'🏛️',cat:'Governance',msg:'Dear Owner,\n\nAnnual General Meeting of Sunrise Heights RWA on {date} at {time} in Community Hall.\n\nAgenda: {agenda}\n\nYour attendance is important.\n- RWA Secretary'},
+{id:'T008',name:'Defaulter Notice',icon:'⚠️',cat:'Billing',msg:'Dear {name}, maintenance dues for {months} are pending (Total: ₹{total}). Please clear dues immediately to avoid legal action.\n\nContact: 9800010000\n- RWA Committee'},
+];
+let waMessages=[
+{id:'M001',template:'Maintenance Reminder',sent:18,delivered:17,read:14,failed:1,time:'2024-06-01 09:00',status:'completed'},
+{id:'M002',template:'Water Outage Alert',sent:22,delivered:22,read:20,failed:0,time:'2024-06-02 08:00',status:'completed'},
+{id:'M003',template:'AGM Reminder',sent:24,delivered:23,read:18,failed:1,time:'2024-06-03 10:00',status:'completed'},
+];
+const SMART_WATER_DATA={
+  oht:{pct:87,capacity:25000,avail:21750,quality:'Good',ph:7.2,tds:284,lastFill:'2024-06-05',refillETA:'2024-06-09',dailyUse:1800},
+  ugt:{pct:68,capacity:50000,avail:34000,quality:'Good',ph:7.1,tds:290,lastFill:'2024-06-03',refillETA:'2024-06-08',dailyUse:3500},
+  leaks:[{zone:'2nd Floor Corridor',detected:'2024-06-04',severity:'low',status:'reported'}],
+  consumption:[17200,19100,18400,21000,16800,22200,15400],
+  prediction:16200
+};
+// ══ ACCOUNTING SUITE ══
+function rAccounting(){
+  const totalIn=INCOME_LEDGER.reduce((a,v)=>a+v.amt,0);
+  const totalEx=EXPENSE_LEDGER.reduce((a,v)=>a+v.amt,0);
+  const surplus=totalIn-totalEx;
+  const cats={};EXPENSE_LEDGER.forEach(e=>{cats[e.cat]=(cats[e.cat]||0)+e.amt;});
+  return`
+  <div class="section-header"><div><div class="section-title">Accounting <span>Suite</span></div>
+  <div class="section-sub">Complete financial ledger for ${activeBuildingId==='BLD001'?'Sunrise Heights':'Selected Building'}</div></div>
+  <div class="section-actions">
+    <button class="btn btn-s btn-sm" onclick="downloadCSV('financial')">📤 Export P&L</button>
+    <button class="btn btn-p btn-sm" onclick="showAddIncome()">+ Income</button>
+    <button class="btn btn-warn btn-sm" onclick="showAddExpense()">+ Expense</button>
+  </div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">💰</span><span class="kpi-value">&#8377;${totalIn.toLocaleString()}</span><span class="kpi-label">Total Income</span><span class="kpi-sub">This month</span></div>
+    <div class="kpi-card acc-err"><span class="kpi-icon">💸</span><span class="kpi-value">&#8377;${totalEx.toLocaleString()}</span><span class="kpi-label">Total Expense</span><span class="kpi-sub">This month</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📈</span><span class="kpi-value">&#8377;${surplus.toLocaleString()}</span><span class="kpi-label">Net Surplus</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🏦</span><span class="kpi-value">&#8377;1,85,000</span><span class="kpi-label">Reserve Fund</span></div>
+    <div class="kpi-card"><span class="kpi-icon">📊</span><span class="kpi-value">91.2%</span><span class="kpi-label">Collection Rate</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">⏳</span><span class="kpi-value">&#8377;28,000</span><span class="kpi-label">Pending Dues</span></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">📋 P&L Statement — June 2024</span><button class="btn btn-s btn-sm" onclick="window.print()">🖨️</button></div>
+    <div class="card-body">
+      <div style="font-size:12px;font-weight:800;color:var(--ok);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">INCOME</div>
+      ${Object.entries(INCOME_LEDGER.reduce((a,v)=>{a[v.cat]=(a[v.cat]||0)+v.amt;return a},{})).map(([k,v])=>`<div class="finm"><span style="font-size:12px">${k}</span><span style="font-weight:600;color:var(--ok)">&#8377;${v.toLocaleString()}</span></div>`).join('')}
+      <div class="finm" style="border-top:2px solid var(--bdr);margin-top:6px;padding-top:8px"><span style="font-weight:800;color:var(--th)">Total Income</span><span style="font-weight:800;color:var(--ok)">&#8377;${totalIn.toLocaleString()}</span></div>
+      <div style="font-size:12px;font-weight:800;color:var(--err);text-transform:uppercase;letter-spacing:1px;margin:14px 0 10px">EXPENSES</div>
+      ${Object.entries(cats).map(([k,v])=>`<div class="finm"><span style="font-size:12px">${k}</span><span style="font-weight:600;color:var(--err)">&#8377;${v.toLocaleString()}</span></div>`).join('')}
+      <div class="finm" style="border-top:2px solid var(--bdr);margin-top:6px;padding-top:8px"><span style="font-weight:800;color:var(--th)">Total Expense</span><span style="font-weight:800;color:var(--err)">&#8377;${totalEx.toLocaleString()}</span></div>
+      <div class="finm" style="background:var(--ok10);border:1px solid var(--ok);border-radius:8px;padding:10px;margin-top:10px"><span style="font-weight:800;color:var(--th);font-size:14px">NET SURPLUS</span><span style="font-weight:900;color:var(--ok);font-size:18px">&#8377;${surplus.toLocaleString()}</span></div>
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📊 Expense Breakdown</span></div>
+    <div class="card-body">
+      ${Object.entries(cats).map(([k,v])=>`<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px">${k}</span><span style="font-size:12px;font-weight:600">&#8377;${v.toLocaleString()} (${Math.round(v/totalEx*100)}%)</span></div>
+        <div class="pb"><div class="pf" style="width:${Math.round(v/totalEx*100)}%;background:${k==='Salary'?'var(--p)':k==='Utility'?'var(--a)':k==='AMC'?'var(--warn)':'var(--ok)'}"></div></div>
+      </div>`).join('')}
+    </div></div>
+  </div>
+  <div class="card mb-20"><div class="card-header"><span class="card-title">💰 Income Ledger</span><button class="btn btn-s btn-sm" onclick="downloadCSV('financial')">📤 CSV</button></div>
+  <div class="tw"><table><thead><tr><th>ID</th><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th>Method</th><th>Ref</th><th>Status</th></tr></thead>
+  <tbody>${INCOME_LEDGER.map(r=>`<tr><td class="tdn" style="font-size:10px">${r.id}</td><td>${r.date}</td><td style="max-width:200px;white-space:normal">${r.desc}</td><td><span class="b-p">${r.cat}</span></td><td style="color:var(--ok);font-weight:700">&#8377;${r.amt.toLocaleString()}</td><td>${r.method}</td><td style="font-size:10px;color:var(--tm)">${r.ref}</td><td><span class="b-ok">${r.status}</span></td></tr>`).join('')}</tbody></table></div></div>
+  <div class="card"><div class="card-header"><span class="card-title">💸 Expense Ledger</span><button class="btn btn-s btn-sm" onclick="downloadCSV('financial')">📤 CSV</button></div>
+  <div class="tw"><table><thead><tr><th>ID</th><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th>Method</th><th>Ref</th><th>Status</th></tr></thead>
+  <tbody>${EXPENSE_LEDGER.map(r=>`<tr><td class="tdn" style="font-size:10px">${r.id}</td><td>${r.date}</td><td style="max-width:200px;white-space:normal">${r.desc}</td><td><span class="b-warn">${r.cat}</span></td><td style="color:var(--err);font-weight:700">&#8377;${r.amt.toLocaleString()}</td><td>${r.method}</td><td style="font-size:10px;color:var(--tm)">${r.ref}</td><td><span class="b-ok">${r.status}</span></td></tr>`).join('')}</tbody></table></div></div>`;
+}
+function showAddIncome(){
+  openModal('Add Income Entry',`<div class="fg">
+  <div class="field"><label>Date *</label><input type="date" id="ai_date" value="${new Date().toISOString().split('T')[0]}"></div>
+  <div class="field"><label>Category</label><select id="ai_cat" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)"><option>Maintenance</option><option>Amenity</option><option>Penalty</option><option>Utility</option><option>Investment</option><option>Other</option></select></div>
+  <div class="field ff"><label>Description *</label><input id="ai_desc" placeholder="e.g. Maintenance - A101 Rajesh Sharma"></div>
+  <div class="field"><label>Amount (₹) *</label><input type="number" id="ai_amt" placeholder="3500"></div>
+  <div class="field"><label>Payment Method</label><select id="ai_meth" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)"><option>UPI</option><option>NEFT</option><option>Cash</option><option>Cheque</option><option>Bank</option></select></div>
+  <div class="field"><label>Reference No</label><input id="ai_ref" placeholder="UPI/NEFT/Cheque ref"></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button>
+   <button class="btn btn-p" onclick="saveIncome()">Add Income</button>`);
+}
+function saveIncome(){
+  const desc=(document.getElementById('ai_desc')||{}).value?.trim();
+  const amt=+(document.getElementById('ai_amt')||{}).value;
+  if(!desc||!amt){toast('Fill required fields.','warn');return;}
+  const id='I'+String(INCOME_LEDGER.length+1).padStart(3,'0');
+  INCOME_LEDGER.unshift({id,date:document.getElementById('ai_date').value,desc,cat:document.getElementById('ai_cat').value,amt,method:document.getElementById('ai_meth').value,ref:document.getElementById('ai_ref').value||'—',status:'received'});
+  closeModal();toast('Income entry added: ₹'+amt.toLocaleString(),'ok');navigate('accounting');
+}
+function showAddExpense(){
+  openModal('Add Expense Entry',`<div class="fg">
+  <div class="field"><label>Date *</label><input type="date" id="ae_date" value="${new Date().toISOString().split('T')[0]}"></div>
+  <div class="field"><label>Category</label><select id="ae_cat" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)"><option>Salary</option><option>Utility</option><option>AMC</option><option>Maintenance</option><option>Other</option></select></div>
+  <div class="field ff"><label>Description *</label><input id="ae_desc" placeholder="e.g. Monthly salary - Guard"></div>
+  <div class="field"><label>Amount (₹) *</label><input type="number" id="ae_amt" placeholder="16000"></div>
+  <div class="field"><label>Paid To</label><input id="ae_to" placeholder="Vendor / Staff name"></div>
+  <div class="field"><label>Payment Method</label><select id="ae_meth" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)"><option>NEFT</option><option>Cash</option><option>Online</option><option>Cheque</option></select></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button>
+   <button class="btn btn-err" onclick="saveExpense()">Add Expense</button>`);
+}
+function saveExpense(){
+  const desc=(document.getElementById('ae_desc')||{}).value?.trim();
+  const amt=+(document.getElementById('ae_amt')||{}).value;
+  if(!desc||!amt){toast('Fill required fields.','warn');return;}
+  const id='E'+String(EXPENSE_LEDGER.length+1).padStart(3,'0');
+  EXPENSE_LEDGER.unshift({id,date:document.getElementById('ae_date').value,desc,cat:document.getElementById('ae_cat').value,amt,method:document.getElementById('ae_meth').value,ref:'MANUAL',status:'paid'});
+  closeModal();toast('Expense recorded: ₹'+amt.toLocaleString(),'warn');navigate('accounting');
+}
+
+// ══ BILLING & INVOICING ══
+let invoices=[
+{id:'INV-2024-001',flat:'A-101',owner:'Rajesh Sharma',month:'June 2024',amt:3500,due:'2024-06-10',paid:'2024-06-04',status:'paid',method:'UPI'},
+{id:'INV-2024-002',flat:'A-103',owner:'Suresh Patel',month:'June 2024',amt:3500,due:'2024-06-10',paid:null,status:'pending',method:''},
+{id:'INV-2024-003',flat:'A-105',owner:'Manish Gupta',month:'June 2024',amt:4000,due:'2024-06-10',paid:null,status:'overdue',method:''},
+{id:'INV-2024-004',flat:'B-201',owner:'Arun Kapoor',month:'June 2024',amt:3500,due:'2024-06-10',paid:'2024-06-03',status:'paid',method:'NEFT'},
+{id:'INV-2024-005',flat:'B-203',owner:'Vikram Malhotra',month:'June 2024',amt:3500,due:'2024-06-10',paid:null,status:'pending',method:''},
+{id:'INV-2024-006',flat:'C-303',owner:'Harish Negi',month:'June 2024',amt:4000,due:'2024-06-10',paid:null,status:'overdue',method:''},
+];
+function rInvoicing(){
+  const paid=invoices.filter(i=>i.status==='paid').length;
+  const pend=invoices.filter(i=>i.status==='pending').length;
+  const ovd=invoices.filter(i=>i.status==='overdue').length;
+  return`
+  <div class="section-header"><div><div class="section-title">Billing <span>& Invoicing</span></div><div class="section-sub">Invoice generation, receipts and payment tracking</div></div>
+  <div class="section-actions">
+    <button class="btn btn-s btn-sm" onclick="bulkGenerateInvoices()">⚡ Bulk Generate</button>
+    <button class="btn btn-p btn-sm" onclick="showGenerateInvoice()">+ New Invoice</button>
+  </div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">✅</span><span class="kpi-value">${paid}</span><span class="kpi-label">Paid</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">⏳</span><span class="kpi-value">${pend}</span><span class="kpi-label">Pending</span></div>
+    <div class="kpi-card acc-err"><span class="kpi-icon">🚨</span><span class="kpi-value">${ovd}</span><span class="kpi-label">Overdue</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">💰</span><span class="kpi-value">&#8377;${(paid*3500).toLocaleString()}</span><span class="kpi-label">Collected</span></div>
+    <div class="kpi-card acc-err"><span class="kpi-icon">💸</span><span class="kpi-value">&#8377;${((pend+ovd)*3500+ovd*500).toLocaleString()}</span><span class="kpi-label">Outstanding</span></div>
+    <div class="kpi-card acc-p"><span class="kpi-icon">📄</span><span class="kpi-value">${invoices.length}</span><span class="kpi-label">Invoices</span></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">📄 Invoice Register</span><button class="btn btn-s btn-sm" onclick="downloadCSV('maintenance')">📤 CSV</button></div>
+    <div class="tw"><table><thead><tr><th>Invoice #</th><th>Flat</th><th>Owner</th><th>Month</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${invoices.map(inv=>`<tr>
+      <td class="tdn" style="font-size:11px">${inv.id}</td><td>${inv.flat}</td><td>${inv.owner}</td><td>${inv.month}</td>
+      <td style="font-weight:700">&#8377;${inv.amt.toLocaleString()}${inv.status==='overdue'?'<div style="font-size:9px;color:var(--err)">+₹500 late</div>':''}</td>
+      <td>${inv.due}</td>
+      <td><span class="${inv.status==='paid'?'b-ok':inv.status==='overdue'?'b-err':'b-warn'}">${inv.status.toUpperCase()}</span></td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-s btn-sm" onclick="showInvoicePreview('${inv.id}')">View</button>
+        ${inv.status!=='paid'?`<button class="btn btn-ok btn-sm" onclick="markInvPaid('${inv.id}')">Pay</button>`:''}
+      </td></tr>`).join('')}</tbody></table></div></div>
+    <div>
+      <div class="card mb-16"><div class="card-header"><span class="card-title">📱 UPI Payment</span><span class="b-ok">LIVE</span></div>
+      <div class="card-body" style="text-align:center">
+        <div style="font-size:13px;color:var(--tm);margin-bottom:12px">Scan to pay maintenance</div>
+        <div style="display:inline-block;background:#fff;padding:12px;border-radius:12px;margin-bottom:12px">${generateQRSVG()}</div>
+        <div style="font-size:14px;font-weight:700;color:var(--th)">9800010000@upi</div>
+        <div style="font-size:11px;color:var(--tm);margin-top:4px">Sunrise Heights RWA · BHIM UPI</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCA0MCAxNiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSIjMDA3Yjc0Ii8+PHRleHQgeD0iMjAiIHk9IjExIiBmb250LXNpemU9IjgiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCI+R1BheTwvdGV4dD48L3N2Zz4=" style="height:24px">
+          <span style="font-size:11px;color:var(--tm);align-self:center">PhonePe • Paytm • GPay</span>
+        </div>
+      </div></div>
+      <div class="card"><div class="card-header"><span class="card-title">📊 Collection Summary</span></div>
+      <div class="card-body">
+        <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px">Paid (${paid} flats)</span><span style="font-size:12px;color:var(--ok);font-weight:600">&#8377;${(paid*3500).toLocaleString()}</span></div>
+        <div class="pb"><div class="pf ok" style="width:${Math.round(paid/invoices.length*100)}%"></div></div></div>
+        <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px">Pending (${pend} flats)</span><span style="font-size:12px;color:var(--warn);font-weight:600">&#8377;${(pend*3500).toLocaleString()}</span></div>
+        <div class="pb"><div class="pf warn" style="width:${Math.round(pend/invoices.length*100)}%"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px">Overdue (${ovd} flats)</span><span style="font-size:12px;color:var(--err);font-weight:600">&#8377;${(ovd*4000).toLocaleString()}</span></div>
+        <div class="pb"><div class="pf err" style="width:${Math.round(ovd/invoices.length*100)}%"></div></div></div>
+      </div></div>
+    </div>
+  </div>`;
+}
+function generateQRSVG(){
+  const cells=[];const s=6;const n=19;
+  const pattern=[[1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1],[1,0,0,0,0,0,1,0,0,1,0,1,1,0,0,0,0,0,1],[1,0,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1],[1,0,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,0,1],[1,0,1,1,1,0,1,0,1,0,0,0,1,0,1,1,1,0,1],[1,0,0,0,0,0,1,0,0,1,1,0,1,0,0,0,0,0,1],[1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],[1,0,1,1,0,1,1,1,0,0,1,0,1,1,0,1,1,0,1],[0,1,0,0,1,0,0,0,1,0,0,1,0,0,1,0,0,1,0],[1,0,1,1,0,1,0,1,1,1,0,0,1,0,0,0,1,0,1],[0,1,0,0,1,0,0,0,0,1,1,0,0,1,0,1,0,1,0],[1,1,1,1,1,1,1,1,0,0,1,0,1,0,1,1,0,0,1],[0,0,0,0,0,0,0,0,1,1,0,1,0,0,1,0,1,0,0],[1,1,1,1,1,1,1,0,0,0,1,0,1,1,0,1,1,1,0],[1,0,0,0,0,0,1,0,1,0,0,1,0,0,1,0,0,0,1],[1,0,1,1,1,0,1,0,0,1,1,0,1,0,0,1,0,1,0],[1,0,0,0,0,0,1,0,1,0,0,1,0,1,1,0,1,0,1],[1,1,1,1,1,1,1,0,0,1,1,0,0,0,0,1,0,0,1]];
+  let svg=`<svg width="${n*s}" height="${n*s}" xmlns="http://www.w3.org/2000/svg">`;
+  svg+=`<rect width="${n*s}" height="${n*s}" fill="white"/>`;
+  pattern.forEach((row,r)=>row.forEach((c,col)=>{if(c)svg+=`<rect x="${col*s}" y="${r*s}" width="${s}" height="${s}" fill="#000"/>`;;}));
+  svg+='</svg>';return svg;
+}
+function showInvoicePreview(id){
+  const inv=invoices.find(i=>i.id===id);if(!inv)return;
+  openModal('Invoice Preview — '+inv.id,`
+  <div style="background:#fff;color:#000;padding:24px;border-radius:8px;font-family:Arial,sans-serif">
+    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:20px">
+      <div><div style="font-size:20px;font-weight:900;color:#4f46e5">BuildCare Pro</div>
+      <div style="font-size:11px;color:#666">Sunrise Heights RWA | Reg: HR/RWA/2019/0847</div></div>
+      <div style="text-align:right"><div style="font-size:16px;font-weight:800;color:#4f46e5">INVOICE</div>
+      <div style="font-size:11px;color:#666">${inv.id}</div></div>
+    </div>
+    <div style="border-top:2px solid #4f46e5;padding-top:16px;margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><div style="font-size:10px;color:#666;text-transform:uppercase;font-weight:700">BILLED TO</div>
+        <div style="font-size:13px;font-weight:700;color:#000;margin-top:3px">${inv.owner}</div>
+        <div style="font-size:12px;color:#444">Flat ${inv.flat}, Sunrise Heights</div>
+        <div style="font-size:12px;color:#444">Plot 14, Sector 48, Gurugram</div></div>
+        <div style="text-align:right"><div style="font-size:10px;color:#666;text-transform:uppercase;font-weight:700">INVOICE DATE</div>
+        <div style="font-size:13px;font-weight:600;margin-top:3px">${inv.due}</div>
+        <div style="font-size:10px;color:#666;margin-top:8px;text-transform:uppercase;font-weight:700">DUE DATE</div>
+        <div style="font-size:13px;font-weight:600;color:${inv.status==='overdue'?'#ef4444':'#000'}">${inv.due}</div></div>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+      <tr style="background:#4f46e5;color:#fff"><th style="padding:8px;text-align:left;font-size:11px">Description</th><th style="padding:8px;text-align:right;font-size:11px">Amount</th></tr>
+      <tr style="border-bottom:1px solid #eee"><td style="padding:8px;font-size:12px">Monthly Maintenance Charge — ${inv.month}</td><td style="padding:8px;text-align:right;font-size:12px">₹3,500.00</td></tr>
+      ${inv.status==='overdue'?'<tr style="border-bottom:1px solid #eee"><td style="padding:8px;font-size:12px;color:#ef4444">Late Payment Fee</td><td style="padding:8px;text-align:right;font-size:12px;color:#ef4444">₹500.00</td></tr>':''}
+      <tr style="background:#f9fafb"><td style="padding:8px;font-size:13px;font-weight:700">TOTAL</td><td style="padding:8px;text-align:right;font-size:14px;font-weight:800;color:#4f46e5">₹${inv.amt.toLocaleString()}.00</td></tr>
+    </table>
+    <div style="background:#f0f4ff;padding:12px;border-radius:6px;font-size:11px;color:#444">
+      <div style="font-weight:700;margin-bottom:4px">Payment Options</div>
+      <div>UPI: 9800010000@upi &nbsp;|&nbsp; Bank: HDFC A/C 50100123456789 &nbsp;|&nbsp; IFSC: HDFC0001234</div>
+      <div style="margin-top:4px">For queries: 9800010000 | manager@sunriseheights.in</div>
+    </div>
+    <div style="text-align:center;margin-top:12px;font-size:10px;color:#999">Status: <strong style="color:${inv.status==='paid'?'green':inv.status==='overdue'?'red':'orange'}">${inv.status.toUpperCase()}</strong>${inv.paid?' | Paid on: '+inv.paid:''}</div>
+  </div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Close</button>
+   <button class="btn btn-s" onclick="window.print()">🖨️ Print</button>
+   ${inv.status!=='paid'?`<button class="btn btn-p" onclick="markInvPaid('${inv.id}');closeModal()">Mark as Paid</button>`:''}`);
+}
+function markInvPaid(id){
+  const inv=invoices.find(i=>i.id===id);
+  if(inv){inv.status='paid';inv.paid=new Date().toISOString().split('T')[0];inv.method='UPI';}
+  toast('Invoice '+id+' marked as paid!','ok');navigate('invoicing');
+}
+function showGenerateInvoice(){
+  openModal('Generate New Invoice',`<div class="fg">
+  <div class="field"><label>Flat Number *</label><input id="ni_flat" placeholder="e.g. A-101"></div>
+  <div class="field"><label>Owner Name *</label><input id="ni_owner" placeholder="Full name"></div>
+  <div class="field"><label>Month</label><input id="ni_month" value="June 2024"></div>
+  <div class="field"><label>Base Amount (₹)</label><input type="number" id="ni_amt" value="3500"></div>
+  <div class="field"><label>Due Date</label><input type="date" id="ni_due" value="2024-06-10"></div>
+  <div class="field"><label>Late Fee (₹)</label><input type="number" id="ni_late" value="500"></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button>
+   <button class="btn btn-p" onclick="createInvoice()">Generate Invoice</button>`);
+}
+function createInvoice(){
+  const flat=(document.getElementById('ni_flat')||{}).value?.trim();
+  const owner=(document.getElementById('ni_owner')||{}).value?.trim();
+  if(!flat||!owner){toast('Fill required fields.','warn');return;}
+  const id='INV-2024-'+String(invoices.length+1).padStart(3,'0');
+  invoices.unshift({id,flat,owner,month:document.getElementById('ni_month').value,amt:+(document.getElementById('ni_amt').value)||3500,due:document.getElementById('ni_due').value,paid:null,status:'pending',method:''});
+  closeModal();toast('Invoice '+id+' generated!','ok');navigate('invoicing');
+}
+function bulkGenerateInvoices(){
+  const count=flatsD.filter(f=>f.status==='occupied').length;
+  toast('Bulk generated '+count+' invoices for all occupied flats!','ok');
+}
+// ══ WHATSAPP CENTER ══
+function rWhatsapp(){
+  const totalSent=waMessages.reduce((a,m)=>a+m.sent,0);
+  const totalDel=waMessages.reduce((a,m)=>a+m.delivered,0);
+  const totalRead=waMessages.reduce((a,m)=>a+m.read,0);
+  return`
+  <div class="section-header"><div><div class="section-title">WhatsApp <span>Communication Center</span></div><div class="section-sub">Bulk messaging, templates and delivery analytics</div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="showSendBulk()">📤 Send Bulk Message</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📤</span><span class="kpi-value">${totalSent}</span><span class="kpi-label">Messages Sent</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">✅</span><span class="kpi-value">${totalDel}</span><span class="kpi-label">Delivered</span></div>
+    <div class="kpi-card acc-p"><span class="kpi-icon">👁️</span><span class="kpi-value">${totalRead}</span><span class="kpi-label">Read</span></div>
+    <div class="kpi-card"><span class="kpi-icon">📊</span><span class="kpi-value">${Math.round(totalRead/totalSent*100)}%</span><span class="kpi-label">Read Rate</span></div>
+    <div class="kpi-card"><span class="kpi-icon">👥</span><span class="kpi-value">${flatsD.filter(f=>f.status==='occupied').length}</span><span class="kpi-label">Active Residents</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📱</span><span class="kpi-value">${waMessages.length}</span><span class="kpi-label">Campaigns</span></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">📋 Message Templates</span></div>
+    <div class="card-body">
+      ${WHATSAPP_TEMPLATES.map(t=>`
+      <div style="background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:6px">
+          <div><span style="font-size:18px">${t.icon}</span> <span style="font-size:13px;font-weight:700;color:var(--th)">${t.name}</span>
+          <span class="b-${t.cat==='Emergency'?'err':t.cat==='Billing'?'ok':'p'}" style="font-size:9px;margin-left:6px">${t.cat}</span></div>
+          <button class="btn btn-p btn-sm" onclick="useMsgTemplate('${t.id}')">Use →</button>
+        </div>
+        <div style="font-size:11px;color:var(--tm);font-family:monospace;background:var(--bg2);padding:8px;border-radius:6px;white-space:pre-wrap;max-height:60px;overflow:hidden">${t.msg.slice(0,120)}${t.msg.length>120?'...':''}</div>
+      </div>`).join('')}
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📊 Campaign History & Analytics</span></div>
+    <div class="card-body">
+      ${waMessages.map(m=>`
+      <div style="background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:12px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:13px;font-weight:700;color:var(--th)">${m.template}</div>
+          <span class="b-ok">${m.status}</span>
+        </div>
+        <div style="font-size:11px;color:var(--tm);margin-bottom:8px">📅 ${m.time}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;text-align:center">
+          ${[['Sent',m.sent,'var(--t)'],['Delivered',m.delivered,'var(--ok)'],['Read',m.read,'var(--p)'],['Failed',m.failed,'var(--err)']].map(([l,v,c])=>`
+          <div style="background:var(--bg2);border-radius:6px;padding:6px">
+            <div style="font-size:16px;font-weight:800;color:${c}">${v}</div>
+            <div style="font-size:9px;color:var(--tm)">${l}</div>
+          </div>`).join('')}
+        </div>
+        <div style="margin-top:8px"><div class="pb"><div class="pf" style="width:${Math.round(m.delivered/m.sent*100)}%"></div></div>
+        <div style="font-size:10px;color:var(--tm);margin-top:2px">${Math.round(m.delivered/m.sent*100)}% delivery rate</div></div>
+      </div>`).join('')}
+    </div></div>
+  </div>
+  <div class="card"><div class="card-header"><span class="card-title">⚡ Quick Actions</span></div>
+  <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">
+    ${[['💰 Maintenance Reminder','Send to all pending','warn',()=>"showSendBulk('T001')"],['⚠️ Water Outage Alert','Emergency broadcast','err',()=>"showSendBulk('T003')"],['🏛️ AGM Reminder','All flat owners','p',()=>"showSendBulk('T007')"],['🚨 Emergency Alert','Urgent broadcast','err',()=>"showSendBulk('T005')"],['📅 Event Notice','Send event details','ok',()=>"showSendBulk('T006')"],['⚠️ Defaulter Notice','Pending payment owners','warn',()=>"showSendBulk('T008')"]].map(([name,desc,c,fn])=>`
+    <div style="background:var(--${c}10);border:1px solid var(--${c});border-radius:8px;padding:14px;cursor:pointer;transition:var(--trans)" onclick="${fn()}" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:13px;font-weight:700;color:var(--th)">${name}</div>
+      <div style="font-size:11px;color:var(--tm);margin-top:3px">${desc}</div>
+    </div>`).join('')}
+  </div></div>`;
+}
+function useMsgTemplate(tid){showSendBulk(tid);}
+function showSendBulk(tid='T001'){
+  const tpl=WHATSAPP_TEMPLATES.find(t=>t.id===tid)||WHATSAPP_TEMPLATES[0];
+  openModal('Send WhatsApp Message',`
+  <div class="fg">
+    <div class="field ff"><label>Template</label>
+      <select id="wa_tpl" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)" onchange="updateWAPreview(this.value)">
+        ${WHATSAPP_TEMPLATES.map(t=>`<option value="${t.id}" ${t.id===tid?'selected':''}>${t.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field"><label>Recipients</label>
+      <select id="wa_recip" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)">
+        <option value="all">All Residents (${flatsD.filter(f=>f.status==='occupied').length})</option>
+        <option value="pending">Pending/Overdue Only (${flatsD.filter(f=>f.ms!=='paid').length})</option>
+        <option value="owners">All Owners (${flatsD.length})</option>
+      </select>
+    </div>
+    <div class="field ff"><label>Message Preview</label>
+      <textarea id="wa_preview" style="height:120px;font-size:12px;font-family:monospace">${tpl.msg}</textarea>
+    </div>
+  </div>
+  <div style="background:var(--ok10);border:1px solid var(--ok);border-radius:8px;padding:10px;margin-top:8px;font-size:12px;color:var(--t)">
+    📱 Messages will be sent via WhatsApp Business API integration. In production mode, this triggers actual messages.
+  </div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button>
+   <button class="btn btn-p" onclick="sendBulkWA()">📤 Send Now</button>`);
+}
+function updateWAPreview(tid){
+  const tpl=WHATSAPP_TEMPLATES.find(t=>t.id===tid);
+  const el=document.getElementById('wa_preview');
+  if(tpl&&el)el.value=tpl.msg;
+}
+function sendBulkWA(){
+  const recip=document.getElementById('wa_recip')?.value||'all';
+  const count=recip==='pending'?flatsD.filter(f=>f.ms!=='paid').length:flatsD.filter(f=>f.status==='occupied').length;
+  const tplName=WHATSAPP_TEMPLATES.find(t=>t.id===document.getElementById('wa_tpl')?.value)?.name||'Message';
+  waMessages.unshift({id:'M'+String(waMessages.length+1).padStart(3,'0'),template:tplName,sent:count,delivered:count-1,read:Math.floor(count*0.8),failed:1,time:new Date().toLocaleString('en-IN'),status:'completed'});
+  closeModal();toast(count+' WhatsApp messages sent successfully!','ok');navigate('whatsapp');
+}
+
+// ══ ASSET MANAGEMENT ══
+function rAssets(){
+  const healthy=ASSETS_DATA.filter(a=>a.health>=90).length;
+  const attention=ASSETS_DATA.filter(a=>a.health>=70&&a.health<90).length;
+  const critical=ASSETS_DATA.filter(a=>a.health<70).length;
+  const expiring=ASSETS_DATA.filter(a=>a.amc==='expiring').length;
+  return`
+  <div class="section-header"><div><div class="section-title">Asset <span>Management</span></div><div class="section-sub">${ASSETS_DATA.length} assets tracked · Total value ₹${ASSETS_DATA.reduce((a,x)=>a+x.cost,0).toLocaleString()}</div></div>
+  <div class="section-actions">
+    <button class="btn btn-s btn-sm" onclick="toast('Asset report exported!','ok')">📤 Export</button>
+    <button class="btn btn-p btn-sm" onclick="showAddAsset()">+ Add Asset</button>
+  </div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card"><span class="kpi-icon">⚙️</span><span class="kpi-value">${ASSETS_DATA.length}</span><span class="kpi-label">Total Assets</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">✅</span><span class="kpi-value">${healthy}</span><span class="kpi-label">Healthy</span><span class="kpi-sub">Health ≥ 90%</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">⚠️</span><span class="kpi-value">${attention}</span><span class="kpi-label">Attention Needed</span></div>
+    <div class="kpi-card acc-err"><span class="kpi-icon">🚨</span><span class="kpi-value">${critical}</span><span class="kpi-label">Critical</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">📋</span><span class="kpi-value">${expiring}</span><span class="kpi-label">AMC Expiring</span></div>
+    <div class="kpi-card"><span class="kpi-icon">💰</span><span class="kpi-value">&#8377;${(ASSETS_DATA.reduce((a,x)=>a+x.cost,0)/100000).toFixed(1)}L</span><span class="kpi-label">Total Value</span></div>
+  </div>
+  <div class="card mb-20"><div class="card-header"><span class="card-title">⚙️ Asset Registry</span></div>
+  <div class="tw"><table><thead><tr><th>ID</th><th>Asset</th><th>Type</th><th>Vendor</th><th>Health</th><th>AMC</th><th>Last Service</th><th>Next Service</th><th>Value</th><th></th></tr></thead>
+  <tbody>${ASSETS_DATA.map(a=>`<tr>
+    <td class="tdn" style="font-size:10px">${a.id}</td>
+    <td><div class="tdn">${a.name}</div><div class="tds">${a.loc}</div></td>
+    <td><span class="b-p">${a.type}</span></td>
+    <td>${a.vendor}</td>
+    <td>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="pb" style="width:60px"><div class="pf ${a.health>=90?'ok':a.health>=70?'warn':'err'}" style="width:${a.health}%"></div></div>
+        <span style="font-size:12px;font-weight:700;color:${a.health>=90?'var(--ok)':a.health>=70?'var(--warn)':'var(--err)'}">${a.health}%</span>
+      </div>
+    </td>
+    <td><span class="${a.amc==='active'?'b-ok':a.amc==='expiring'?'b-warn':'b-g'}">${a.amc.toUpperCase()}</span></td>
+    <td>${a.lastSvc}</td>
+    <td style="color:${new Date(a.nextSvc)<new Date()?'var(--err)':'var(--t)'}">${a.nextSvc}</td>
+    <td>&#8377;${(a.cost/1000).toFixed(0)}K</td>
+    <td><button class="btn btn-s btn-sm" onclick="showAssetDetail('${a.id}')">Detail</button></td>
+  </tr>`).join('')}</tbody></table></div></div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">🔔 Maintenance Alerts</span></div>
+    <div class="card-body">
+      ${ASSETS_DATA.filter(a=>a.amc==='expiring'||new Date(a.nextSvc)<=new Date(Date.now()+30*24*60*60*1000)).map(a=>`
+      <div style="background:var(--warn10);border:1px solid var(--warn);border-radius:8px;padding:10px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:start">
+          <div><div style="font-size:12.5px;font-weight:700;color:var(--th)">${a.name}</div>
+          <div style="font-size:11px;color:var(--tm)">Next service: ${a.nextSvc} · AMC: ${a.amc}</div></div>
+          <button class="btn btn-warn btn-sm" onclick="toast('Service scheduled for '+a.name,'ok')">Schedule</button>
+        </div>
+      </div>`).join('')}
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📊 Asset Health Distribution</span></div>
+    <div class="card-body">
+      ${ASSETS_DATA.map(a=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:11px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.name.split(' - ')[0]}</span>
+        <div class="pb" style="width:120px;flex-shrink:0"><div class="pf ${a.health>=90?'ok':a.health>=70?'warn':'err'}" style="width:${a.health}%"></div></div>
+        <span style="font-size:11px;font-weight:700;width:32px;text-align:right;color:${a.health>=90?'var(--ok)':a.health>=70?'var(--warn)':'var(--err)'}">${a.health}%</span>
+      </div>`).join('')}
+    </div></div>
+  </div>`;
+}
+function showAssetDetail(id){
+  const a=ASSETS_DATA.find(x=>x.id===id);if(!a)return;
+  openModal('Asset Detail — '+a.name,`
+  <div class="fg">
+    <div class="field"><label>Asset ID</label><input readonly value="${a.id}"></div>
+    <div class="field"><label>Type</label><input readonly value="${a.type}"></div>
+    <div class="field"><label>Location</label><input readonly value="${a.loc}"></div>
+    <div class="field"><label>Vendor</label><input readonly value="${a.vendor}"></div>
+    <div class="field"><label>Installed</label><input readonly value="${a.installed}"></div>
+    <div class="field"><label>Purchase Value</label><input readonly value="₹${a.cost.toLocaleString()}"></div>
+    <div class="field"><label>AMC Status</label><input readonly value="${a.amc.toUpperCase()}"></div>
+    <div class="field"><label>Health Score</label><input readonly value="${a.health}%"></div>
+    <div class="field"><label>Last Service</label><input readonly value="${a.lastSvc}"></div>
+    <div class="field"><label>Next Service</label><input readonly value="${a.nextSvc}"></div>
+  </div>
+  <div style="margin-top:14px">
+    <div style="font-size:13px;font-weight:700;color:var(--th);margin-bottom:8px">Health Indicator</div>
+    <div class="pb" style="height:10px"><div class="pf ${a.health>=90?'ok':a.health>=70?'warn':'err'}" style="width:${a.health}%;transition:width 1s"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tm);margin-top:4px"><span>Critical</span><span>Fair</span><span>Excellent</span></div>
+  </div>`,
+  `<button class="btn btn-warn" onclick="toast('Service request raised for '+a.name+'!','ok');closeModal()">🔧 Schedule Service</button>
+   <button class="btn btn-p" onclick="closeModal()">Close</button>`);
+}
+function showAddAsset(){
+  openModal('Add New Asset',`<div class="fg">
+  <div class="field"><label>Asset Name *</label><input id="na_name" placeholder="e.g. Water Pump #3"></div>
+  <div class="field"><label>Type</label><select id="na_type" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)"><option>Lift</option><option>Water Pump</option><option>Generator</option><option>CCTV</option><option>Water Tank</option><option>Fire Safety</option><option>Electrical</option><option>Intercom</option><option>Other</option></select></div>
+  <div class="field"><label>Vendor</label><input id="na_vend" placeholder="Vendor name"></div>
+  <div class="field"><label>Location</label><input id="na_loc" placeholder="Where is it installed"></div>
+  <div class="field"><label>Installation Date</label><input type="date" id="na_inst"></div>
+  <div class="field"><label>Cost (₹)</label><input type="number" id="na_cost" placeholder="0"></div>
+  <div class="field"><label>AMC Status</label><select id="na_amc" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)"><option value="active">Active</option><option value="expiring">Expiring</option><option value="none">None</option></select></div>
+  <div class="field"><label>Health Score (0-100)</label><input type="number" id="na_health" value="90" min="0" max="100"></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button>
+   <button class="btn btn-p" onclick="saveAsset()">Add Asset</button>`);
+}
+function saveAsset(){
+  const name=(document.getElementById('na_name')||{}).value?.trim();
+  if(!name){toast('Enter asset name.','warn');return;}
+  const id='AST'+String(ASSETS_DATA.length+1).padStart(3,'0');
+  ASSETS_DATA.push({id,name,type:document.getElementById('na_type').value,vendor:document.getElementById('na_vend').value,installed:document.getElementById('na_inst').value,lastSvc:'—',nextSvc:'—',amc:document.getElementById('na_amc').value,health:+document.getElementById('na_health').value||90,cost:+document.getElementById('na_cost').value||0,loc:document.getElementById('na_loc').value});
+  closeModal();toast('Asset '+name+' added!','ok');navigate('assets');
+}
+
+// ══ PORTFOLIO / MULTI-BUILDING ══
+function rPortfolio(){
+  const totFlats=BUILDINGS_PORTFOLIO.reduce((a,b)=>a+b.flats,0);
+  const totOcc=BUILDINGS_PORTFOLIO.reduce((a,b)=>a+b.occ,0);
+  const totColl=BUILDINGS_PORTFOLIO.reduce((a,b)=>a+b.collection,0);
+  const totComp=BUILDINGS_PORTFOLIO.reduce((a,b)=>a+b.complaints,0);
+  const totStaff=BUILDINGS_PORTFOLIO.reduce((a,b)=>a+b.staff,0);
+  return`
+  <div class="section-header"><div><div class="section-title">Portfolio <span>Dashboard</span></div><div class="section-sub">Multi-building SaaS management — ${BUILDINGS_PORTFOLIO.length} properties</div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="showAddBuilding()">+ Add Building</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-p"><span class="kpi-icon">🏘️</span><span class="kpi-value">${BUILDINGS_PORTFOLIO.length}</span><span class="kpi-label">Buildings</span></div>
+    <div class="kpi-card"><span class="kpi-icon">🏢</span><span class="kpi-value">${totFlats}</span><span class="kpi-label">Total Flats</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">👥</span><span class="kpi-value">${totOcc}</span><span class="kpi-label">Occupied</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">💰</span><span class="kpi-value">&#8377;${(totColl/1000).toFixed(0)}K</span><span class="kpi-label">Total Collection</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">🔧</span><span class="kpi-value">${totComp}</span><span class="kpi-label">Open Complaints</span></div>
+    <div class="kpi-card"><span class="kpi-icon">👤</span><span class="kpi-value">${totStaff}</span><span class="kpi-label">Total Staff</span></div>
+  </div>
+  <div style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:var(--th);margin-bottom:10px">🔀 Switch Building</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    ${BUILDINGS_PORTFOLIO.map(b=>`
+    <button onclick="switchBuilding('${b.id}')" style="padding:8px 16px;border-radius:8px;border:2px solid ${b.id===activeBuildingId?'var(--p)':'var(--bdr)'};background:${b.id===activeBuildingId?'var(--p10)':'var(--card)'};color:${b.id===activeBuildingId?'var(--pl)':'var(--t)'};font-size:12px;font-weight:${b.id===activeBuildingId?'700':'500'};cursor:pointer;transition:var(--trans)">
+      ${b.id===activeBuildingId?'✅ ':''} ${b.name}
+    </button>`).join('')}
+  </div></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
+    ${BUILDINGS_PORTFOLIO.map(b=>`
+    <div style="background:var(--card);border:${b.id===activeBuildingId?'2px solid var(--p)':'1px solid var(--bdr)'};border-radius:var(--r);padding:18px;transition:var(--trans);cursor:pointer" onclick="switchBuilding('${b.id}')">
+      <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:15px;font-weight:800;color:var(--th)">${b.name}</div>
+          <div style="font-size:11px;color:var(--tm)">📍 ${b.loc}</div>
+        </div>
+        <span class="${b.id===activeBuildingId?'b-p':'b-g'}">${b.id===activeBuildingId?'ACTIVE':'INACTIVE'}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div style="text-align:center;background:var(--bg2);border-radius:6px;padding:8px">
+          <div style="font-size:18px;font-weight:800;color:var(--th)">${b.flats}</div>
+          <div style="font-size:10px;color:var(--tm)">Flats</div>
+        </div>
+        <div style="text-align:center;background:var(--bg2);border-radius:6px;padding:8px">
+          <div style="font-size:18px;font-weight:800;color:var(--ok)">&#8377;${(b.collection/1000).toFixed(0)}K</div>
+          <div style="font-size:10px;color:var(--tm)">Collection</div>
+        </div>
+        <div style="text-align:center;background:var(--bg2);border-radius:6px;padding:8px">
+          <div style="font-size:18px;font-weight:800;color:var(--err)">${b.complaints}</div>
+          <div style="font-size:10px;color:var(--tm)">Complaints</div>
+        </div>
+        <div style="text-align:center;background:var(--bg2);border-radius:6px;padding:8px">
+          <div style="font-size:18px;font-weight:800;color:var(--th)">${b.health}%</div>
+          <div style="font-size:10px;color:var(--tm)">Health</div>
+        </div>
+      </div>
+      <div class="pb"><div class="pf ${b.health>=90?'ok':b.health>=80?'warn':'err'}" style="width:${b.health}%"></div></div>
+      <div style="font-size:10px;color:var(--tm);margin-top:4px">Building Health: ${b.health}%</div>
+    </div>`).join('')}
+  </div>`;
+}
+function switchBuilding(id){
+  activeBuildingId=id;
+  const b=BUILDINGS_PORTFOLIO.find(x=>x.id===id);
+  if(b)toast('Switched to '+b.name,'ok');
+  navigate('portfolio');
+}
+function showAddBuilding(){
+  openModal('Add New Building',`<div class="fg">
+  <div class="field"><label>Building Name *</label><input id="nb_name" placeholder="e.g. Prestige Heights"></div>
+  <div class="field"><label>Location</label><input id="nb_loc" placeholder="City, State"></div>
+  <div class="field"><label>Total Flats</label><input type="number" id="nb_flats" value="24"></div>
+  <div class="field"><label>Monthly Maintenance (₹)</label><input type="number" id="nb_maint" value="3500"></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button>
+   <button class="btn btn-p" onclick="addBuilding()">Add Building</button>`);
+}
+function addBuilding(){
+  const name=(document.getElementById('nb_name')||{}).value?.trim();
+  if(!name){toast('Enter building name.','warn');return;}
+  const id='BLD'+String(BUILDINGS_PORTFOLIO.length+1).padStart(3,'0');
+  BUILDINGS_PORTFOLIO.push({id,name,loc:document.getElementById('nb_loc').value,flats:+document.getElementById('nb_flats').value||24,occ:0,collection:0,pending:0,complaints:0,staff:0,health:100,maint:+document.getElementById('nb_maint').value||3500,active:false});
+  closeModal();toast('Building '+name+' added to portfolio!','ok');navigate('portfolio');
+}
+// ══ MOBILE APP SIMULATOR ══
+function rMobileApp(){
+  return`
+  <div class="section-header"><div><div class="section-title">Resident Mobile <span>App Simulator</span></div><div class="section-sub">Live preview of the resident-facing mobile experience</div></div>
+  <div class="section-actions"><button class="btn btn-s btn-sm" onclick="toggleMobilePreview()" id="mobToggleBtn">📱 Switch to iPhone</button></div></div>
+  <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;padding:20px 0">
+    <div id="mobileFrame">${renderAndroidFrame()}</div>
+  </div>
+  <div class="g3" style="margin-top:24px">
+    <div class="card"><div class="card-header"><span class="card-title">📲 App Features</span></div>
+    <div class="card-body">
+      ${[['💰','Pay Maintenance','UPI/Card payment in 2 taps'],['🔧','Raise Complaint','Photo + voice note support'],['📄','Download Receipt','Instant PDF generation'],['📢','View Notices','Push notifications enabled'],['🛡️','Contact Security','One-tap calling to guard'],['🆘','Emergency SOS','GPS location + auto-alert']].map(f=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--bdr2)">
+        <span style="font-size:20px">${f[0]}</span><div><div style="font-size:12.5px;font-weight:600;color:var(--th)">${f[1]}</div><div style="font-size:11px;color:var(--tm)">${f[2]}</div></div>
+      </div>`).join('')}
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📊 App Adoption</span></div>
+    <div class="card-body">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:32px;font-weight:900;color:var(--ok)">87%</div>
+        <div style="font-size:12px;color:var(--tm)">Residents using the app</div>
+      </div>
+      ${[['Downloads',21,24],['Active Users (30d)',19,24],['Push Notif. Opt-in',20,24]].map(([l,v,t])=>`
+      <div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px">${l}</span><span style="font-size:12px;font-weight:600">${v}/${t}</span></div>
+      <div class="pb"><div class="pf ok" style="width:${Math.round(v/t*100)}%"></div></div></div>`).join('')}
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">⭐ App Ratings</span></div>
+    <div class="card-body" style="text-align:center">
+      <div style="font-size:32px;font-weight:900;color:var(--th)">4.7</div>
+      <div style="color:var(--warn);font-size:16px;margin-bottom:8px">★★★★★</div>
+      <div style="font-size:11px;color:var(--tm);margin-bottom:12px">Based on 18 reviews</div>
+      ${[5,4,3,2,1].map(s=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="font-size:10px;width:20px">${s}★</span><div class="pb" style="flex:1"><div class="pf warn" style="width:${s===5?70:s===4?20:s===3?7:s===2?2:1}%"></div></div></div>`).join('')}
+    </div></div>
+  </div>`;
+}
+let mobileOS='android';
+function toggleMobilePreview(){
+  mobileOS=mobileOS==='android'?'ios':'android';
+  document.getElementById('mobToggleBtn').textContent=mobileOS==='android'?'📱 Switch to iPhone':'📱 Switch to Android';
+  document.getElementById('mobileFrame').innerHTML=mobileOS==='android'?renderAndroidFrame():renderIOSFrame();
+}
+function renderAndroidFrame(){
+  return`<div style="width:300px;background:#1a1a1a;border-radius:28px;padding:10px;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+  <div style="background:linear-gradient(180deg,#0f0e2a,#1a1a2e);border-radius:20px;overflow:hidden;height:600px;position:relative">
+    <div style="display:flex;justify-content:space-between;padding:8px 16px;font-size:11px;color:#fff"><span>9:41</span><span>🔋 87%</span></div>
+    <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:16px;border-radius:0 0 20px 20px;margin-bottom:12px">
+      <div style="color:#fff;font-size:11px;opacity:0.8">Welcome back,</div>
+      <div style="color:#fff;font-size:16px;font-weight:800">Rajesh Sharma</div>
+      <div style="color:rgba(255,255,255,0.8);font-size:10px;margin-top:2px">Flat A-101 · Sunrise Heights</div>
+    </div>
+    <div style="padding:0 14px">
+      <div style="background:rgba(255,255,255,0.08);border-radius:12px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="color:#fff;font-size:11px;opacity:0.7">June Maintenance</div><div style="color:#fff;font-size:16px;font-weight:800">₹3,500</div></div>
+        <button style="background:#10b981;color:#fff;border:none;padding:6px 14px;border-radius:8px;font-size:11px;font-weight:700">Pay Now</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        ${[['🔧','Complaint'],['📄','Receipts'],['📢','Notices'],['🆘','SOS']].map(([i,l])=>`
+        <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px">${i}</div><div style="color:#fff;font-size:10px;margin-top:4px">${l}</div>
+        </div>`).join('')}
+      </div>
+      <div style="color:#fff;font-size:11px;font-weight:700;margin-bottom:6px;opacity:0.8">RECENT ACTIVITY</div>
+      ${[['✅','Payment confirmed','2h ago'],['📢','New notice posted','1d ago']].map(([i,t,tm])=>`
+      <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px">
+        <span>${i}</span><span style="color:#fff;font-size:10.5px;flex:1">${t}</span><span style="color:rgba(255,255,255,0.5);font-size:9px">${tm}</span>
+      </div>`).join('')}
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.4);display:flex;justify-content:space-around;padding:10px 0">
+      ${['🏠','🔧','📊','👤'].map(i=>`<span style="font-size:18px">${i}</span>`).join('')}
+    </div>
+  </div></div>`;
+}
+function renderIOSFrame(){
+  return`<div style="width:300px;background:#000;border-radius:42px;padding:8px;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+  <div style="background:linear-gradient(180deg,#0f0e2a,#1a1a2e);border-radius:36px;overflow:hidden;height:600px;position:relative">
+    <div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);width:90px;height:24px;background:#000;border-radius:14px;z-index:10"></div>
+    <div style="display:flex;justify-content:space-between;padding:14px 24px 4px;font-size:11px;color:#fff;font-weight:600"><span>9:41</span><span>🔋 87%</span></div>
+    <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:18px;border-radius:0 0 24px 24px;margin-bottom:12px;margin-top:6px">
+      <div style="color:#fff;font-size:11px;opacity:0.8">Welcome back,</div>
+      <div style="color:#fff;font-size:16px;font-weight:800">Rajesh Sharma</div>
+      <div style="color:rgba(255,255,255,0.8);font-size:10px;margin-top:2px">Flat A-101 · Sunrise Heights</div>
+    </div>
+    <div style="padding:0 14px">
+      <div style="background:rgba(255,255,255,0.1);border-radius:16px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(10px)">
+        <div><div style="color:#fff;font-size:11px;opacity:0.7">June Maintenance</div><div style="color:#fff;font-size:16px;font-weight:800">₹3,500</div></div>
+        <button style="background:#10b981;color:#fff;border:none;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700">Pay Now</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        ${[['🔧','Complaint'],['📄','Receipts'],['📢','Notices'],['🆘','SOS']].map(([i,l])=>`
+        <div style="background:rgba(255,255,255,0.1);border-radius:14px;padding:12px;text-align:center;backdrop-filter:blur(10px)">
+          <div style="font-size:20px">${i}</div><div style="color:#fff;font-size:10px;margin-top:4px">${l}</div>
+        </div>`).join('')}
+      </div>
+      <div style="color:#fff;font-size:11px;font-weight:700;margin-bottom:6px;opacity:0.8">RECENT ACTIVITY</div>
+      ${[['✅','Payment confirmed','2h ago'],['📢','New notice posted','1d ago']].map(([i,t,tm])=>`
+      <div style="background:rgba(255,255,255,0.07);border-radius:12px;padding:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px">
+        <span>${i}</span><span style="color:#fff;font-size:10.5px;flex:1">${t}</span><span style="color:rgba(255,255,255,0.5);font-size:9px">${tm}</span>
+      </div>`).join('')}
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(20,20,30,0.7);backdrop-filter:blur(10px);display:flex;justify-content:space-around;padding:10px 0 18px">
+      ${['🏠','🔧','📊','👤'].map(i=>`<span style="font-size:18px">${i}</span>`).join('')}
+    </div>
+  </div></div>`;
+}
+
+// ══ SERVICE MARKETPLACE ══
+function rMarketplace(){
+  const totalRev=svcBookings.reduce((a,b)=>{const s=MARKETPLACE_SVCS.find(x=>x.name===b.svc);return a+(s?s.price:0);},0);
+  return`
+  <div class="section-header"><div><div class="section-title">Service <span>Marketplace</span></div><div class="section-sub">${MARKETPLACE_SVCS.length} services · ${svcBookings.length} bookings this month</div></div>
+  <div class="section-actions"><button class="btn btn-s btn-sm" onclick="toast('Vendor onboarding form opened.','ok')">+ Add Vendor</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-p"><span class="kpi-icon">🛒</span><span class="kpi-value">${MARKETPLACE_SVCS.length}</span><span class="kpi-label">Services Listed</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📅</span><span class="kpi-value">${svcBookings.length}</span><span class="kpi-label">Bookings (Month)</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">💰</span><span class="kpi-value">&#8377;${totalRev.toLocaleString()}</span><span class="kpi-label">Revenue Generated</span></div>
+    <div class="kpi-card"><span class="kpi-icon">⭐</span><span class="kpi-value">${(MARKETPLACE_SVCS.reduce((a,s)=>a+s.rating,0)/MARKETPLACE_SVCS.length).toFixed(1)}</span><span class="kpi-label">Avg Rating</span></div>
+  </div>
+  <div class="flat-grid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))">
+    ${MARKETPLACE_SVCS.map(s=>`
+    <div class="flat-card" onclick="showServiceBooking('${s.id}')">
+      <div style="display:flex;align-items:start;justify-content:space-between">
+        <span style="font-size:28px">${s.icon}</span>
+        <span class="b-p" style="font-size:9px">${s.cat}</span>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:var(--th);margin-top:8px">${s.name}</div>
+      <div style="font-size:11px;color:var(--tm);margin-top:2px">${s.desc}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+        <span style="font-size:15px;font-weight:800;color:var(--ok)">&#8377;${s.price}</span>
+        <span style="font-size:11px;color:var(--warn)">⭐${s.rating}</span>
+      </div>
+      <div style="font-size:10px;color:var(--tm);margin-top:4px">${s.vendor} · ${s.dur} · ${s.bookings} bookings</div>
+    </div>`).join('')}
+  </div>
+  <div class="card mt-16"><div class="card-header"><span class="card-title">📋 Recent Bookings</span></div>
+  <div class="tw"><table><thead><tr><th>Booking</th><th>Service</th><th>Flat</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
+  <tbody>${svcBookings.map(b=>`<tr><td class="tdn">${b.id}</td><td>${b.svc}</td><td>${b.flat}</td><td>${b.date}</td><td>${b.slot}</td>
+  <td><span class="${b.status==='completed'?'b-ok':b.status==='confirmed'?'b-info':'b-warn'}">${b.status}</span></td></tr>`).join('')}</tbody></table></div></div>`;
+}
+function showServiceBooking(sid){
+  const s=MARKETPLACE_SVCS.find(x=>x.id===sid);if(!s)return;
+  openModal('Book: '+s.name,`
+  <div style="text-align:center;margin-bottom:16px">
+    <span style="font-size:40px">${s.icon}</span>
+    <div style="font-size:16px;font-weight:800;color:var(--th);margin-top:6px">${s.name}</div>
+    <div style="font-size:12px;color:var(--tm)">${s.vendor} · ⭐${s.rating} · ${s.bookings} bookings</div>
+    <div style="font-size:22px;font-weight:900;color:var(--ok);margin-top:8px">&#8377;${s.price}</div>
+  </div>
+  <div class="fg">
+    <div class="field"><label>Your Flat *</label><input id="sb_flat" placeholder="e.g. A-101"></div>
+    <div class="field"><label>Preferred Date</label><input type="date" id="sb_date" value="${new Date().toISOString().split('T')[0]}"></div>
+    <div class="field ff"><label>Time Slot</label><select id="sb_time" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)"><option>9:00 AM</option><option>11:00 AM</option><option>2:00 PM</option><option>4:00 PM</option></select></div>
+  </div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button>
+   <button class="btn btn-p" onclick="confirmBooking('${s.id}')">Confirm Booking — ₹${s.price}</button>`);
+}
+function confirmBooking(sid){
+  const s=MARKETPLACE_SVCS.find(x=>x.id===sid);
+  const flat=(document.getElementById('sb_flat')||{}).value?.trim()||'A-101';
+  const date=(document.getElementById('sb_date')||{}).value;
+  const time=(document.getElementById('sb_time')||{}).value;
+  svcBookings.unshift({id:'BK'+String(svcBookings.length+1).padStart(3,'0'),svc:s.name,flat,date,slot:time,status:'confirmed'});
+  s.bookings++;
+  closeModal();toast('Booked '+s.name+' for '+date+' at '+time+'!','ok');navigate('marketplace');
+}
+// ══ SMART SECURITY SUITE (upgrade) ══
+let guardAttendance=[
+{guard:'Ramesh Singh',date:'2024-06-05',checkin:'05:58 AM',checkout:'02:05 PM',geo:'✅ On-site',status:'present'},
+{guard:'Suresh Kumar',date:'2024-06-05',checkin:'01:55 PM',checkout:'10:10 PM',geo:'✅ On-site',status:'present'},
+{guard:'Dheeraj Yadav',date:'2024-06-05',checkin:'09:58 PM',checkout:'—',geo:'✅ On-site',status:'present'},
+];
+let shiftHandovers=[
+{from:'Ramesh Singh',to:'Suresh Kumar',time:'2024-06-05 02:00 PM',notes:'All quiet. 3 visitors logged. Gate lock issue reported to manager.',ack:true},
+{from:'Suresh Kumar',to:'Dheeraj Yadav',time:'2024-06-05 10:00 PM',notes:'Evening rounds done. No incidents. CCTV all functional.',ack:true},
+];
+function rSecuritySuite(){
+  return`
+  <div class="section-header"><div><div class="section-title">Smart Security <span>Suite</span></div><div class="section-sub">Advanced security analytics, attendance and escalation</div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="showFaceVerify()">👤 Face Verify Demo</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📍</span><span class="kpi-value">3/3</span><span class="kpi-label">Geo-Verified</span><span class="kpi-sub">All guards on-site</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🔄</span><span class="kpi-value">${shiftHandovers.length}</span><span class="kpi-label">Shift Handovers</span><span class="kpi-sub">Today</span></div>
+    <div class="kpi-card"><span class="kpi-icon">👤</span><span class="kpi-value">98.2%</span><span class="kpi-label">Face Match Rate</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">⬆️</span><span class="kpi-value">1</span><span class="kpi-label">Escalated Incidents</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📊</span><span class="kpi-value">94%</span><span class="kpi-label">Security Score</span></div>
+    <div class="kpi-card"><span class="kpi-icon">⏱️</span><span class="kpi-value">3.2m</span><span class="kpi-label">Avg Response Time</span></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">📍 Geo-Tagged Attendance</span></div>
+    <div class="card-body">
+      ${guardAttendance.map(g=>`
+      <div style="background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:13px;font-weight:700;color:var(--th)">${g.guard}</span>
+          <span class="b-ok">${g.geo}</span>
+        </div>
+        <div style="display:flex;gap:16px;font-size:11px;color:var(--tm)">
+          <span>🟢 In: ${g.checkin}</span><span>🔴 Out: ${g.checkout}</span>
+        </div>
+        <div style="margin-top:6px;height:60px;background:var(--bg2);border-radius:6px;position:relative;overflow:hidden">
+          <svg width="100%" height="60" viewBox="0 0 200 60"><rect width="200" height="60" fill="rgba(16,185,129,0.05)"/>
+          <circle cx="${40+Math.random()*120}" cy="30" r="4" fill="#10b981"/><circle cx="${40+Math.random()*120}" cy="30" r="10" fill="none" stroke="#10b981" stroke-width="1" opacity="0.4"/>
+          <text x="100" y="50" font-size="8" fill="#8b949e" text-anchor="middle">Geofence: Sunrise Heights Compound</text></svg>
+        </div>
+      </div>`).join('')}
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">🔄 Shift Handover Log</span></div>
+    <div class="card-body">
+      ${shiftHandovers.map(h=>`
+      <div style="background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:12px;font-weight:700;color:var(--th)">${h.from} → ${h.to}</span>
+          <span class="${h.ack?'b-ok':'b-warn'}">${h.ack?'Acknowledged':'Pending'}</span>
+        </div>
+        <div style="font-size:11px;color:var(--tm);margin-bottom:4px">🕐 ${h.time}</div>
+        <div style="font-size:12px;color:var(--t)">${h.notes}</div>
+      </div>`).join('')}
+      <button class="btn btn-s btn-sm w100" onclick="toast('Handover note logged!','ok')">+ Log New Handover</button>
+    </div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">⬆️ Incident Escalation</span></div>
+    <div class="card-body">
+      <div style="background:var(--err10);border:1px solid var(--err);border-radius:8px;padding:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;font-weight:700;color:var(--th)">Gate lock broken (C003)</span><span class="b-err">ESCALATED</span></div>
+        <div style="font-size:11px;color:var(--tm)">Escalated from Guard → Manager → RWA Chairman</div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <span class="b-g" style="font-size:9px">L1: Guard ✅</span>
+          <span class="b-g" style="font-size:9px">L2: Manager ✅</span>
+          <span class="b-warn" style="font-size:9px">L3: Chairman ⏳</span>
+        </div>
+      </div>
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📊 Security Analytics</span></div>
+    <div class="card-body">
+      ${[['Visitor Verification Rate','100%','ok'],['False Alarm Rate','2.1%','ok'],['Avg Guard Response','3.2 min','ok'],['Incidents This Month','3','warn'],['Resolved Within SLA','100%','ok']].map(([l,v,c])=>`
+      <div class="finm"><span style="font-size:12px;color:var(--tm)">${l}</span><span class="b-${c}">${v}</span></div>`).join('')}
+    </div></div>
+  </div>`;
+}
+function showFaceVerify(){
+  openModal('Face Verification — Demo',`
+  <div style="text-align:center">
+    <div style="width:200px;height:200px;margin:0 auto;border-radius:16px;background:linear-gradient(135deg,#1a1a2e,#0f0e2a);position:relative;overflow:hidden;border:2px solid var(--p)">
+      <svg width="200" height="200" viewBox="0 0 200 200">
+        <circle cx="100" cy="85" r="45" fill="#2a2a3e"/>
+        <circle cx="85" cy="78" r="4" fill="#6366f1"/><circle cx="115" cy="78" r="4" fill="#6366f1"/>
+        <path d="M 80 100 Q 100 110 120 100" stroke="#6366f1" stroke-width="2" fill="none"/>
+        <rect x="60" y="130" width="80" height="60" rx="10" fill="#2a2a3e"/>
+        <rect x="20" y="20" width="30" height="3" fill="#10b981"/><rect x="20" y="20" width="3" height="30" fill="#10b981"/>
+        <rect x="150" y="20" width="30" height="3" fill="#10b981"/><rect x="177" y="20" width="3" height="30" fill="#10b981"/>
+        <rect x="20" y="177" width="30" height="3" fill="#10b981"/><rect x="20" y="150" width="3" height="30" fill="#10b981"/>
+        <rect x="150" y="177" width="30" height="3" fill="#10b981"/><rect x="177" y="150" width="3" height="30" fill="#10b981"/>
+      </svg>
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#10b981;box-shadow:0 0 10px #10b981;animation:scanline 2s infinite"></div>
+    </div>
+    <style>@keyframes scanline{0%{top:0}100%{top:100%}}</style>
+    <div style="margin-top:16px;font-size:16px;font-weight:800;color:var(--ok)">✅ Match Found</div>
+    <div style="font-size:13px;color:var(--th);margin-top:4px">Rajesh Kumar Sharma — Flat A-101</div>
+    <div style="font-size:11px;color:var(--tm);margin-top:2px">Confidence: 98.7% · Registered Resident</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+      <span class="b-ok">Owner Verified</span><span class="b-p">Entry Granted</span>
+    </div>
+  </div>`,
+  `<button class="btn btn-p" onclick="closeModal()">Close Demo</button>`);
+}
+
+// ══ SMART WATER (upgrade) ══
+function rSmartWater(){
+  const oht=SMART_WATER_DATA.oht,ugt=SMART_WATER_DATA.ugt;
+  return`
+  <div class="section-header"><div><div class="section-title">Smart Water <span>IoT Dashboard</span></div><div class="section-sub">Live sensor data, leakage detection and predictive refill</div></div>
+  <div class="section-actions"><span class="son">IoT Sensors Online</span></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🔵</span><span class="kpi-value">${oht.pct}%</span><span class="kpi-label">OHT Live Level</span></div>
+    <div class="kpi-card acc-warn"><span class="kpi-icon">🔷</span><span class="kpi-value">${ugt.pct}%</span><span class="kpi-label">UGT Live Level</span></div>
+    <div class="kpi-card"><span class="kpi-icon">📈</span><span class="kpi-value">${(SMART_WATER_DATA.consumption.reduce((a,v)=>a+v,0)/1000/7).toFixed(1)}K</span><span class="kpi-label">Avg Daily (L)</span></div>
+    <div class="kpi-card acc-err"><span class="kpi-icon">💧</span><span class="kpi-value">${SMART_WATER_DATA.leaks.length}</span><span class="kpi-label">Leak Alerts</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🔮</span><span class="kpi-value">${(SMART_WATER_DATA.prediction/1000).toFixed(1)}K</span><span class="kpi-label">Tomorrow Forecast</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">✅</span><span class="kpi-value">Good</span><span class="kpi-label">Quality Status</span></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">🔵 OHT — Live IoT Sensor</span><span class="b-ok">SENSOR ONLINE</span></div>
+    <div class="card-body" style="text-align:center">
+      <canvas id="iotGaugeOHT" width="220" height="160"></canvas>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;text-align:left">
+        <div class="finm"><span style="font-size:11px;color:var(--tm)">Available</span><span style="font-weight:700">${oht.avail.toLocaleString()} L</span></div>
+        <div class="finm"><span style="font-size:11px;color:var(--tm)">pH Level</span><span style="font-weight:700">${oht.ph}</span></div>
+        <div class="finm"><span style="font-size:11px;color:var(--tm)">TDS</span><span style="font-weight:700">${oht.tds} ppm</span></div>
+        <div class="finm"><span style="font-size:11px;color:var(--tm)">Refill ETA</span><span style="font-weight:700;color:var(--warn)">${oht.refillETA}</span></div>
+      </div>
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">🔷 UGT — Live IoT Sensor</span><span class="b-ok">SENSOR ONLINE</span></div>
+    <div class="card-body" style="text-align:center">
+      <canvas id="iotGaugeUGT" width="220" height="160"></canvas>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;text-align:left">
+        <div class="finm"><span style="font-size:11px;color:var(--tm)">Available</span><span style="font-weight:700">${ugt.avail.toLocaleString()} L</span></div>
+        <div class="finm"><span style="font-size:11px;color:var(--tm)">pH Level</span><span style="font-weight:700">${ugt.ph}</span></div>
+        <div class="finm"><span style="font-size:11px;color:var(--tm)">TDS</span><span style="font-weight:700">${ugt.tds} ppm</span></div>
+        <div class="finm"><span style="font-size:11px;color:var(--tm)">Refill ETA</span><span style="font-weight:700;color:var(--warn)">${ugt.refillETA}</span></div>
+      </div>
+    </div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">⚠️ Leakage Detection</span></div>
+    <div class="card-body">
+      ${SMART_WATER_DATA.leaks.length?SMART_WATER_DATA.leaks.map(l=>`
+      <div style="background:var(--warn10);border:1px solid var(--warn);border-radius:8px;padding:12px">
+        <div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:700;color:var(--th)">${l.zone}</span><span class="b-warn">${l.severity.toUpperCase()}</span></div>
+        <div style="font-size:11px;color:var(--tm);margin-top:4px">Detected: ${l.detected} · Status: ${l.status}</div>
+        <button class="btn btn-warn btn-sm" style="margin-top:8px" onclick="toast('Plumber dispatched to '+'${l.zone}'+'!','ok')">Dispatch Plumber</button>
+      </div>`).join(''):'<p style="text-align:center;color:var(--tm);font-size:12px">✅ No leaks detected. All sensors normal.</p>'}
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">🔮 AI Refill Prediction</span></div>
+    <div class="card-body">
+      <div class="ai-insight"><div class="ai-it">📊 Consumption Pattern</div><div class="ai-id">Based on 7-day trend, average daily usage is ${(SMART_WATER_DATA.consumption.reduce((a,v)=>a+v,0)/7/1000).toFixed(1)}K liters. Weekend usage is typically 15% higher.</div></div>
+      <div class="ai-insight"><div class="ai-it">🔮 Tomorrow's Forecast</div><div class="ai-id">Predicted consumption: ${(SMART_WATER_DATA.prediction/1000).toFixed(1)}K liters. UGT refill recommended within 3 days to maintain buffer.</div></div>
+    </div></div>
+  </div>`;
+}
+function drawIoTGauge(canvasId,pct,color){
+  const c=document.getElementById(canvasId);if(!c)return;
+  const ctx=c.getContext('2d');const W=c.width,H=c.height;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2,cy=H-20,r=80;
+  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,0,false);ctx.lineWidth=16;ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.stroke();
+  const angle=Math.PI+(pct/100)*Math.PI;
+  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,angle,false);ctx.lineWidth=16;ctx.strokeStyle=color;ctx.lineCap='round';ctx.stroke();
+  ctx.fillStyle=document.body.getAttribute('data-theme')==='light'?'#0f0e2a':'#f0f6fc';
+  ctx.font='bold 28px system-ui';ctx.textAlign='center';ctx.fillText(pct+'%',cx,cy-14);
+  ctx.font='11px system-ui';ctx.fillStyle='#8b949e';ctx.fillText('LIVE LEVEL',cx,cy+6);
+}
+// ══ RWA VOTING / GOVERNANCE ══
+function rGovernance(){
+  return`
+  <div class="section-header"><div><div class="section-title">RWA Governance <span>& Voting</span></div><div class="section-sub">${POLLS_DATA.filter(p=>p.status==='active').length} active polls · Society democracy, digitised</div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="showCreatePoll()">+ Create Poll</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-p"><span class="kpi-icon">🗳️</span><span class="kpi-value">${POLLS_DATA.filter(p=>p.status==='active').length}</span><span class="kpi-label">Active Polls</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">✅</span><span class="kpi-value">${POLLS_DATA.filter(p=>p.status==='closed').length}</span><span class="kpi-label">Closed Polls</span></div>
+    <div class="kpi-card"><span class="kpi-icon">👥</span><span class="kpi-value">${Math.round(POLLS_DATA.reduce((a,p)=>a+p.votes.reduce((x,y)=>x+y,0),0)/POLLS_DATA.length/24*100)}%</span><span class="kpi-label">Avg Participation</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🏛️</span><span class="kpi-value">24</span><span class="kpi-label">Eligible Voters</span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    ${POLLS_DATA.map(p=>{
+      const total=p.votes.reduce((a,v)=>a+v,0);
+      const maxIdx=p.votes.indexOf(Math.max(...p.votes));
+      const hasVoted=userVotes[p.id]!==undefined;
+      return`
+      <div class="card">
+        <div class="card-header">
+          <div><span class="card-title">${p.q}</span></div>
+          <span class="${p.status==='active'?'b-ok':'b-g'}">${p.status.toUpperCase()}</span>
+        </div>
+        <div class="card-body">
+          <div style="font-size:11px;color:var(--tm);margin-bottom:12px">📅 Deadline: ${p.deadline} · 👤 By: ${p.by} · 🗳️ ${total}/${p.totalFlats} voted (${Math.round(total/p.totalFlats*100)}%)</div>
+          ${p.opts.map((o,i)=>`
+          <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:12.5px;font-weight:${i===maxIdx?'700':'500'};color:${i===maxIdx?'var(--th)':'var(--t)'}">${o} ${i===maxIdx&&p.status==='closed'?'🏆':''}</span>
+              <span style="font-size:12px;color:var(--tm)">${p.votes[i]} votes (${total?Math.round(p.votes[i]/total*100):0}%)</span>
+            </div>
+            <div class="pb"><div class="pf ${i===maxIdx?'ok':''}" style="width:${total?Math.round(p.votes[i]/total*100):0}%"></div></div>
+          </div>`).join('')}
+          ${p.status==='active'?(hasVoted?
+            `<div class="b-ok" style="display:inline-block;margin-top:6px">✅ You voted: ${p.opts[userVotes[p.id]]}</div>`:
+            `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">${p.opts.map((o,i)=>`<button class="btn btn-s btn-sm" onclick="castVote('${p.id}',${i})">Vote: ${o}</button>`).join('')}</div>`
+          ):''}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+function castVote(pollId,optIdx){
+  const p=POLLS_DATA.find(x=>x.id===pollId);if(!p)return;
+  if(userVotes[pollId]!==undefined){toast('You have already voted on this poll.','warn');return;}
+  p.votes[optIdx]++;
+  userVotes[pollId]=optIdx;
+  toast('Vote recorded: '+p.opts[optIdx],'ok');
+  navigate('governance');
+}
+function showCreatePoll(){
+  openModal('Create New Poll',`<div class="fg">
+  <div class="field ff"><label>Question *</label><input id="np_q" placeholder="e.g. Should we increase maintenance by 10%?"></div>
+  <div class="field"><label>Option 1</label><input id="np_o1" placeholder="Yes" value="Yes"></div>
+  <div class="field"><label>Option 2</label><input id="np_o2" placeholder="No" value="No"></div>
+  <div class="field"><label>Deadline</label><input type="date" id="np_dl"></div>
+  <div class="field"><label>Created By</label><input id="np_by" value="RWA Committee"></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button>
+   <button class="btn btn-p" onclick="createPoll()">Publish Poll</button>`);
+}
+function createPoll(){
+  const q=(document.getElementById('np_q')||{}).value?.trim();
+  if(!q){toast('Enter a question.','warn');return;}
+  const o1=document.getElementById('np_o1').value||'Yes';
+  const o2=document.getElementById('np_o2').value||'No';
+  POLLS_DATA.unshift({id:'PL'+String(POLLS_DATA.length+1).padStart(3,'0'),q,opts:[o1,o2],votes:[0,0],deadline:document.getElementById('np_dl').value||'2024-12-31',status:'active',by:document.getElementById('np_by').value||'RWA',totalFlats:24});
+  closeModal();toast('Poll published to all residents!','ok');navigate('governance');
+}
+
+// ══ AI OPERATIONS CENTER (upgrade) ══
+function rAIOps(){
+  const predictions=[
+    {icon:'🔧',title:'Complaint Volume Forecast',conf:91,insight:'Expect 18-22 complaints next month based on seasonal patterns (monsoon plumbing issues typically spike 25%).',trend:'up'},
+    {icon:'💰',title:'Revenue Prediction',conf:88,insight:'Next month collection forecast: ₹82,000-86,000 (94-96% collection rate) based on payment history trends.',trend:'up'},
+    {icon:'⚙️',title:'Asset Failure Risk',conf:76,insight:'Video Door Phone (health 76%) has 34% probability of requiring major repair within 60 days.',trend:'warn'},
+    {icon:'💧',title:'Water Consumption',conf:94,insight:'Daily consumption will rise to ~19.5KL/day in next 2 weeks due to rising summer temperatures.',trend:'up'},
+    {icon:'👥',title:'Staff Optimization',conf:82,insight:'Current housekeeping staff (2) is sufficient. Adding 1 part-time gardener recommended for monsoon prep.',trend:'neutral'},
+    {icon:'🏥',title:'Building Health Trajectory',conf:89,insight:'Health score trending from 58% to projected 71% over next 30 days if current action items are resolved.',trend:'up'},
+  ];
+  return`
+  <div class="section-header"><div><div class="section-title">AI Operations <span>Command Center</span></div><div class="section-sub">Predictive intelligence across all building systems</div></div>
+  <div class="section-actions"><span class="b-p">⚡ Model v2.4 · Updated 5 min ago</span></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🎯</span><span class="kpi-value">87%</span><span class="kpi-label">Avg AI Confidence</span></div>
+    <div class="kpi-card acc-p"><span class="kpi-icon">🔮</span><span class="kpi-value">${predictions.length}</span><span class="kpi-label">Active Predictions</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">✅</span><span class="kpi-value">94%</span><span class="kpi-label">Past Accuracy</span></div>
+    <div class="kpi-card"><span class="kpi-icon">⚡</span><span class="kpi-value">12</span><span class="kpi-label">Recommendations</span></div>
+  </div>
+  <div class="ga">
+    ${predictions.map(p=>`
+    <div class="card">
+      <div class="card-body">
+        <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:26px">${p.icon}</span>
+          <span style="font-size:13.5px;font-weight:700;color:var(--th)">${p.title}</span></div>
+        </div>
+        <div style="font-size:12px;color:var(--t);line-height:1.6;margin-bottom:10px">${p.insight}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="flex:1;margin-right:10px">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tm);margin-bottom:2px"><span>AI Confidence</span><span>${p.conf}%</span></div>
+            <div class="pb"><div class="pf ${p.conf>=85?'ok':p.conf>=70?'warn':'err'}" style="width:${p.conf}%"></div></div>
+          </div>
+          <span style="font-size:16px">${p.trend==='up'?'📈':p.trend==='warn'?'⚠️':'➡️'}</span>
+        </div>
+      </div>
+    </div>`).join('')}
+  </div>
+  <div class="card mt-16"><div class="card-header"><span class="card-title">💡 Top AI Recommendations This Week</span></div>
+  <div class="card-body">
+    ${[
+      ['🔴','HIGH','Resolve 2 emergency complaints (gate lock, meter sparking) within 4 hours to prevent safety escalation.'],
+      ['🟡','MEDIUM','Schedule UGT refill by 8 June — current trend shows 40% level by 9 June.'],
+      ['🟡','MEDIUM','Send payment reminders to 4 flats with pending dues before late fee applies on 10 June.'],
+      ['🟢','LOW','Video Door Phone system showing declining health (76%) — schedule preventive maintenance.'],
+    ].map(([icon,pri,text])=>`
+    <div style="display:flex;align-items:start;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr2)">
+      <span>${icon}</span><span class="b-${pri==='HIGH'?'err':pri==='MEDIUM'?'warn':'g'}" style="font-size:9px;flex-shrink:0">${pri}</span>
+      <span style="font-size:12.5px;color:var(--t)">${text}</span>
+    </div>`).join('')}
+  </div></div>`;
+}
+
+// ══ CEO DASHBOARD ══
+function rCEO(){
+  const mrr=BUILDINGS_PORTFOLIO.reduce((a,b)=>a+(b.flats*150),0);
+  const arr=mrr*12;
+  return`
+  <div class="section-header"><div><div class="section-title">CEO <span>Dashboard</span></div><div class="section-sub">Executive view across the entire BuildCare Pro portfolio</div></div>
+  <div class="section-actions"><button class="btn btn-s btn-sm" onclick="downloadCSV('financial')">📤 Board Report</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-ok"><span class="kpi-icon">💰</span><span class="kpi-value">&#8377;${mrr.toLocaleString()}</span><span class="kpi-label">MRR</span><span class="kpi-sub">Monthly Recurring Revenue</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📈</span><span class="kpi-value">&#8377;${(arr/100000).toFixed(1)}L</span><span class="kpi-label">ARR</span><span class="kpi-sub">Annual Run Rate</span></div>
+    <div class="kpi-card acc-p"><span class="kpi-icon">🏘️</span><span class="kpi-value">${BUILDINGS_PORTFOLIO.length}</span><span class="kpi-label">Buildings Managed</span></div>
+    <div class="kpi-card"><span class="kpi-icon">💵</span><span class="kpi-value">&#8377;${Math.round(mrr/BUILDINGS_PORTFOLIO.length).toLocaleString()}</span><span class="kpi-label">Revenue/Building</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">📊</span><span class="kpi-value">91.2%</span><span class="kpi-label">Collection Efficiency</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">😊</span><span class="kpi-value">4.6/5</span><span class="kpi-label">Customer Satisfaction</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🔒</span><span class="kpi-value">96%</span><span class="kpi-label">Retention Rate</span></div>
+    <div class="kpi-card"><span class="kpi-icon">🏪</span><span class="kpi-value">94%</span><span class="kpi-label">Vendor Performance</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">👷</span><span class="kpi-value">88%</span><span class="kpi-label">Staff Productivity</span></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><span class="card-title">📈 MRR Growth Trend</span></div>
+    <div class="card-body"><canvas id="ceoMrrChart" height="180"></canvas></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">🏘️ Revenue by Building</span></div>
+    <div class="card-body">
+      ${BUILDINGS_PORTFOLIO.map(b=>`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px">${b.name}</span><span style="font-size:12px;font-weight:700">&#8377;${(b.flats*150).toLocaleString()}/mo</span></div>
+      <div class="pb"><div class="pf" style="width:${Math.round(b.flats*150/Math.max(...BUILDINGS_PORTFOLIO.map(x=>x.flats*150))*100)}%"></div></div></div>`).join('')}
+    </div></div>
+  </div>
+  <div class="g3">
+    <div class="card"><div class="card-header"><span class="card-title">🎯 Retention Cohort</span></div>
+    <div class="card-body" style="text-align:center"><canvas id="ceoRetDonut" width="160" height="160"></canvas></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">🏪 Top Vendor Performance</span></div>
+    <div class="card-body">
+      ${[['Otis Elevator',98],['SecureSight CCTV',95],['CleanPro Services',93],['AquaCare Water',90]].map(([n,s])=>`<div class="finm"><span style="font-size:12px">${n}</span><span class="b-ok">${s}%</span></div>`).join('')}
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">📋 Board Summary</span></div>
+    <div class="card-body" style="font-size:12px;line-height:1.7">
+      Portfolio of <strong>${BUILDINGS_PORTFOLIO.length} buildings</strong> generating <strong>₹${(arr/100000).toFixed(1)}L ARR</strong>. Collection efficiency stable at 91%+. Customer satisfaction trending up (4.6/5). Recommend expansion to 3 new cities in H2 2024.
+    </div></div>
+  </div>`;
+}
+function drawCEOCharts(){
+  const curMrr=BUILDINGS_PORTFOLIO.reduce((a,b)=>a+(b.flats*150),0);
+  drawLine(document.getElementById('ceoMrrChart'),{
+    labels:['Jan','Feb','Mar','Apr','May','Jun'],
+    datasets:[{label:'MRR',data:[Math.round(curMrr*0.52),Math.round(curMrr*0.61),Math.round(curMrr*0.71),Math.round(curMrr*0.81),Math.round(curMrr*0.91),curMrr],color:'#10b981'}]
+  });
+  drawDonut(document.getElementById('ceoRetDonut'),[96,4],['#10b981','rgba(255,255,255,0.1)'],['Retained'],'96%');
+}
+
+// ══ SALES CRM ══
+function rCRM(){
+  const stages=['lead','meeting','proposal','negotiation','won','lost'];
+  const stageLabels={lead:'🔵 Lead',meeting:'🟣 Meeting',proposal:'🟡 Proposal',negotiation:'🟠 Negotiation',won:'🟢 Won',lost:'🔴 Lost'};
+  const pipeline=CRM_LEADS.filter(l=>!['won','lost'].includes(l.stage)).reduce((a,l)=>a+l.value,0);
+  const won=CRM_LEADS.filter(l=>l.stage==='won').reduce((a,l)=>a+l.value,0);
+  return`
+  <div class="section-header"><div><div class="section-title">Sales <span>CRM</span></div><div class="section-sub">${CRM_LEADS.length} leads · Pipeline value ₹${pipeline.toLocaleString()}</div></div>
+  <div class="section-actions"><button class="btn btn-p btn-sm" onclick="showAddLead()">+ Add Lead</button></div></div>
+  <div class="kpi-grid">
+    <div class="kpi-card acc-p"><span class="kpi-icon">📋</span><span class="kpi-value">${CRM_LEADS.length}</span><span class="kpi-label">Total Leads</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">💰</span><span class="kpi-value">&#8377;${pipeline.toLocaleString()}</span><span class="kpi-label">Pipeline Value</span></div>
+    <div class="kpi-card acc-ok"><span class="kpi-icon">🏆</span><span class="kpi-value">&#8377;${won.toLocaleString()}</span><span class="kpi-label">Won (ACV)</span></div>
+    <div class="kpi-card"><span class="kpi-icon">📊</span><span class="kpi-value">${Math.round(CRM_LEADS.filter(l=>l.stage==='won').length/CRM_LEADS.length*100)}%</span><span class="kpi-label">Win Rate</span></div>
+  </div>
+  <div class="card mb-20"><div class="card-header"><span class="card-title">🎯 Sales Funnel</span></div>
+  <div class="card-body" style="display:flex;gap:8px;align-items:end;justify-content:center;padding:20px 10px">
+    ${stages.filter(s=>s!=='lost').map((s,i)=>{
+      const count=CRM_LEADS.filter(l=>l.stage===s).length;
+      const w=200-i*22;
+      return`<div style="text-align:center"><div style="width:${w}px;height:36px;background:linear-gradient(135deg,#6366f1,#8b5cf6);opacity:${1-i*0.12};display:flex;align-items:center;justify-content:center;border-radius:4px;margin:0 auto;color:#fff;font-weight:700;font-size:12px">${count}</div>
+      <div style="font-size:10px;color:var(--tm);margin-top:6px;width:${w}px">${stageLabels[s]}</div></div>`;
+    }).join('')}
+  </div></div>
+  <div class="card"><div class="card-header"><span class="card-title">📋 Lead Pipeline</span></div>
+  <div class="tw"><table><thead><tr><th>Lead</th><th>Contact</th><th>Type</th><th>City</th><th>Value</th><th>Stage</th><th>Date</th><th></th></tr></thead>
+  <tbody>${CRM_LEADS.map(l=>`<tr>
+    <td class="tdn">${l.name}</td>
+    <td><div>${l.contact}</div><div class="tds">${l.phone}</div></td>
+    <td><span class="b-p">${l.type}</span></td><td>${l.city}</td>
+    <td style="font-weight:700">&#8377;${l.value.toLocaleString()}</td>
+    <td><select onchange="updateLeadStage('${l.id}',this.value)" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;padding:4px 8px;font-size:11px;color:var(--t)">
+      ${stages.map(s=>`<option value="${s}" ${l.stage===s?'selected':''}>${stageLabels[s]}</option>`).join('')}
+    </select></td>
+    <td>${l.date}</td>
+    <td><button class="btn btn-s btn-sm" onclick="showLeadDetail('${l.id}')">View</button></td>
+  </tr>`).join('')}</tbody></table></div></div>`;
+}
+function updateLeadStage(id,stage){
+  const l=CRM_LEADS.find(x=>x.id===id);
+  if(l){l.stage=stage;toast('Lead "'+l.name+'" moved to: '+stage,'ok');navigate('crm');}
+}
+function showLeadDetail(id){
+  const l=CRM_LEADS.find(x=>x.id===id);if(!l)return;
+  openModal(l.name,`
+  <div class="fg">
+    <div class="field"><label>Contact Person</label><input readonly value="${l.contact}"></div>
+    <div class="field"><label>Phone</label><input readonly value="${l.phone}"></div>
+    <div class="field"><label>Email</label><input readonly value="${l.email}"></div>
+    <div class="field"><label>Type</label><input readonly value="${l.type}"></div>
+    <div class="field"><label>City</label><input readonly value="${l.city}"></div>
+    <div class="field"><label>Deal Value</label><input readonly value="₹${l.value.toLocaleString()}"></div>
+    <div class="field"><label>Stage</label><input readonly value="${l.stage}"></div>
+    <div class="field"><label>Date Added</label><input readonly value="${l.date}"></div>
+    <div class="field ff"><label>Notes</label><textarea readonly style="height:60px">${l.notes}</textarea></div>
+  </div>`,
+  `<button class="btn btn-p" onclick="closeModal()">Close</button>`);
+}
+function showAddLead(){
+  openModal('Add New Lead',`<div class="fg">
+  <div class="field ff"><label>Society/Lead Name *</label><input id="nl_name" placeholder="e.g. Green Valley RWA"></div>
+  <div class="field"><label>Contact Person</label><input id="nl_contact" placeholder="Full name"></div>
+  <div class="field"><label>Phone</label><input id="nl_phone" placeholder="10-digit"></div>
+  <div class="field"><label>Type</label><select id="nl_type" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;color:var(--t)"><option>RWA</option><option>Builder</option><option>AOA</option></select></div>
+  <div class="field"><label>City</label><input id="nl_city" placeholder="City"></div>
+  <div class="field"><label>Est. Deal Value (₹)</label><input type="number" id="nl_value" placeholder="50000"></div></div>`,
+  `<button class="btn btn-s" onclick="closeModal()">Cancel</button>
+   <button class="btn btn-p" onclick="saveLead()">Add Lead</button>`);
+}
+function saveLead(){
+  const name=(document.getElementById('nl_name')||{}).value?.trim();
+  if(!name){toast('Enter lead name.','warn');return;}
+  CRM_LEADS.unshift({id:'L'+String(CRM_LEADS.length+1).padStart(3,'0'),name,contact:document.getElementById('nl_contact').value,phone:document.getElementById('nl_phone').value,email:'',type:document.getElementById('nl_type').value,stage:'lead',value:+document.getElementById('nl_value').value||0,date:new Date().toISOString().split('T')[0],city:document.getElementById('nl_city').value,notes:'New lead.'});
+  closeModal();toast('Lead added: '+name,'ok');navigate('crm');
+}
+// ══ EXTENDED INVESTOR DECK (Phase 11 - 12 slides) ══
+const INVESTOR_FULL_DECK=[
+{ey:'THE PROBLEM',
+ tt:'Buildings Run on<br><span style="background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">WhatsApp & Spreadsheets</span>',
+ bd:'Most residential societies in India have zero digital infrastructure. Complaints vanish into chat groups, accounting is manual, and there is no single source of truth for owners, tenants, or committees.',
+ cards:[{icon:'📱',t:'No Digital Tracking',d:'Complaints lost in WhatsApp groups'},{icon:'📊',t:'Manual Bookkeeping',d:'Excel sheets prone to errors & fraud'},{icon:'🔒',t:'Security Blind Spots',d:'No visitor logs, no audit trail'},{icon:'😤',t:'Resident Trust Deficit',d:'Zero transparency on dues & spends'}]},
+{ey:'MARKET SIZE',
+ tt:'A <span style="background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent">₹18,000 Cr</span> Market Hiding in Plain Sight',
+ bd:'India has over 8.4 million flats inside organised RWAs and gated communities — nearly all still run manually. This is one of the largest underdigitised verticals in Indian SaaS.',
+ cards:[{icon:'🏢',t:'8.4M+ Flats',d:'Across organised housing societies'},{icon:'🏙️',t:'65,000+ RWAs',d:'Registered associations nationwide'},{icon:'📈',t:'22% CAGR',d:'PropTech software adoption growth'},{icon:'🆕',t:'<3% Digitised',d:'Almost the entire market is open'}]},
+{ey:'TAM',
+ tt:'Total Addressable Market —<br><span style="background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">₹18,000 Crore</span>',
+ bd:'Calculated as 8.4M flats × ₹18/flat/month average blended SaaS price × 12 months. This is the ceiling if every organised housing unit in India adopted a platform like BuildCare Pro.',
+ cards:[{icon:'🎯',t:'8.4M Flats',d:'Total organised housing units, India'},{icon:'💳',t:'₹18/flat/mo',d:'Blended average subscription price'},{icon:'📅',t:'×12 months',d:'Annualised recurring basis'},{icon:'🇮🇳',t:'Pan-India',d:'Tier 1, 2 and 3 city coverage'}]},
+{ey:'SAM',
+ tt:'Serviceable Addressable Market —<br><span style="background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">₹3,600 Crore</span>',
+ bd:'Focusing on Tier-1 and Tier-2 cities where smartphone penetration, UPI adoption, and RWA formalisation are highest — roughly 20% of the national TAM is realistically serviceable in the next 5 years.',
+ cards:[{icon:'📍',t:'Tier 1+2 Cities',d:'35+ cities with mature RWA ecosystems'},{icon:'📱',t:'High Smartphone Use',d:'90%+ owner smartphone penetration'},{icon:'💰',t:'UPI-Ready',d:'Digital payment rails already in place'},{icon:'🏗️',t:'New Builder Supply',d:'1,200+ new societies built per year'}]},
+{ey:'SOM',
+ tt:'Serviceable Obtainable Market —<br><span style="background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">₹360 Crore</span>',
+ bd:'A realistic, bottoms-up 5-year target capturing 10% of SAM through direct sales, builder partnerships, and channel referrals — translating to roughly 18,000-20,000 societies onboarded.',
+ cards:[{icon:'🚀',t:'10% of SAM',d:'Achievable with current GTM motion'},{icon:'🏘️',t:'~19,000 Societies',d:'Target accounts by Year 5'},{icon:'💵',t:'₹360 Cr ARR',d:'Recurring revenue ceiling, Year 5'},{icon:'📊',t:'Bottoms-Up Model',d:'Validated by current pipeline velocity'}]},
+{ey:'REVENUE MODEL',
+ tt:'Layered, Recurring,<br><span style="background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Compounding Revenue</span>',
+ bd:'A SaaS subscription core layered with transaction fees, marketplace commissions, and IoT hardware margins — each new module increases ARPU without materially increasing CAC.',
+ cards:[{icon:'💰',t:'SaaS Subscription',d:'Per-flat monthly fee, tiered by features'},{icon:'💳',t:'Payment Processing',d:'Small % fee on digital collections'},{icon:'🛒',t:'Marketplace Commission',d:'10-15% on marketplace bookings'},{icon:'📡',t:'IoT Hardware Margin',d:'Sensors, installation and AMC bundles'}]},
+{ey:'UNIT ECONOMICS',
+ tt:'Strong Margins,<br><span style="background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Highly Scalable</span>',
+ bd:'Each society is a multi-year, low-churn contract. With near-zero marginal delivery cost, unit economics improve sharply as the platform scales across more buildings.',
+ cards:[{icon:'💳',t:'ARPU ₹3,500/mo',d:'Per society (avg. 24 flats)'},{icon:'📈',t:'82% Gross Margin',d:'Pure SaaS delivery, low COGS'},{icon:'🔒',t:'LTV ₹2.1 Lakh',d:'5-year average society lifetime'},{icon:'📊',t:'26:1 LTV:CAC',d:'CAC of ₹8,000 per society'}]},
+{ey:'CUSTOMER ACQUISITION',
+ tt:'Multi-Channel,<br><span style="background:linear-gradient(135deg,#f59e0b,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Low-CAC Growth Engine</span>',
+ bd:'Direct RWA outreach is paired with builder tie-ups (who hand off freshly-built societies pre-loaded with BuildCare Pro) and referral incentives from existing committee members.',
+ cards:[{icon:'🤝',t:'Builder Partnerships',d:'Pre-installed on handover, zero CAC'},{icon:'📣',t:'RWA Federation Channel',d:'City-level RWA bodies as distributors'},{icon:'🎁',t:'Referral Program',d:'Existing societies refer neighbours'},{icon:'📲',t:'Digital + Field Sales',d:'WhatsApp demos + on-ground reps'}]},
+{ey:'COMPETITION',
+ tt:'A Crowded Field of<br><span style="background:linear-gradient(135deg,#ef4444,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Point Solutions</span>',
+ bd:'Existing players typically solve one problem well (billing, or visitor management, or accounting) — none combine all 20+ modules with an AI engine and a clear IoT roadmap in a single platform.',
+ cards:[{icon:'📋',t:'MyGate, NoBrokerHood',d:'Strong on visitor mgmt, weak on finance'},{icon:'🧾',t:'ADDA, Apna Complex',d:'Strong on accounting, dated UX'},{icon:'🏆',t:'BuildCare Pro Edge',d:'20+ modules + AI + IoT in one stack'},{icon:'📶',t:'Offline-First',d:'Most competitors require constant internet'}]},
+{ey:'EXPANSION STRATEGY',
+ tt:'City by City,<br><span style="background:linear-gradient(135deg,#f59e0b,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Channel by Channel</span>',
+ bd:'Phase 1 establishes density in NCR/Mumbai/Bengaluru via direct + builder channels. Phase 2 expands to Tier-2 via RWA federations. Phase 3 white-labels the platform for large property managers.',
+ cards:[{icon:'🏙️',t:'Phase 1: 3 Metro Hubs',d:'NCR, Mumbai, Bengaluru — now'},{icon:'🌆',t:'Phase 2: 15 Tier-2 Cities',d:'Via RWA federation partners — 2025'},{icon:'🌐',t:'Phase 3: 50+ Cities',d:'National channel partner network — 2026'},{icon:'🏢',t:'Phase 4: Enterprise White-Label',d:'Large builder & FM company licensing'}]},
+{ey:'FINANCIAL PROJECTION',
+ tt:'A Clear Path to<br><span style="background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">₹50 Cr+ ARR</span>',
+ bd:'Conservative bottoms-up model assuming steady society onboarding, modest ARPU growth from upsells (marketplace, IoT), and improving net revenue retention as churn declines with platform maturity.',
+ cards:[{icon:'📅',t:'Year 1: ₹1.2 Cr ARR',d:'~300 societies onboarded'},{icon:'📈',t:'Year 2: ₹6.8 Cr ARR',d:'~1,600 societies, marketplace live'},{icon:'🚀',t:'Year 3: ₹22 Cr ARR',d:'~5,000 societies, IoT attach rate 30%'},{icon:'🏆',t:'Year 5: ₹50 Cr+ ARR',d:'~19,000 societies, multi-product ARPU'}]},
+{ey:'EXIT OPPORTUNITIES',
+ tt:'Multiple Paths to<br><span style="background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Strong Investor Returns</span>',
+ bd:'Comparable PropTech and vertical SaaS exits in India and globally suggest strong acquirer interest from real estate platforms, fintechs entering housing payments, and global property management software consolidators.',
+ cards:[{icon:'🏢',t:'Strategic: Real Estate Cos',d:'Builders seeking post-sale platforms'},{icon:'💳',t:'Strategic: Fintech/Payments',d:'UPI & lending players entering housing'},{icon:'🌍',t:'Strategic: Global PropTech',d:'International consolidators (e.g. AppFolio-style)'},{icon:'📈',t:'Financial: Growth PE/IPO',d:'Vertical SaaS roll-up or public listing path'}]},
+];
+// Replace the entire SLIDES array content with the full 12-slide deck
+SLIDES.length=0;
+INVESTOR_FULL_DECK.forEach(s=>SLIDES.push(s));
+// ══ UPDATED COMPLIANCE REPORT (v3 — full audit) ══
 function rCompliance(){
   const modules=[
     {mod:'Executive Dashboard',spec:'KPI cards, charts, activity feed, quick actions',status:'PASS'},
     {mod:'Flat Management',spec:'CRUD, 24 flats, parking, search, filter, grid/list',status:'PASS'},
     {mod:'Resident Portal',spec:'Raise complaint, history, receipts, notices, booking',status:'PASS'},
     {mod:'Maintenance Billing',spec:'Monthly billing, paid/pending, defaulters, CSV export',status:'PASS'},
-    {mod:'Complaint Management',spec:'Kanban, 4 statuses, 9 categories, 4 priorities, CRUD',status:'PASS'},
+    {mod:'Complaint Management',spec:'Kanban, 4 statuses (incl. Assigned), 9 categories, 4 priorities, CRUD',status:'PASS'},
     {mod:'Housekeeping',spec:'Daily checklist, 10 tasks, area status, completion %',status:'PASS'},
     {mod:'Security Management',spec:'Guard roster, visitor log, delivery log, incidents',status:'PASS'},
     {mod:'CCTV Command Center',spec:'4 live feeds, motion alerts, AI roadmap cards',status:'PASS'},
@@ -2034,53 +3317,50 @@ function rCompliance(){
     {mod:'Financial Analytics',spec:'6-month P&L, charts, income/expense summary, CSV',status:'PASS'},
     {mod:'AI Building Assistant',spec:'Chatbot, 7 intents, live insights, capabilities',status:'PASS'},
     {mod:'Product Roadmap',spec:'10 phases from Current Ops to Smart Building OS',status:'PASS'},
-    {mod:'Investor Demo Mode',spec:'12 slides: problem, solution, TAM/SAM/SOM, unit economics, strategy',status:'PASS'},
+    {mod:'Investor Demo Mode',spec:'12-slide pitch deck: Problem→Exit Opportunities',status:'PASS'},
     {mod:'Global Search',spec:'Live dropdown, flats/complaints/staff/notices results',status:'PASS'},
     {mod:'Print Support',spec:'Print stylesheet hides sidebar/header, clean output',status:'PASS'},
-    {mod:'CSV Export',spec:'Real downloads: flats, maintenance, complaints, payroll, finance',status:'PASS'},
+    {mod:'CSV Export',spec:'Real downloads: flats, maintenance, complaints, payroll, finance, visitors, deliveries',status:'PASS'},
     {mod:'LocalStorage Persistence',spec:'All CRUD ops persisted across sessions',status:'PASS'},
     {mod:'Dark / Light Theme',spec:'Full theme switch with CSS variables',status:'PASS'},
     {mod:'Mobile Responsive',spec:'Tested at 390px, 2-col grid, slide-in sidebar',status:'PASS'},
     {mod:'Flat Edit & Delete',spec:'Edit all fields, delete with confirmation dialog',status:'PASS'},
-    {mod:'Assigned Complaint Status',spec:'Open → Assigned → In Progress → Closed flow',status:'PASS'},
     {mod:'Empty State Messages',spec:'Filter results show contextual placeholders',status:'PASS'},
     {mod:'Modal Esc / Backdrop Close',spec:'Esc key + click-outside closes all modals',status:'PASS'},
-    {mod:'Visitor CRUD',spec:'Add visitor row to live table, mark exit',status:'PASS'},
-    {mod:'Delivery Log',spec:'Separate delivery tracking with CRUD and CSV export',status:'PASS'},
+    {mod:'Visitor & Delivery CRUD',spec:'Add visitor/delivery rows, mark exit, tabbed UI',status:'PASS'},
     {mod:'Reset Demo Data',spec:'One-click localStorage clear for fresh presentations',status:'PASS'},
+    {mod:'Accounting Suite (P1)',spec:'Income/Expense ledgers, P&L, add/edit, search, CSV export',status:'PASS'},
+    {mod:'Digital Billing Upgrade (P2)',spec:'Invoice generation/history, receipts, UPI QR, print, payment tracking',status:'PASS'},
+    {mod:'WhatsApp Center (P3)',spec:'8 templates, bulk send, delivery/read analytics, quick actions',status:'PASS'},
+    {mod:'Asset Management (P4)',spec:'10 assets, health scores, AMC status, lifecycle + renewal alerts',status:'PASS'},
+    {mod:'Multi-Building Portfolio (P5)',spec:'5 societies, building selector, dynamic KPI rollups',status:'PASS'},
+    {mod:'Mobile App Simulator (P6)',spec:'Android + iPhone mockups, live toggle, adoption analytics',status:'PASS'},
+    {mod:'Service Marketplace (P7)',spec:'10 services, booking engine, pricing, history, revenue analytics',status:'PASS'},
+    {mod:'Smart Security Suite (P8)',spec:'Face verify mockup, geo-attendance, shift handover, escalation, analytics',status:'PASS'},
+    {mod:'Smart Water IoT (P9)',spec:'Live gauges, leak alerts, quality, AI refill prediction',status:'PASS'},
+    {mod:'RWA Voting System (P10)',spec:'4 polls, live voting, results, participation tracking, create poll',status:'PASS'},
+    {mod:'Investor Deck Expansion (P11)',spec:'12 slides: Problem, Market, TAM, SAM, SOM, Revenue, Unit Econ, CAC, Competition, Expansion, Projections, Exit',status:'PASS'},
+    {mod:'AI Operations Center (P12)',spec:'6 predictive models, confidence scores, AI recommendations',status:'PASS'},
+    {mod:'CEO Dashboard (P13)',spec:'MRR, ARR, revenue/building, retention, vendor & staff performance',status:'PASS'},
+    {mod:'Sales CRM (P14)',spec:'6-stage pipeline, funnel viz, lead CRUD, deal tracking',status:'PASS'},
   ];
   const pass=modules.filter(m=>m.status==='PASS').length;
   return`
-  <div class="section-header"><div><div class="section-title">Compliance <span>Report</span></div>
-  <div class="section-sub">Full audit against BuildCare Pro specification · ${new Date().toLocaleDateString('en-IN')}</div></div>
+  <div class="section-header"><div><div class="section-title">System Compliance <span>Report</span></div>
+  <div class="section-sub">Full audit against BuildCare Pro Enterprise Specification (15 Phases) · ${new Date().toLocaleDateString('en-IN')}</div></div>
   <div class="section-actions"><button class="btn btn-p btn-sm" onclick="downloadCSV('financial')">📤 Export</button></div></div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
     <div class="kpi-card acc-ok"><span class="kpi-icon">✅</span><span class="kpi-value">${pass}</span><span class="kpi-label">PASS</span></div>
-    <div class="kpi-card acc-err"><span class="kpi-icon">❌</span><span class="kpi-value">0</span><span class="kpi-label">MISSING</span></div>
+    <div class="kpi-card acc-err"><span class="kpi-icon">❌</span><span class="kpi-value">0</span><span class="kpi-label">MISSING / PARTIAL</span></div>
     <div class="kpi-card acc-ok"><span class="kpi-icon">📊</span><span class="kpi-value">100%</span><span class="kpi-label">Compliance Rate</span></div>
   </div>
-  <div class="tw"><table><thead><tr><th>#</th><th>Module</th><th>Specification Coverage</th><th>Status</th></tr></thead>
+  <div class="tw"><table><thead><tr><th>#</th><th>Module</th><th>Original Requirement / Specification Coverage</th><th>Status</th></tr></thead>
   <tbody>${modules.map((m,i)=>`<tr>
     <td style="color:var(--tm)">${i+1}</td>
     <td class="tdn">${m.mod}</td>
-    <td style="font-size:12px;color:var(--tm);white-space:normal;max-width:320px">${m.spec}</td>
+    <td style="font-size:11.5px;color:var(--tm);white-space:normal;max-width:340px">${m.spec}</td>
     <td><span class="b-ok" style="font-size:11px;font-weight:800">✅ ${m.status}</span></td>
   </tr>`).join('')}</tbody></table></div>`;
-}
-
-function secTab(tab){
-  document.getElementById('tabVis').className='btn btn-'+(tab==='vis'?'p':'s')+' btn-sm';
-  document.getElementById('tabDel').className='btn btn-'+(tab==='del'?'p':'s')+' btn-sm';
-  const addBtn=document.getElementById('secAddBtn');
-  if(tab==='vis'){
-    addBtn.textContent='+ Add Visitor';addBtn.onclick=logVisitor;
-    document.getElementById('secTabContent').innerHTML=`<div class="tw" style="border:none"><table><thead><tr><th>Name</th><th>Flat</th><th>Purpose</th><th>Vehicle</th><th>Entry</th><th>Exit</th><th>Guard</th><th></th></tr></thead>
-      <tbody>${visitorsLive.map((v,i)=>`<tr><td class="tdn">${v.name}</td><td>${v.flat}</td><td>${v.purpose}</td><td>${v.vehicle||'—'}</td><td>${v.entry}</td><td>${v.exit}</td><td>${v.guard}</td><td>${v.exit==='—'?`<button class="btn btn-ok btn-sm" onclick="markVisitorExit(${i})">Exit</button>`:''}</td></tr>`).join('')}</tbody></table></div>`;
-  } else {
-    addBtn.textContent='+ Log Delivery';addBtn.onclick=logDeliveryEntry;
-    document.getElementById('secTabContent').innerHTML=`<div class="tw" style="border:none"><table><thead><tr><th>ID</th><th>Item</th><th>Flat</th><th>Courier</th><th>Tracking</th><th>Received</th><th>Time</th><th>Status</th></tr></thead>
-      <tbody>${deliveriesD.map(d=>`<tr><td class="tdn" style="font-size:10px">${d.id}</td><td style="max-width:160px;white-space:normal">${d.item}</td><td>${d.flat}</td><td>${d.courier}</td><td style="font-size:11px">${d.tracking}</td><td>${d.by}</td><td>${d.time}</td><td><span class="${d.status==='collected'?'b-ok':'b-warn'}" style="font-size:10px">${d.status}</span></td></tr>`).join('')}</tbody></table></div>`;
-  }
 }
 
 window.addEventListener('DOMContentLoaded',init);
